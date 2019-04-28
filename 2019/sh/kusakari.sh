@@ -1,3 +1,4 @@
+#!/bin/bash
 prgname="kusakari"
 if ! pgrep roslaunch > /dev/null; then
     source /opt/ros/melodic/setup.bash
