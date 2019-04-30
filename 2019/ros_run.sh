@@ -12,7 +12,7 @@ if ! pgrep roslaunch > /dev/null; then
     alias cw='cd ~/arcosaka/2019/${prgname}'
     alias cs='cd ~/arcosaka/2019/${prgname}/src'
     alias cm='cd ~/arcosaka/2019/${prgname} && catkin_make'
-
+    cd ~/arcosaka/2019/${prgname}/src
     /opt/ros/melodic/bin/roslaunch ${prgname} ${prgname}.launch
     
 else
