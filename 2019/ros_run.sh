@@ -10,6 +10,10 @@ if ! pgrep roslaunch > /dev/null; then
     source ~/arcosaka/2019/${ROS_PRGNAME}/devel/setup.bash
     export ROS_HOSTNAME=osakarp.local
     export ROS_MASTER_URI=http://${ROS_HOSTNAME}:11311
+    alias cw=cd ~/arcosaka/2019/${ROS_PRGNAME}
+    alias cs=cd ~/arcosaka/2019/${ROS_PRGNAME}/src
+    alias cm=cd ~/arcosaka/2019/${ROS_PRGNAME} && catkin_make
+
     cd ~/arcosaka/2019/${ROS_PRGNAME}/src
     /opt/ros/melodic/bin/roslaunch ${ROS_PRGNAME} ${ROS_PRGNAME}.launch
     
