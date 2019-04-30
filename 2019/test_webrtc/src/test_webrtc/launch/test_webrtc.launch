@@ -1,0 +1,5 @@
+<launch>
+  <group ns="webrtc">
+    <node pkg="usb_cam" name="usb_cam_node"/>
+  </group>
+</launch>
