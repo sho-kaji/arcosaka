@@ -1,0 +1,36 @@
+﻿body {
+	
+}
+#div_control {
+	display: table;
+	min-height: 540px;
+	margin: auto;
+}
+#div_coltrol_l {
+	min-width: 120px;
+	min-height: 100px;
+	margin-left: 0;
+	display: table-cell;
+	background-color: aqua;
+}
+#div_coltrol_c {
+	min-width: 720px;
+	min-height: 540px;
+	display: table-cell;
+	background-color: forestgreen;
+}
+#div_control_r {
+	min-width: 120px;
+	min-height: 100px;
+	margin-right: 0;
+	display: table-cell;
+	background-color: red;
+}
+
+#img_main {
+	display: block;
+	width: 640px;
+	height: 480px;
+	margin: auto;
+	background-color: black;
+}
