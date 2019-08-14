@@ -1,0 +1,11 @@
+bool    is_hand_move
+int32   hand
+int32   pluck
+bool    is_arm_move
+int32   wrist
+int32   elbow
+int32   should
+int32   base
+bool    blade_req
+bool    spray_req
+bool    lid_req
