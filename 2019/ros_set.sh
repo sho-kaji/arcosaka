@@ -12,4 +12,4 @@ export ROS_MASTER_URI=http://${ROS_HOSTNAME}:11311
 alias cw="cd ~/arcosaka/2019/arc_ws/${ROS_PRGNAME}/"
 alias cs="cd ~/arcosaka/2019/arc_ws/${ROS_PRGNAME}/src/"
 alias cm="cd ~/arcosaka/2019/arc_ws/${ROS_PRGNAME}/ && catkin_make"
-cd ~/arcosaka/2019/arc_ws/${ROS_PRGNAME}/src/
+cd ~/arcosaka/2019/arc_ws/src/${ROS_PRGNAME}
