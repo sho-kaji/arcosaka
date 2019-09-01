@@ -1,6 +1,0 @@
-<launch>
-    <rosparam command="load" file="config.yaml" />
-    <group ns="test_webrtc">
-        <node pkg="usb_cam" name="usb_cam_node" type="usb_cam_node"/>
-    </group>
-</launch>

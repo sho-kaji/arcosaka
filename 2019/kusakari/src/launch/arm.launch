@@ -1,5 +1,0 @@
-<launch>
-  <group ns="kusakari">
-    <node pkg="tama" name="arm" type="arm.py" output="screen"/>
-  </group>
-</launch>

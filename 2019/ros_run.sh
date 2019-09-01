@@ -17,7 +17,6 @@ if ! pgrep roslaunch > /dev/null; then
 
     cs
     /opt/ros/melodic/bin/roslaunch ${ROS_PRGNAME} ${ROS_PRGNAME}.launch
-    
 else
     echo "roslaunch killing"
     killall -w roslaunch
