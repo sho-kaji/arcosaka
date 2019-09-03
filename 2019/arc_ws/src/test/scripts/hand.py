@@ -27,7 +27,7 @@ from hand_consts import \
 
 from brain_consts import PUBLISH_RATE
 
-class ArmClass():
+class HandClass():
     """
     ハンドを動かすためのクラス
     """
@@ -135,7 +135,7 @@ def hand_py():
     ハンドのメイン
     """
 
-    handc = ArmClass()
+    handc = HandClass()
     r = rospy.Rate(PUBLISH_RATE)
     rospy.init_node('hand_py_node', anonymous=True)
     rospy.Subscriber('hand', hand, handc.callback, queue_size=1)

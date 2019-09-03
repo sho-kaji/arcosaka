@@ -89,15 +89,8 @@ class BodyClass():
         メッセージ初期化
         """
         self.msg_body.is_body_move = False
-        self.msg_body.is_twistv_ulim = False
-        self.msg_body.is_twistv_dlim = False
-        self.msg_body.is_twisth_flim = False
-        self.msg_body.is_twisth_blim = False
-        self.msg_body.is_handv_ulim = False
-        self.msg_body.is_handv_dlim = False
-        self.msg_body.is_handh_flim = False
-        self.msg_body.is_handh_blim = False
-
+        self.msg_body.is_pwoffsw = False
+        
     def publishData(self):
         """
         データ送信
