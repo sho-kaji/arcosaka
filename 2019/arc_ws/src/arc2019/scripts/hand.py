@@ -8,7 +8,7 @@
 import pigpio
 import rospy
 
-from test.msg import hand
+from arc2019.msg import hand
 from params import Mode, TARGET
 
 from hand_consts import \

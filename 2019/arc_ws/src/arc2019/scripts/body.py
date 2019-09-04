@@ -8,7 +8,7 @@
 import pigpio
 import rospy
 
-from test.msg import body
+from arc2019.msg import body
 from params import Mode, TARGET
 
 from body_consts import \
