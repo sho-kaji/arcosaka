@@ -23,7 +23,8 @@ from arm_consts import \
                 PORT_SHOULD, \
                 PORT_TWISTH_A, PORT_TWISTH_B, \
                 PORT_TWISTV_A, PORT_TWISTV_B, \
-                PORT_WRIST
+                PORT_WRIST, \
+                PORT_CONSTS
 
 from brain_consts import PUBLISH_RATE
 
@@ -38,6 +39,12 @@ class ArmClass():
 
         # initialize gpio
         self.pic = pigpio.pi()
+
+        for port in PORE_CONSTS
+            
+            pass
+
+        
         self.pic.set_mode(PORT_HANDH_A, pigpio.OUTPUT)
         self.pic.set_mode(PORT_HANDH_B, pigpio.OUTPUT)
         self.pic.set_mode(PORT_HANDV_A, pigpio.OUTPUT)
