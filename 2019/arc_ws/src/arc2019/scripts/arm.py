@@ -34,6 +34,8 @@ class ArmClass():
 
     def __init__(self):
 
+        
+
         # initialize gpio
         self.pic = pigpio.pi()
         self.pic.set_mode(PORT_HANDH_A, pigpio.OUTPUT)
