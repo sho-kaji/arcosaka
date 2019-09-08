@@ -1,30 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-param.py モード定数ファイル
+body.py 定数ファイル
 """
 
 from enum import IntEnum
 
-class Mode(IntEnum):
-    """
-    動作モード
-    """
-    UNKNOWN = -1
-    AUTO = 0
-    MANUAL = 1
-    DEBUG = 2
+# defined const
 
-class TARGET(IntEnum):
-    """
-    ターゲット
-    """
-    UNKNOWN = -1
-    GRASS = 0
-    TOMATO = 1
-    SIDE_SPROUT = 2
+DEBUG_BODY = False # ボディデバッグモードフラグ
 
-class MORTOR(IntEnum):
+PORT_LID = 12 # 蓋モーターポート番号
+PORT_SPRAY = 24 # 散布ファンポート番号
+PORT_BLADE_A = 9 # シュレッダー刃Aポート番号
+PORT_BLADE_B = 11 # シュレッダー刃Bポート番号
+PORT_PWOFFSW = 21 # シャットダウンSWポート番号
+
+class MORTORB(IntEnum):
     """
     モーター
     """
@@ -44,3 +36,6 @@ class MORTOR(IntEnum):
     LID = 13 # 蓋モーター
     SPRAY = 14 # 散布ファン
     BLADE_A = 15 # シュレッダー刃
+
+
+# (.+)\t(.+)\t(.+) $1 = $2 # $3
