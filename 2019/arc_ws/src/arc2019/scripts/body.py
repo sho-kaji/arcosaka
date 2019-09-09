@@ -84,7 +84,7 @@ class BodyClass():
         """
 
 
-    def clear_Msg(self):
+    def clear_msg(self):
         """
         メッセージ初期化
         """
@@ -96,7 +96,7 @@ class BodyClass():
         データ送信
         """
         # clear
-        self.clear_Msg()
+        self.clear_msg()
         self.msg_body.frame_id = self.frame_id
         # publishする関数
         self.pub_body.publish(self.msg_body)
