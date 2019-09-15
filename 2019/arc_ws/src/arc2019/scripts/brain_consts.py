@@ -3,10 +3,14 @@
 """
 brain.py 定数ファイル
 """
+
+from params import Mode, TARGET
+
 # defined const
 
-DEBUG_BRAIN = False # アームデバッグモードフラグ
+DEBUG_BRAIN = False # Brainデバッグモードフラグ
 
-PUBLISH_RATE = 60 #パブリッシュ回数
+CYCLES = 60 #処理周波数
+
 
 # (.+)\t(.+)\t(.+) $1 = $2 # $3
