@@ -7,9 +7,11 @@
 
 import pigpio
 import rospy
+import Adafruit_PCA9685
 
 from arc2019.msg import arm
-from params import Mode, TARGET
+from params import Mode
+# from params import TARGET
 
 from arm_consts import \
                 DEBUG_ARM, \
@@ -17,14 +19,7 @@ from arm_consts import \
                 LIM_ELBOW_B, LIM_ELBOW_F, \
                 LIM_SHOULD_B, LIM_SHOULD_F, \
                 LIM_WRIST_B, LIM_WRIST_F, \
-                PORT_BASE, PORT_ELBOW, \
-                PORT_HANDH_A, PORT_HANDH_B, \
-                PORT_HANDV_A, PORT_HANDV_B, \
-                PORT_SHOULD, \
-                PORT_TWISTH_A, PORT_TWISTH_B, \
-                PORT_TWISTV_A, PORT_TWISTV_B, \
-                PORT_WRIST, \
-                PORT_CONSTS
+                PORTS_ARM
 
 from brain_consts import PUBLISH_RATE
 
@@ -35,24 +30,12 @@ class ArmClass():
 
     def __init__(self):
 
-        
-
         # initialize gpio
         self.pic = pigpio.pi()
 
-        for port in PORE_CONSTS
-            
-            pass
-
-        
-        self.pic.set_mode(PORT_HANDH_A, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_HANDH_B, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_HANDV_A, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_HANDV_B, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_TWISTH_A, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_TWISTH_B, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_TWISTV_A, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_TWISTV_B, pigpio.OUTPUT)
+        # initialize port
+        for k, v in PORTS_ARM.items():
+            self.pic.set_mode(k, v)
 
         # パブリッシャーの準備
         self.pub_arm = rospy.Publisher('arm', arm, queue_size=100)
@@ -71,7 +54,7 @@ class ArmClass():
         print('frame_id = %d ' % armmes.frame_id)
 
         #モード変更確認
-        self.grubMotion(armmes.mode)
+        self.modeChange(armmes.mode)
 
         #区切り
         print("==============================")
@@ -97,15 +80,13 @@ class ArmClass():
         else:
             print("mode = %s" % "UNKNOWN")
 
-
-
-    def grubMotion(self, grub):
+    def move_(self, parameter_list):
         """
-        掴む/放す
+        動かす
         """
 
 
-    def clear_Msg(self):
+    def clear_msg(self):
         """
         メッセージ初期化
         """
@@ -124,8 +105,12 @@ class ArmClass():
         データ送信
         """
         # clear
-        self.clear_Msg()
+        self.clear_msg()
         self.msg_arm.frame_id = self.frame_id
+        # 送信データ追加開始
+
+        # 送信データ追加終了
+
         # publishする関数
         self.pub_arm.publish(self.msg_arm)
         self.frame_id += 1

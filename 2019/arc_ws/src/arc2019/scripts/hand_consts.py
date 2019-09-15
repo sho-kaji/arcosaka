@@ -52,5 +52,14 @@ class MORTORH(IntEnum):
     SPRAY = 14 # 散布ファン
     BLADE_A = 15 # シュレッダー刃
 
-    
+PORTS_PWM_HAND = {
+    PORT_HANDH_A:pigpio.OUTPUT,
+    PORT_HANDH_B:pigpio.OUTPUT,
+    PORT_HANDV_A:pigpio.OUTPUT,
+    PORT_HANDV_B:pigpio.OUTPUT,
+    PORT_TWISTH_A:pigpio.OUTPUT,
+    PORT_TWISTH_B:pigpio.OUTPUT,
+    PORT_TWISTV_A:pigpio.OUTPUT,
+    PORT_TWISTV_B:pigpio.OUTPUT
+}
 # (.+)\t(.+)\t(.+) $1 = $2 # $3

@@ -88,15 +88,20 @@ class HandClass():
         else:
             print("mode = %s" % "UNKNOWN")
 
-
+    def move_hand(self, parameter_list):
+        """
+        掴む/放す
+        """
+        
 
     def grubMotion(self, grub):
         """
         掴む/放す
         """
+        
 
 
-    def clear_Msg(self):
+    def clear_msg(self):
         """
         メッセージ初期化
         """
@@ -115,7 +120,7 @@ class HandClass():
         データ送信
         """
         # clear
-        self.clear_Msg()
+        self.clear_msg()
         self.msg_hand.frame_id = self.frame_id
         # publishする関数
         self.pub_hand.publish(self.msg_hand)
