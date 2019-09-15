@@ -1,0 +1,8 @@
+<launch>
+  <group ns="arc2019">
+    <node pkg="test" name="arm" type="arm.py" output="screen"/>
+    <node pkg="test" name="body" type="body.py" output="screen"/>
+    <node pkg="test" name="hand" type="hand.py" output="screen"/>
+    <node pkg="test" name="brain" type="brain.py" output="screen"/>
+  </group>
+</launch>
