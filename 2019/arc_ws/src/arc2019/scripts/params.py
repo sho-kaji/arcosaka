@@ -11,9 +11,10 @@ class Mode(IntEnum):
     動作モード
     """
     UNKNOWN = -1
-    AUTO = 0
-    MANUAL = 1
-    DEBUG = 2
+    INIT = 0
+    AUTO = 1
+    MANUAL = 2
+    DEBUG = 3
 
 class TARGET(IntEnum):
     """
@@ -23,3 +24,12 @@ class TARGET(IntEnum):
     GRASS = 0
     TOMATO = 1
     SIDE_SPROUT = 2
+
+class CAMERA(IntEnum):
+    """
+    カメラ
+    """
+    UNKNOWN = -1
+    MAIN = 0        #トマト、雑草、主枝
+    SUB = 1         #脇芽
+    POLL = 2        #ポール

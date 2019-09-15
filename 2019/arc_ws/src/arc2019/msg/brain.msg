@@ -1,0 +1,11 @@
+int32 mode_id
+int32 target_id
+int32 hand_req
+int32 pluck_req
+int32 elbow_req
+int32 should_req
+int32 handx_req
+int32 handy_req
+int32 handz_req
+int32 twistx_req
+int32 twistz_req

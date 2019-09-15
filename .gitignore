@@ -262,6 +262,7 @@ __pycache__/
 
 # Visual Studio Code cache/options directory
 .vscode/
+.code-workspace
 
 # ROS
 devel/

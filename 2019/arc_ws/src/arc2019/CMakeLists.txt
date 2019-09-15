@@ -55,6 +55,9 @@ find_package(catkin REQUIRED COMPONENTS
     arm.msg
     body.msg
     hand.msg
+    brain.msg
+    eye.msg
+    client.msg
  )
 
 ## Generate services in the 'srv' folder
