@@ -1,10 +1,9 @@
 <launch>
   <group ns="test1">
-    <node pkg="test" name="arm" type="arm.py" output="screen"/>
-    <node pkg="test" name="body" type="body.py" output="screen"/>
-    <node pkg="test" name="hand" type="hand.py" output="screen"/>
-    <node pkg="test" name="brain" type="brain.py" output="screen"/>
+    <node pkg="arc2019" name="arm" type="arm.py" output="screen"/>
+    <node pkg="arc2019" name="body" type="body.py" output="screen"/>
+    <node pkg="arc2019" name="hand" type="hand.py" output="screen"/>
+    <node pkg="arc2019" name="brain" type="brain.py" output="screen"/>
 
-    param
   </group>
 </launch>
