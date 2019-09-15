@@ -10,20 +10,19 @@ from enum import Enum
 
 DEBUG_HAND = False # ハンドデバッグモードフラグ
 
-CATCH_HAND = 100 # ハンドモーター_掴む
-RELEASE_HAND = 0 # ハンドモーター_離す
-LIM_WRIST_F = 0 # 手首モーター_前制限値
-LIM_WRIST_B = 100 # 手首モーター_後制限値
-ON_PLUCK = 100 # 引抜モーター_引き抜く
-OFF_PLUCK = 0 # 引抜モーター_戻す
 CATCH_GRAB = 100 # 枝掴みモーター_掴む
-RELEASE_GRAB = 0 # 枝掴みモーター_離す
-ON_TWIST = 100 # 枝ねじりモーター_ねじる
+CATCH_HAND = 100 # ハンドモーター_掴む
+OFF_PLUCK = 0 # 引抜モーター_戻す
 OFF_TWIST = 0 # 枝ねじりモーター_戻す
-LIM_ATTACH_RL = 0 # 添え手右モーター_左制限値
-LIM_ATTACH_RR = 100 # 添え手右モーター_右制限値
+ON_PLUCK = 100 # 引抜モーター_引き抜く
+ON_TWIST = 100 # 枝ねじりモーター_ねじる
+RELEASE_GRAB = 0 # 枝掴みモーター_離す
+RELEASE_HAND = 0 # ハンドモーター_離す
+
 LIM_ATTACH_LL = 0 # 添え手左モーター_左制限値
 LIM_ATTACH_LR = 100 # 添え手左モーター_右制限値
+LIM_ATTACH_RL = 0 # 添え手右モーター_左制限値
+LIM_ATTACH_RR = 100 # 添え手右モーター_右制限値
 
 #サーボモーター用
 CHANNEL_HAND = 0 # ハンドモーターポート番号

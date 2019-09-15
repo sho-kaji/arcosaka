@@ -4,13 +4,14 @@
 アーム
 """
 
-
-import pigpio
 import rospy
 import Adafruit_PCA9685
 
+import mortor
+
 from arc2019.msg import arm
 from params import Mode
+
 # from params import TARGET
 
 from arm_consts import \
@@ -30,12 +31,11 @@ class ArmClass():
 
     def __init__(self):
 
-        # initialize gpio
-        self.pic = pigpio.pi()
+        self.mortorc = mortor.MortorClass()
 
         # initialize port
-        for k, v in PORTS_ARM.items():
-            self.pic.set_mode(k, v)
+        for key, val in PORTS_ARM.items():
+            self.mortorc.pic.set_mode(key, val)
 
         # パブリッシャーの準備
         self.pub_arm = rospy.Publisher('arm', arm, queue_size=100)
@@ -54,12 +54,12 @@ class ArmClass():
         print('frame_id = %d ' % armmes.frame_id)
 
         #モード変更確認
-        self.modeChange(armmes.mode)
+        self.modechange(armmes.mode)
 
         #区切り
         print("==============================")
 
-    def modeChange(self, mode):
+    def modechange(self, mode):
         """
         モード変更処理
         """
@@ -80,7 +80,7 @@ class ArmClass():
         else:
             print("mode = %s" % "UNKNOWN")
 
-    def move_(self, parameter_list):
+    def move_(self):
         """
         動かす
         """
@@ -100,7 +100,7 @@ class ArmClass():
         self.msg_arm.is_handh_flim = False
         self.msg_arm.is_handh_blim = False
 
-    def publishData(self):
+    def publish_data(self):
         """
         データ送信
         """
@@ -115,7 +115,7 @@ class ArmClass():
         self.pub_arm.publish(self.msg_arm)
         self.frame_id += 1
 
-def printDebug(message):
+def print_debug(message):
     """
     デバッグメッセージを表示
     """
@@ -133,11 +133,11 @@ def arm_py():
     r = rospy.Rate(PUBLISH_RATE)
     rospy.init_node('arm_py_node', anonymous=True)
     rospy.Subscriber('arm', arm, armc.callback, queue_size=1)
-    printDebug("start_arm")
+    print_debug("start_arm")
     # ctl +　Cで終了しない限りwhileループでpublishし続ける
     while not rospy.is_shutdown():
         # publishする関数
-        armc.publishData()
+        armc.publish_data()
         #
         r.sleep()
 
