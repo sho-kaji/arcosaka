@@ -21,7 +21,7 @@ from mortor_consts import \
     STEP_FREQ, \
     STEP_DUTY
 
-class MortorClass():
+class MortorClass(object):
     """
     モータークラス
     """
@@ -40,7 +40,7 @@ class MortorClass():
 
 
 
-    def move_dc(self, port_cw: int, port_ccw: int, rotate: DCROTATE):
+    def move_dc(self, port_cw, port_ccw, rotate):
         """
         DCモーター
         """
@@ -83,7 +83,7 @@ class MortorClass():
         self.dcduty_ccw_o = dcduty_ccw
 
 
-    def move_servo(self, channel: int, power: int):
+    def move_servo(self, channel, power):
         """
         サーボモーター
         """
@@ -96,7 +96,7 @@ class MortorClass():
 
         self.pwm.set_pwm(channel, 0, pulse)
 
-    def move_step(self, port_a: int, port_b: int, distance: int):
+    def move_step(self, port_a, port_b, distance):
         """
         ステッピングモーター
         """

@@ -20,7 +20,7 @@ from body_consts import \
 
 from brain_consts import PUBLISH_RATE
 
-class BodyClass():
+class BodyClass(object):
     """
     ボディを動かすためのクラス
     """

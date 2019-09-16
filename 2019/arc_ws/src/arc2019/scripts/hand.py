@@ -27,7 +27,7 @@ from hand_consts import \
 
 from brain_consts import PUBLISH_RATE
 
-class HandClass():
+class HandClass(object):
     """
     ハンドを動かすためのクラス
     """
@@ -67,7 +67,7 @@ class HandClass():
         #区切り
         print("==============================")
 
-    def modeChange(self, mode):
+    def modechange(self, mode):
         """
         モード変更処理
         """

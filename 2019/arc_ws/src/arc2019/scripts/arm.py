@@ -5,7 +5,6 @@
 """
 
 import rospy
-import Adafruit_PCA9685
 
 import mortor
 
@@ -24,7 +23,7 @@ from arm_consts import \
 
 from brain_consts import PUBLISH_RATE
 
-class ArmClass():
+class ArmClass(object):
     """
     アームを動かすためのクラス
     """
