@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 アーム
@@ -130,7 +130,7 @@ def arm_py():
     """
 
     armc = ArmClass()
-    r = rospy.Rate(PUBLISH_RATE)
+    rrate = rospy.Rate(PUBLISH_RATE)
     rospy.init_node('arm_py_node', anonymous=True)
     rospy.Subscriber('arm', arm, armc.callback, queue_size=1)
     print_debug("start_arm")
@@ -139,7 +139,7 @@ def arm_py():
         # publishする関数
         armc.publish_data()
         #
-        r.sleep()
+        rrate.sleep()
 
 if __name__ == '__main__':
     arm_py()
