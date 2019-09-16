@@ -1,0 +1,1 @@
+for /f %%a in ('dir /b *.py') do (git update-index --add --chmod=+x %%a)
