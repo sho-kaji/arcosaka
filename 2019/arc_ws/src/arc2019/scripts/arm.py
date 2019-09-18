@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# pylint: disable=E1101
 """
 アーム
 """
@@ -18,10 +19,9 @@ from arm_consts import \
                 LIM_BASE_L, LIM_BASE_R, \
                 LIM_ELBOW_B, LIM_ELBOW_F, \
                 LIM_SHOULD_B, LIM_SHOULD_F, \
-                LIM_WRIST_B, LIM_WRIST_F, \
                 PORTS_ARM
 
-from brain_consts import PUBLISH_RATE
+from brain_consts import CYCLES
 
 class ArmClass(object):
     """
@@ -75,7 +75,7 @@ class ArmClass(object):
             pass
 
         if self.mode_old > -1:
-            print("mode = %s" % Mode(self.mode_old).name)
+            print("mode = %s" % Mode(mode).name)
         else:
             print("mode = %s" % "UNKNOWN")
 
@@ -129,7 +129,7 @@ def arm_py():
     """
 
     armc = ArmClass()
-    rrate = rospy.Rate(PUBLISH_RATE)
+    rrate = rospy.Rate(CYCLES)
     rospy.init_node('arm_py_node', anonymous=True)
     rospy.Subscriber('arm', arm, armc.callback, queue_size=1)
     print_debug("start_arm")
