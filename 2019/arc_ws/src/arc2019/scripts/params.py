@@ -6,7 +6,7 @@ param.py モード定数ファイル
 
 from enum import IntEnum
 
-class Mode(IntEnum):
+class MODE(IntEnum):
     """
     動作モード
     """

@@ -10,7 +10,10 @@ import rospy
 import mortor
 
 from arc2019.msg import arm
-from params import Mode
+from arc2019.msg import client
+from arc2019.msg import brain
+
+from params import MODE,TARGET
 
 # from params import TARGET
 
@@ -42,47 +45,71 @@ class ArmClass(object):
         self.msg_arm = arm()
         # index
         self.frame_id = 0
-        # モード前回値
-        self.mode_old = Mode.UNKNOWN
+        # モード今回値
+        self.mode_now = MODE.UNKNOWN
+        self.target_now = TARGET.UNKNOWN
 
-    def callback(self, armmes):
+        self.elbow_req_o = 0 # 肘モーター要求値前回値
+        self.should_req_o = 0 # 肩モーター要求値前回値
+        self.handx_req_o = 0 # ハンド指定位置X前回値
+        self.handy_req_o = 0 # ハンド指定位置Y前回値
+        self.handz_req_o = 0 # ハンド指定位置Z前回値
+        self.twistx_req_o = 0 # ねじ切りハンド指定位置X前回値
+        self.twistz_req_o = 0 # ねじ切りハンド指定位置Z前回値
+
+        self.elbow = 0 # 肘モーター
+        self.should = 0 # 肩モーター
+        self.base = 0 # 土台モーター
+        self.twistv = 0 # ねじ切り垂直モーター
+        self.twisth = 0 # ねじ切り水平モーター
+        self.handv = 0 # ハンド垂直モーター
+        self.handh = 0 # ハンド水平モーター
+
+
+
+    def callback(self, brainmes):
         """
         メッセージを受信したときに呼び出し
         """
 
-        print('frame_id = %d ' % armmes.frame_id)
-
         #モード変更確認
-        self.modechange(armmes.mode)
+        self.modechange(brainmes.mode, brainmes.target)
+
+        #関数コール
+        if self.target_now == TARGET.GRASS: #草刈りモード時
+            if self.mode_now == MODE.AUTO:
+                if self.elbow_req_o != brainmes.elbow_req:
+                    pass
+            elif self.mode_now == MODE.MANUAL:
+                self.elbow_req_o = brainmes.elbow_req
+
+
+
+
+        #今回値保存
+        self.elbow_req_o = brainmes.elbow_req # 肘モーター要求値
+        self.should_req_o = brainmes.should_req # 肩モーター要求値
+        self.handx_req_o = brainmes.handx_req # ハンド指定位置X
+        self.handy_req_o = brainmes.handy_req # ハンド指定位置Y
+        self.handz_req_o = brainmes.handz_req # ハンド指定位置Z
+        self.twistx_req_o = brainmes.twistx_req # ねじ切りハンド指定位置X
+        self.twistz_req_o = brainmes.twistz_req # ねじ切りハンド指定位置Z
 
         #区切り
         print("==============================")
 
-    def modechange(self, mode):
+    def modechange(self, mode, target):
         """
-        モード変更処理
+        モード変更確認
         """
+        if self.mode_now != mode:
+            self.mode_now = mode
+            #何か処理
 
-        if mode != self.mode_old:
+        if self.target_now != target:
+            self.target_now = target
+            #何か処理
 
-            #モード変更時初期化
-
-            #モーター停止
-
-            self.mode_old = mode
-
-        else:
-            pass
-
-        if self.mode_old > -1:
-            print("mode = %s" % Mode(mode).name)
-        else:
-            print("mode = %s" % "UNKNOWN")
-
-    def move_(self):
-        """
-        動かす
-        """
 
 
     def clear_msg(self):
@@ -131,7 +158,7 @@ def arm_py():
     armc = ArmClass()
     rrate = rospy.Rate(CYCLES)
     rospy.init_node('arm_py_node', anonymous=True)
-    rospy.Subscriber('arm', arm, armc.callback, queue_size=1)
+    rospy.Subscriber('brain', brain, armc.callback, queue_size=1)
     print_debug("start_arm")
     # ctl +　Cで終了しない限りwhileループでpublishし続ける
     while not rospy.is_shutdown():
