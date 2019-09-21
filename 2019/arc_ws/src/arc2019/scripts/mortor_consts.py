@@ -23,8 +23,8 @@ DC_PLUS = 10 # DCモーターDuty1周期変化量[%]
 
 # for move_servo
 SERVO_FREQ = 60
-SERVO_MIN = 550
-SERVO_MAX = 2400
+SERVO_MIN = 170.0
+SERVO_MAX = 440.0
 
 # for move_step
 STEP_1PULSE = 10 # 1パルス距離[mm]
