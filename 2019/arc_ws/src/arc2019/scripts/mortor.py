@@ -102,16 +102,17 @@ class MortorClass(object):
         pulse = ((SERVO_MAX - SERVO_MIN) * (power / 100.0)) + SERVO_MIN
         self.move_servo_pulse(channel, pulse)
 
-    def move_servo_pulse(self, channel, pulse):
+    def move_servo_pulse(self, channel, pulse, limit=True):
         """
         サーボモーターパルス
         """
         print("pulse = %d" % pulse)
 
-        if pulse < SERVO_MIN:
-            pulse = SERVO_MIN
-        if pulse > SERVO_MAX:
-            pulse = SERVO_MAX
+        if limit:
+            if pulse < SERVO_MIN:
+                pulse = SERVO_MIN
+            if pulse > SERVO_MAX:
+                pulse = SERVO_MAX
 
         self.pwm.set_pwm(channel, 0, pulse)
 

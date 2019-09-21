@@ -11,10 +11,16 @@ def main():
     mc = mortor.MortorClass()
     while True:
         try:
+            port = input('  port:')
+            int_port = int(port)
+            if int_port < 0:
+                break
+
             val = input('number:')
             int_tmp = int(val)
             if int_tmp < 0:
                 break
+
             mc.move_servo(0, int_tmp)
         except KeyboardInterrupt:
             print("Ctrl+Cで停止しました")
