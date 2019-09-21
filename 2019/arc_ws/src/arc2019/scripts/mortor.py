@@ -47,7 +47,7 @@ class MortorClass(object):
         self.pwm.set_all_pwm(0, 0) # 全モーターPWM解除
 
 
-    def move_dc(self, port_cw, port_ccw, rotate):
+    def move_dc(self, port_cw, port_ccw, rotate, limit=True):
         """
         DCモーター
         """
@@ -65,16 +65,20 @@ class MortorClass(object):
             dcduty_ccw = 0
 
         #上下限ガード
-        if dcduty_cw > DC_DUTY:
-            dcduty_cw = DC_DUTY
+        if limit:
+            if dcduty_cw > DC_DUTY:
+                dcduty_cw = DC_DUTY
+        
         if dcduty_cw > 1000000: #ライブラリの上限値
             dcduty_cw = 1000000
 
         if dcduty_cw < 0:
             dcduty_cw = 0
 
-        if dcduty_ccw > DC_DUTY:
-            dcduty_ccw = DC_DUTY
+        if limit:
+            if dcduty_ccw > DC_DUTY:
+                dcduty_ccw = DC_DUTY
+
         if dcduty_ccw > 1000000: #ライブラリの上限値
             dcduty_ccw = 1000000
 
@@ -90,7 +94,7 @@ class MortorClass(object):
         self.dcduty_ccw_o = dcduty_ccw
 
 
-    def move_servo(self, channel, power):
+    def move_servo(self, channel, power, limit=True):
         """
         サーボモーター
         """
@@ -100,7 +104,7 @@ class MortorClass(object):
             power = 100
 
         pulse = ((SERVO_MAX - SERVO_MIN) * (power / 100.0)) + SERVO_MIN
-        self.move_servo_pulse(channel, pulse)
+        self.move_servo_pulse(channel, pulse, limit)
 
     def move_servo_pulse(self, channel, pulse, limit=True):
         """
