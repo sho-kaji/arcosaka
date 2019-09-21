@@ -16,6 +16,9 @@ class DCROTATE(IntEnum):
     STOP = 0
     CW = 1
 
+ADDR_PWM = 0x41 #
+ADDR_VOLT = 0x40 #
+
 # for move_dc
 DC_FREQ = 20 * 1000 # DCモーター周波数[Hz]
 DC_DUTY = 40 # DCモーターDuty[%]

@@ -11,6 +11,7 @@ import pigpio
 import Adafruit_PCA9685
 
 from mortor_consts import \
+    ADDR_PWM, \
     DCROTATE, \
     DC_FREQ, \
     DC_DUTY, \
@@ -35,9 +36,15 @@ class MortorClass(object):
         self.dcduty_ccw_o = 0
 
         # initialize move_servo
-        self.pwm = Adafruit_PCA9685.PCA9685()
+        self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
         self.pwm.set_pwm_freq(60)
 
+
+    def __del__(self):
+        """
+        終了処理
+        """
+        self.pwm.set_all_pwm(0, 0) # 全モーターPWM解除
 
 
     def move_dc(self, port_cw, port_ccw, rotate):
@@ -93,9 +100,6 @@ class MortorClass(object):
             power = 100
 
         pulse = ((SERVO_MAX - SERVO_MIN) * (power / 100.0)) + SERVO_MIN
-        print("SERVO_MAX = %d" % SERVO_MAX)
-        print("SERVO_MIN = %d" % SERVO_MIN)
-        print("power = %d" % power)
         self.move_servo_pulse(channel, pulse)
 
     def move_servo_pulse(self, channel, pulse):
@@ -103,12 +107,12 @@ class MortorClass(object):
         サーボモーターパルス
         """
         print("pulse = %d" % pulse)
-        
+
         if pulse < SERVO_MIN:
             pulse = SERVO_MIN
         if pulse > SERVO_MAX:
             pulse = SERVO_MAX
-            
+
         self.pwm.set_pwm(channel, 0, pulse)
 
     def move_step(self, port_a, port_b, distance):

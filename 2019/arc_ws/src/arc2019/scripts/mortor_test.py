@@ -15,7 +15,7 @@ def main():
             int_tmp = int(val)
             if int_tmp < 0:
                 break
-            mc.move_servo(0,int_tmp)
+            mc.move_servo(0, int_tmp)
         except KeyboardInterrupt:
             print("Ctrl+Cで停止しました")
             break
