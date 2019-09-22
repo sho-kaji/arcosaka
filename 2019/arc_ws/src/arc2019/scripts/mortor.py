@@ -192,29 +192,57 @@ class MortorClass(object):
         """
         ステッピングモーター
         """
-
         # 周波数とDuty比から1パルスの待機時間を計算
-        step = distance / STEP_1PULSE
-        wait_hl = (STEP_FREQ * (STEP_DUTY / 100.0)) / 2
-        wait_lh = (STEP_FREQ / 2) - wait_hl
+        step = int(distance / STEP_1PULSE)
+        self.move_step_step(port_a, port_b, step)
 
-        for i in range(abs(step)):
+    def move_step_step(self, port_a, port_b, step):
+        """
+        ステッピングモーターステップ数入力
+        """
+        print("step      = %d" % step)
+        wait_hl = (STEP_FREQ * (STEP_DUTY / 100.0)) / 2.0
+        wait_lh = (STEP_FREQ / 2.0) - wait_hl
+        wait_hl /= 1000.0
+        wait_lh /= 1000.0
+        
+        print("STEP_FREQ = %d" % STEP_FREQ)
+        print("STEP_DUTY = %d" % STEP_DUTY)
+        print("wait_hl   = %d" % wait_hl)
+        print("wait_lh   = %d" % wait_lh)
+        self.pic.write(18, pigpio.HIGH)
+
+        for i in range(step):
             if step > 0:
                 self.pic.write(port_a, pigpio.HIGH)
+                print("port_a ON")
                 time.sleep(wait_hl)
                 self.pic.write(port_b, pigpio.HIGH)
+                print("port_b ON")
                 time.sleep(wait_hl)
                 self.pic.write(port_a, pigpio.LOW)
+                print("port_a OFF")
                 time.sleep(wait_lh)
                 self.pic.write(port_b, pigpio.LOW)
+                print("port_b OFF")
                 time.sleep(wait_lh)
 
             elif step < 0:
                 self.pic.write(port_b, pigpio.HIGH)
+                print("port_b ON")
                 time.sleep(wait_hl)
                 self.pic.write(port_a, pigpio.HIGH)
+                print("port_a ON")
                 time.sleep(wait_hl)
                 self.pic.write(port_b, pigpio.LOW)
+                print("port_b OFF")
                 time.sleep(wait_lh)
                 self.pic.write(port_a, pigpio.LOW)
+                print("port_a OFF")
                 time.sleep(wait_lh)
+            print("pulse     = %d/%d" % (i,step))
+
+        self.pic.write(18, pigpio.LOW)
+        self.pic.write(port_a, pigpio.LOW)
+        self.pic.write(port_b, pigpio.LOW)
+        print("move_step_step end")

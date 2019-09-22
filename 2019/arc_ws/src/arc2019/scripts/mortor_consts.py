@@ -33,8 +33,8 @@ SERVO_MIN_40K = 240
 SERVO_MAX_40K = 550
 
 # for move_step
-STEP_1PULSE = 10 # 1パルス距離[mm]
-STEP_FREQ = 120 * 1000 # ステッピングモーター周波数[Hz]
+STEP_1PULSE = 10.0 # 1パルス距離[mm]
+STEP_FREQ = 120 # ステッピングモーター周波数[Hz]
 STEP_DUTY = 50 # ステッピングモーターDuty[%]
 
 # (.+)\t(.+)\t(.+) $1 = $2 # $3

@@ -63,5 +63,35 @@ def main_servo():
             pass
     mc.endfnc()
 
+def main_step():
+    """
+    ステッピングモーターテスト
+    """
+    mc = mortor.MortorClass()
+    while True:
+        try:
+            port = input('port_a:')
+            int_porta = int(port)
+            if int_porta < 0:
+                break
+            port = input('port_b:')
+            int_portb = int(port)
+            if int_portb < 0:
+                break
+
+            val = input('  step:')
+            int_tmp = int(val)
+            if int_tmp < 0:
+                break
+
+            mc.move_step_step(int_porta,int_portb,int_tmp)
+
+        except KeyboardInterrupt:
+            print("Ctrl+Cで停止しました")
+            break
+        except :
+            pass
+    mc.endfnc()
+
 if __name__ == '__main__':
-    main()
+    main_step()
