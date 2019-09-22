@@ -34,7 +34,7 @@ class MortorClass(object):
         # initialize move_dc
         self.dcduty_cw_o = 0
         self.dcduty_ccw_o = 0
-
+        
         # initialize move_servo
         self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
         self.pwm.set_pwm_freq(60)
@@ -94,6 +94,9 @@ class MortorClass(object):
         #新しい値で出力
         self.pic.set_PWM_frequency(port_cw, DC_FREQ)
         self.pic.set_PWM_frequency(port_ccw, DC_FREQ)
+
+        self.pic.set_PWM_range(port_cw, 100) 
+        self.pic.set_PWM_range(port_ccw, 100) 
 
         self.pic.set_PWM_dutycycle(port_cw, dcduty_cw)
         self.pic.set_PWM_dutycycle(port_ccw, dcduty_ccw)
