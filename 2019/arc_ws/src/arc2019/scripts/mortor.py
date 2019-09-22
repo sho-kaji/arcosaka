@@ -40,7 +40,7 @@ class MortorClass(object):
         self.pwm.set_pwm_freq(60)
 
 
-    def __del__(self):
+    def endfnc(self):
         """
         終了処理
         """

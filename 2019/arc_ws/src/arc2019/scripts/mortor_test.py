@@ -27,6 +27,7 @@ def main():
             break
         except :
             pass
+    mc.endfnc()
 
 
 if __name__ == '__main__':
