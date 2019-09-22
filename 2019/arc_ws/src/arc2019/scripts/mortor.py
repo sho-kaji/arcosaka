@@ -1,10 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# pylint: disable=E1101,C0325
 """
 モーター制御
 """
 
 import time
+import os
 import pigpio
 
 # Import the PCA9685 module.
@@ -27,29 +29,38 @@ class MortorClass(object):
     モータークラス
     """
     def __init__(self, port_a_cw=16, port_a_ccw=20, port_b_cw=19, port_b_ccw=26):
-        # initialize gpio
-        self.pic = pigpio.pi()
 
-        self.port_a_cw = port_a_cw
-        self.port_a_ccw = port_a_ccw
-        self.port_b_cw = port_b_cw
-        self.port_b_ccw = port_b_ccw
+        self.is_linux = (os.name != 'nt')
 
-        # initialize move_dc
-        self.dcduty_a_o = 0
-        self.dcduty_b_o = 0
+        if self.is_linux:
+            # initialize gpio
+            self.pic = pigpio.pi()
 
-        # initialize move_servo
-        self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
-        self.pwm.set_pwm_freq(60)
+            self.port_a_cw = port_a_cw
+            self.port_a_ccw = port_a_ccw
+            self.port_b_cw = port_b_cw
+            self.port_b_ccw = port_b_ccw
+
+            # initialize move_dc
+            self.dcduty_a_o = 0
+            self.dcduty_b_o = 0
+
+            # initialize move_servo
+            self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
+            self.pwm.set_pwm_freq(60)
+        else:
+            print("Windows")
+    #end __init__
 
     def endfnc(self):
         """
         終了処理
         """
-        self.move_dc_duty(self.port_a_cw, self.port_a_ccw, 0, 0)
-        self.move_dc_duty(self.port_b_cw, self.port_b_ccw, 0, 0)
-        self.pwm.set_all_pwm(0, 0) # 全モーターPWM解除
+        if self.is_linux:
+            self.move_dc_duty(self.port_a_cw, self.port_a_ccw, 0, 0)
+            self.move_dc_duty(self.port_b_cw, self.port_b_ccw, 0, 0)
+            self.pwm.set_all_pwm(0, 0) # 全モーターPWM解除
+    #end endfnc
 
     def move_dc(self, rotate_a, rotate_b, limit=True):
         """
@@ -129,8 +140,9 @@ class MortorClass(object):
             #今回値を保存
             self.dcduty_a_o = dcduty_a
             self.dcduty_b_o = dcduty_b
-            
+
             time.sleep(0.05)
+    #end move_dc
 
     def move_dc_duty(self, port_cw, port_ccw, dcduty_cw, dcduty_ccw):
         """
@@ -150,15 +162,20 @@ class MortorClass(object):
             dcduty_cw = 0
             dcduty_ccw = 0
 
-        #新しい値で出力
-        self.pic.set_PWM_frequency(port_cw, DC_FREQ)
-        self.pic.set_PWM_frequency(port_ccw, DC_FREQ)
 
-        self.pic.set_PWM_range(port_cw, 100)
-        self.pic.set_PWM_range(port_ccw, 100)
+        if self.is_linux:
+            #新しい値で出力
+            self.pic.set_PWM_frequency(port_cw, DC_FREQ)
+            self.pic.set_PWM_frequency(port_ccw, DC_FREQ)
 
-        self.pic.set_PWM_dutycycle(port_cw, dcduty_cw)
-        self.pic.set_PWM_dutycycle(port_ccw, dcduty_ccw)
+            self.pic.set_PWM_range(port_cw, 100)
+            self.pic.set_PWM_range(port_ccw, 100)
+
+            self.pic.set_PWM_dutycycle(port_cw, dcduty_cw)
+            self.pic.set_PWM_dutycycle(port_ccw, dcduty_ccw)
+        else:
+            print ("dcduty_cw=%3d\tcduty_ccw=%3d" %(dcduty_cw, dcduty_ccw))
+    #end move_dc_duty
 
     def move_servo(self, channel, power, limit=True):
         """
@@ -173,6 +190,7 @@ class MortorClass(object):
         # 割合から
         pulse = ((SERVO_MAX - SERVO_MIN) * (power / 100.0)) + SERVO_MIN
         self.move_servo_pulse(channel, pulse, limit)
+    #end move_servo
 
     def move_servo_pulse(self, channel, pulse, limit=True):
         """
@@ -186,7 +204,9 @@ class MortorClass(object):
             if pulse > SERVO_MAX:
                 pulse = SERVO_MAX
 
-        self.pwm.set_pwm(channel, 0, int(pulse))
+        if self.is_linux:
+            self.pwm.set_pwm(channel, 0, int(pulse))
+    #end move_servo_pulse
 
     def move_step(self, port_a, port_b, distance):
         """
@@ -195,6 +215,7 @@ class MortorClass(object):
         # 周波数とDuty比から1パルスの待機時間を計算
         step = int(distance / STEP_1PULSE)
         self.move_step_step(port_a, port_b, step)
+    #end move_step
 
     def move_step_step(self, port_a, port_b, step):
         """
@@ -205,7 +226,7 @@ class MortorClass(object):
         wait_lh = (STEP_FREQ / 2.0) - wait_hl
         wait_hl /= 1000.0
         wait_lh /= 1000.0
-        
+
         print("STEP_FREQ = %d" % STEP_FREQ)
         print("STEP_DUTY = %d" % STEP_DUTY)
         print("wait_hl   = %d" % wait_hl)
@@ -213,36 +234,61 @@ class MortorClass(object):
         self.pic.write(18, pigpio.HIGH)
 
         for i in range(step):
-            if step > 0:
-                self.pic.write(port_a, pigpio.HIGH)
-                print("port_a ON")
-                time.sleep(wait_hl)
-                self.pic.write(port_b, pigpio.HIGH)
-                print("port_b ON")
-                time.sleep(wait_hl)
-                self.pic.write(port_a, pigpio.LOW)
-                print("port_a OFF")
-                time.sleep(wait_lh)
-                self.pic.write(port_b, pigpio.LOW)
-                print("port_b OFF")
-                time.sleep(wait_lh)
+            if self.is_linux:
+                if step > 0:
+                    self.pic.write(port_a, pigpio.HIGH)
+                    print("port_a ON")
+                    time.sleep(wait_hl)
+                    self.pic.write(port_b, pigpio.HIGH)
+                    print("port_b ON")
+                    time.sleep(wait_hl)
+                    self.pic.write(port_a, pigpio.LOW)
+                    print("port_a OFF")
+                    time.sleep(wait_lh)
+                    self.pic.write(port_b, pigpio.LOW)
+                    print("port_b OFF")
+                    time.sleep(wait_lh)
 
-            elif step < 0:
-                self.pic.write(port_b, pigpio.HIGH)
-                print("port_b ON")
-                time.sleep(wait_hl)
-                self.pic.write(port_a, pigpio.HIGH)
-                print("port_a ON")
-                time.sleep(wait_hl)
-                self.pic.write(port_b, pigpio.LOW)
-                print("port_b OFF")
-                time.sleep(wait_lh)
-                self.pic.write(port_a, pigpio.LOW)
-                print("port_a OFF")
-                time.sleep(wait_lh)
-            print("pulse     = %d/%d" % (i,step))
+                elif step < 0:
+                    self.pic.write(port_b, pigpio.HIGH)
+                    print("port_b ON")
+                    time.sleep(wait_hl)
+                    self.pic.write(port_a, pigpio.HIGH)
+                    print("port_a ON")
+                    time.sleep(wait_hl)
+                    self.pic.write(port_b, pigpio.LOW)
+                    print("port_b OFF")
+                    time.sleep(wait_lh)
+                    self.pic.write(port_a, pigpio.LOW)
+                    print("port_a OFF")
+                    time.sleep(wait_lh)
+            else:
+                if step > 0:
+                    print("port_a ON")
+                    time.sleep(wait_hl)
+                    print("port_b ON")
+                    time.sleep(wait_hl)
+                    print("port_a OFF")
+                    time.sleep(wait_lh)
+                    print("port_b OFF")
+                    time.sleep(wait_lh)
 
-        self.pic.write(18, pigpio.LOW)
-        self.pic.write(port_a, pigpio.LOW)
-        self.pic.write(port_b, pigpio.LOW)
+                elif step < 0:
+                    print("port_b ON")
+                    time.sleep(wait_hl)
+                    print("port_a ON")
+                    time.sleep(wait_hl)
+                    print("port_b OFF")
+                    time.sleep(wait_lh)
+                    print("port_a OFF")
+                    time.sleep(wait_lh)
+
+            print("pulse     = %d/%d" % (i+1, step))
+
+        if self.is_linux:
+            self.pic.write(18, pigpio.LOW)
+            self.pic.write(port_a, pigpio.LOW)
+            self.pic.write(port_b, pigpio.LOW)
+
         print("move_step_step end")
+    #end move_step_step
