@@ -26,7 +26,6 @@ class MortorClass(object):
     """
     モータークラス
     """
-
     def __init__(self, port_a_cw=16, port_a_ccw=20, port_b_cw=19, port_b_ccw=26):
         # initialize gpio
         self.pic = pigpio.pi()
@@ -43,7 +42,6 @@ class MortorClass(object):
         # initialize move_servo
         self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
         self.pwm.set_pwm_freq(60)
-
 
     def endfnc(self):
         """
@@ -100,8 +98,7 @@ class MortorClass(object):
                 dcduty_b = -100
 
             # 前回値と同じなら処理を抜ける
-            if dcduty_a == self.dcduty_a_o \
-            and dcduty_b == self.dcduty_b_o:
+            if dcduty_a == self.dcduty_a_o and dcduty_b == self.dcduty_b_o:
                 break
 
             dcduty_a_cw = 0
@@ -162,7 +159,6 @@ class MortorClass(object):
 
         self.pic.set_PWM_dutycycle(port_cw, dcduty_cw)
         self.pic.set_PWM_dutycycle(port_ccw, dcduty_ccw)
-
 
     def move_servo(self, channel, power, limit=True):
         """
