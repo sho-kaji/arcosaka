@@ -68,7 +68,7 @@ class MortorClass(object):
         if limit:
             if dcduty_cw > DC_DUTY:
                 dcduty_cw = DC_DUTY
-        
+
         if dcduty_cw > 1000000: #ライブラリの上限値
             dcduty_cw = 1000000
 
@@ -85,9 +85,15 @@ class MortorClass(object):
         if dcduty_ccw < 0:
             dcduty_ccw = 0
 
+        print("cw  = %d" % dcduty_cw)
+        print("ccw = %d" % dcduty_ccw)
+
         #新しい値で出力
-        self.pic.hardware_PWM(port_cw, DC_FREQ, dcduty_cw)
-        self.pic.hardware_PWM(port_ccw, DC_FREQ, dcduty_ccw)
+        self.pic.set_PWM_frequency(port_cw, DC_FREQ)
+        self.pic.set_PWM_frequency(port_ccw, DC_FREQ)
+
+        self.pic.set_PWM_dutycycle(port_cw, dcduty_cw)
+        self.pic.set_PWM_dutycycle(port_ccw, dcduty_ccw)
 
         #今回値を保存
         self.dcduty_cw_o = dcduty_cw
