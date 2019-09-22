@@ -28,11 +28,12 @@ class MortorClass(object):
     """
     モータークラス
     """
-    def __init__(self, port_a_cw=16, port_a_ccw=20, port_b_cw=19, port_b_ccw=26):
+    def __init__(self, is_debug=False, port_a_cw=16, port_a_ccw=20, port_b_cw=19, port_b_ccw=26):
 
-        self.is_linux = (os.name != 'nt')
+        self.is_notdebug = not((os.name != 'posix') or is_debug)
+        print(self.is_notdebug)
 
-        if self.is_linux:
+        if self.is_notdebug:
             # initialize gpio
             self.pic = pigpio.pi()
 
@@ -56,11 +57,17 @@ class MortorClass(object):
         """
         終了処理
         """
-        if self.is_linux:
+        if self.is_notdebug:
             self.move_dc_duty(self.port_a_cw, self.port_a_ccw, 0, 0)
             self.move_dc_duty(self.port_b_cw, self.port_b_ccw, 0, 0)
             self.pwm.set_all_pwm(0, 0) # 全モーターPWM解除
     #end endfnc
+
+    def set_debug(self, val):
+        """
+        デバッグモード設定
+        """
+        self.is_notdebug = not(val)
 
     def move_dc(self, rotate_a, rotate_b, limit=True):
         """
@@ -163,7 +170,7 @@ class MortorClass(object):
             dcduty_ccw = 0
 
 
-        if self.is_linux:
+        if self.is_notdebug:
             #新しい値で出力
             self.pic.set_PWM_frequency(port_cw, DC_FREQ)
             self.pic.set_PWM_frequency(port_ccw, DC_FREQ)
@@ -204,7 +211,7 @@ class MortorClass(object):
             if pulse > SERVO_MAX:
                 pulse = SERVO_MAX
 
-        if self.is_linux:
+        if self.is_notdebug:
             self.pwm.set_pwm(channel, 0, int(pulse))
     #end move_servo_pulse
 
@@ -234,7 +241,7 @@ class MortorClass(object):
         self.pic.write(18, pigpio.HIGH)
 
         for i in range(step):
-            if self.is_linux:
+            if self.is_notdebug:
                 if step > 0:
                     self.pic.write(port_a, pigpio.HIGH)
                     print("port_a ON")
@@ -285,7 +292,7 @@ class MortorClass(object):
 
             print("pulse     = %d/%d" % (i+1, step))
 
-        if self.is_linux:
+        if self.is_notdebug:
             self.pic.write(18, pigpio.LOW)
             self.pic.write(port_a, pigpio.LOW)
             self.pic.write(port_b, pigpio.LOW)
