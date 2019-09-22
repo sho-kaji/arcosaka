@@ -118,7 +118,7 @@ class MortorClass(object):
             if pulse > SERVO_MAX:
                 pulse = SERVO_MAX
 
-        self.pwm.set_pwm(channel, 0, pulse)
+        self.pwm.set_pwm(channel, 0, int(pulse))
 
     def move_step(self, port_a, port_b, distance):
         """
