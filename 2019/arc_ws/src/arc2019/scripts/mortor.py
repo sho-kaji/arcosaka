@@ -64,13 +64,16 @@ class MortorClass(object):
             dcduty_cw = 0
             dcduty_ccw = 0
 
+        self.move_dc_duty(port_cw, port_ccw, dcduty_cw, dcduty_ccw, limit)
+
+    def move_dc_duty(self, port_cw, port_ccw, dcduty_cw, dcduty_ccw, limit=True):
         #上下限ガード
         if limit:
             if dcduty_cw > DC_DUTY:
                 dcduty_cw = DC_DUTY
 
-        if dcduty_cw > 1000000: #ライブラリの上限値
-            dcduty_cw = 1000000
+        if dcduty_cw > 100: #ライブラリの上限値
+            dcduty_cw = 100
 
         if dcduty_cw < 0:
             dcduty_cw = 0
@@ -79,8 +82,8 @@ class MortorClass(object):
             if dcduty_ccw > DC_DUTY:
                 dcduty_ccw = DC_DUTY
 
-        if dcduty_ccw > 1000000: #ライブラリの上限値
-            dcduty_ccw = 1000000
+        if dcduty_ccw > 100: #ライブラリの上限値
+            dcduty_ccw = 100
 
         if dcduty_ccw < 0:
             dcduty_ccw = 0
