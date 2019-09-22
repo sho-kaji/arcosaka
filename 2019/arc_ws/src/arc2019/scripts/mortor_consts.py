@@ -21,8 +21,8 @@ ADDR_VOLT = 0x40 #
 
 # for move_dc
 DC_FREQ = 20 * 1000 # DCモーター周波数[Hz]
-DC_DUTY = 50 # DCモーターDuty[%]
-DC_PLUS = 5 # DCモーターDuty1周期変化量[%]
+DC_DUTY = 40 # DCモーターDuty[%]
+DC_PLUS = 2 # DCモーターDuty1周期変化量[%]
 
 # for move_servo
 SERVO_FREQ = 60

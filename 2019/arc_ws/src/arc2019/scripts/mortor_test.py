@@ -9,18 +9,25 @@ import mortor
 from mortor_consts import \
     DCROTATE
 
-def main():
+def main_dc():
+    """
+    DCモーターテスト
+    """
     mc = mortor.MortorClass()
     while True:
         try:
-            val = input('number:')
+            val = input('number(-2～2):')
             int_tmp = int(val)
             if int_tmp == 0:
-                mc.move_dc(16,20,DCROTATE.STOP)
+                mc.move_dc(DCROTATE.STOP,DCROTATE.STOP)
             elif int_tmp == 1:
-                mc.move_dc(16,20,DCROTATE.CW)
+                mc.move_dc(DCROTATE.CW,DCROTATE.STOP)
+            elif int_tmp == 2:
+                mc.move_dc(DCROTATE.CW,DCROTATE.CCW)
             elif int_tmp == -1:
-                mc.move_dc(16,20,DCROTATE.CCW)
+                mc.move_dc(DCROTATE.STOP,DCROTATE.CW)
+            elif int_tmp == -2:
+                mc.move_dc(DCROTATE.CCW,DCROTATE.CW)
             else:
                 break
 
@@ -32,6 +39,9 @@ def main():
     mc.endfnc()
 
 def main_servo():
+    """
+    サーボモーターテスト
+    """
     mc = mortor.MortorClass()
     while True:
         try:
