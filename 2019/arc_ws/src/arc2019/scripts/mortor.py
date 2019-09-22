@@ -27,14 +27,21 @@ class MortorClass(object):
     モータークラス
     """
 
-    def __init__(self):
+    def __init__(self, port_a_cw=16, port_a_ccw=20, port_b_cw=19, port_b_ccw=26):
         # initialize gpio
         self.pic = pigpio.pi()
 
+        self.port_a_cw = port_a_cw
+        self.port_a_ccw = port_a_ccw
+        self.port_b_cw = port_b_cw
+        self.port_b_ccw = port_b_ccw
+
         # initialize move_dc
-        self.dcduty_cw_o = 0
-        self.dcduty_ccw_o = 0
-        
+        self.dcduty_a_cw_o = 0
+        self.dcduty_a_ccw_o = 0
+        self.dcduty_b_cw_o = 0
+        self.dcduty_b_ccw_o = 0
+
         # initialize move_servo
         self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
         self.pwm.set_pwm_freq(60)
@@ -46,46 +53,90 @@ class MortorClass(object):
         """
         self.pwm.set_all_pwm(0, 0) # 全モーターPWM解除
 
-
-    def move_dc(self, port_cw, port_ccw, rotate, limit=True):
+    def move_dc(self, rotate_a, rotate_b, limit=True):
         """
         DCモーター
         """
 
         #とりあえず初期化
-        dcduty_cw = 0
-        dcduty_ccw = 0
+        dcduty_a_cw = 0
+        dcduty_a_ccw = 0
+        dcduty_b_cw = 0
+        dcduty_b_ccw = 0
 
-        #Duty計算
-        if rotate != DCROTATE.STOP:
-            dcduty_cw = self.dcduty_cw_o + (DC_PLUS * rotate * 1000)
-            dcduty_ccw = self.dcduty_ccw_o - (DC_PLUS * rotate * 1000)
-        else:
-            dcduty_cw = 0
-            dcduty_ccw = 0
+        while True:
+            #Duty計算
+            if rotate_a != DCROTATE.STOP:
+                dcduty_a_cw = self.dcduty_a_cw_o + (DC_PLUS * rotate_a * 1000)
+                dcduty_a_ccw = self.dcduty_a_ccw_o - (DC_PLUS * rotate_a * 1000)
+            else:
+                dcduty_a_cw = 0
+                dcduty_a_ccw = 0
 
-        self.move_dc_duty(port_cw, port_ccw, dcduty_cw, dcduty_ccw, limit)
+            if rotate_b != DCROTATE.STOP:
+                dcduty_b_cw = self.dcduty_b_cw_o + (DC_PLUS * rotate_b * 1000)
+                dcduty_b_ccw = self.dcduty_b_ccw_o - (DC_PLUS * rotate_b * 1000)
+            else:
+                dcduty_b_cw = 0
+                dcduty_b_ccw = 0
 
-    def move_dc_duty(self, port_cw, port_ccw, dcduty_cw, dcduty_ccw, limit=True):
+            #上下限ガード
+            if limit:
+                if dcduty_a_cw > DC_DUTY:
+                    dcduty_a_cw = DC_DUTY
+
+                if dcduty_a_ccw > DC_DUTY:
+                    dcduty_a_ccw = DC_DUTY
+
+                if dcduty_b_cw > DC_DUTY:
+                    dcduty_b_cw = DC_DUTY
+
+                if dcduty_b_ccw > DC_DUTY:
+                    dcduty_b_ccw = DC_DUTY
+
+            if dcduty_a_cw > 100: #ライブラリの上限値
+                dcduty_a_cw = 100
+            if dcduty_a_cw < 0:
+                dcduty_a_cw = 0
+            if dcduty_a_ccw > 100: #ライブラリの上限値
+                dcduty_a_ccw = 100
+            if dcduty_a_ccw < 0:
+                dcduty_a_ccw = 0
+
+            # 前回値と同じなら処理を抜ける
+            if dcduty_a_cw != self.dcduty_a_cw_o \
+            and dcduty_a_ccw != self.dcduty_a_ccw_o \
+            and dcduty_b_cw != self.dcduty_b_cw_o \
+            and dcduty_b_ccw != self.dcduty_b_ccw_o:
+                break
+
+            self.move_dc_duty(self.port_a_cw, self.port_a_ccw, dcduty_a_cw, dcduty_a_ccw)
+            self.move_dc_duty(self.port_b_cw, self.port_b_ccw, dcduty_b_cw, dcduty_b_ccw)
+
+            #今回値を保存
+            self.dcduty_a_cw_o = dcduty_a_cw
+            self.dcduty_a_ccw_o = dcduty_a_ccw
+            self.dcduty_b_cw_o = dcduty_b_cw
+            self.dcduty_b_ccw_o = dcduty_b_ccw
+
+            time.sleep(1)
+
+    def move_dc_duty(self, port_cw, port_ccw, dcduty_cw, dcduty_ccw):
+        """
+        DCモーターデューティー
+        """
         #上下限ガード
-        if limit:
-            if dcduty_cw > DC_DUTY:
-                dcduty_cw = DC_DUTY
-
         if dcduty_cw > 100: #ライブラリの上限値
             dcduty_cw = 100
-
         if dcduty_cw < 0:
             dcduty_cw = 0
-
-        if limit:
-            if dcduty_ccw > DC_DUTY:
-                dcduty_ccw = DC_DUTY
-
         if dcduty_ccw > 100: #ライブラリの上限値
             dcduty_ccw = 100
-
         if dcduty_ccw < 0:
+            dcduty_ccw = 0
+
+        if dcduty_cw != 0 and dcduty_ccw != 0:
+            dcduty_cw = 0
             dcduty_ccw = 0
 
         print("cw  = %d" % dcduty_cw)
@@ -95,15 +146,11 @@ class MortorClass(object):
         self.pic.set_PWM_frequency(port_cw, DC_FREQ)
         self.pic.set_PWM_frequency(port_ccw, DC_FREQ)
 
-        self.pic.set_PWM_range(port_cw, 100) 
-        self.pic.set_PWM_range(port_ccw, 100) 
+        self.pic.set_PWM_range(port_cw, 100)
+        self.pic.set_PWM_range(port_ccw, 100)
 
         self.pic.set_PWM_dutycycle(port_cw, dcduty_cw)
         self.pic.set_PWM_dutycycle(port_ccw, dcduty_ccw)
-
-        #今回値を保存
-        self.dcduty_cw_o = dcduty_cw
-        self.dcduty_ccw_o = dcduty_ccw
 
 
     def move_servo(self, channel, power, limit=True):
