@@ -7,10 +7,10 @@
 
 import time
 import os
-import pigpio
-
-# Import the PCA9685 module.
-import Adafruit_PCA9685
+if os.name == 'posix':
+    import pigpio
+    # Import the PCA9685 module.
+    import Adafruit_PCA9685
 
 from mortor_consts import \
     ADDR_PWM, \
@@ -31,6 +31,7 @@ class MortorClass(object):
     def __init__(self, is_debug=False, port_a_cw=16, port_a_ccw=20, port_b_cw=19, port_b_ccw=26):
 
         self.is_notdebug = not((os.name != 'posix') or is_debug)
+        print(os.name)
         print(self.is_notdebug)
 
         if self.is_notdebug:
@@ -49,8 +50,12 @@ class MortorClass(object):
             # initialize move_servo
             self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
             self.pwm.set_pwm_freq(60)
+
+            # initialize move_step
+            pi.set_mode(18, pigpio.OUTPUT)
+
         else:
-            print("Windows")
+            print("debug")
     #end __init__
 
     def endfnc(self):
@@ -236,9 +241,14 @@ class MortorClass(object):
 
         print("STEP_FREQ = %d" % STEP_FREQ)
         print("STEP_DUTY = %d" % STEP_DUTY)
-        print("wait_hl   = %d" % wait_hl)
-        print("wait_lh   = %d" % wait_lh)
-        self.pic.write(18, pigpio.HIGH)
+        print("wait_hl   = %f" % wait_hl)
+        print("wait_lh   = %f" % wait_lh)
+        if self.is_notdebug:
+            self.pic.set_mode(18, pigpio.OUTPUT)
+            self.pic.set_mode(port_a, pigpio.OUTPUT)
+            self.pic.set_mode(port_b, pigpio.OUTPUT)
+            # ENABLE端子
+            self.pic.write(18, pigpio.HIGH)
 
         for i in range(step):
             if self.is_notdebug:
@@ -271,23 +281,23 @@ class MortorClass(object):
                     time.sleep(wait_lh)
             else:
                 if step > 0:
-                    print("port_a ON")
+                    print("port_a ON  %f" % wait_hl)
                     time.sleep(wait_hl)
-                    print("port_b ON")
+                    print("port_b ON  %f" % wait_hl)
                     time.sleep(wait_hl)
-                    print("port_a OFF")
+                    print("port_a OFF %f" % wait_lh)
                     time.sleep(wait_lh)
-                    print("port_b OFF")
+                    print("port_b OFF %f" % wait_lh)
                     time.sleep(wait_lh)
 
                 elif step < 0:
-                    print("port_b ON")
+                    print("port_b ON  %f" % wait_hl)
                     time.sleep(wait_hl)
-                    print("port_a ON")
+                    print("port_a ON  %f" % wait_hl)
                     time.sleep(wait_hl)
-                    print("port_b OFF")
+                    print("port_b OFF %f" % wait_lh)
                     time.sleep(wait_lh)
-                    print("port_a OFF")
+                    print("port_a OFF %f" % wait_lh)
                     time.sleep(wait_lh)
 
             print("pulse     = %d/%d" % (i+1, step))
