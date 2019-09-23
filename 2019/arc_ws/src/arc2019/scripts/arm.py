@@ -86,13 +86,13 @@ class ArmClass(object):
 
         #関数コール
         if self.target_now == TARGET.GRASS: #草刈りモード時
-
+            self.mode_grass()
 
         elif self.target_now == TARGET.SIDE_SPROUT: #芽かきモード時
-            pass
+            self.mode_sprout()
 
         elif self.target_now == TARGET.TOMATO: #収穫モード時
-            pass
+            self.mode_tomato()
 
         else:
             self.mc.endfnc()
@@ -129,23 +129,32 @@ class ArmClass(object):
 
     #end modechange
 
-    def mode_grass(self, parameter_list):
+    def mode_grass(self):
         """
         草刈り
         """
-        self.move_base(brain_mes.base_req)
-        self.move_should(brain_mes.should_req)
-        self.move_elbow(brain_mes.elbow_req)
+        
 
-    def mode_sprout(self, parameter_list):
+        self.move_base(self.brain_mes.base_req)
+        self.move_should(self.brain_mes.should_req)
+        self.move_elbow(self.brain_mes.elbow_req)
+
+    #end mode_grass
+
+    def mode_sprout(self):
         """
         芽かき
         """
+        
+    #end mode_sprout
 
-    def mode_tomato(self, parameter_list):
+    def mode_tomato(self):
         """
         収穫
         """
+        handx = 
+
+    #end mode_tomato
 
     def move_elbow(self, elbow):
         """
