@@ -21,11 +21,11 @@ def main_dc():
             if int_tmp == 0:
                 mcc.move_dc(DCROTATE.STOP, DCROTATE.STOP)
             elif int_tmp == 1:
-                mcc.move_dc(DCROTATE.CW, DCROTATE.STOP)
+                mcc.move_dc(DCROTATE.CW, DCROTATE.CW)
             elif int_tmp == 2:
                 mcc.move_dc(DCROTATE.CW, DCROTATE.CCW)
             elif int_tmp == -1:
-                mcc.move_dc(DCROTATE.STOP, DCROTATE.CW)
+                mcc.move_dc(DCROTATE.CCW, DCROTATE.CCW)
             elif int_tmp == -2:
                 mcc.move_dc(DCROTATE.CCW, DCROTATE.CW)
             else:
@@ -108,4 +108,4 @@ def main_step():
     mcc.endfnc()
 
 if __name__ == '__main__':
-    main_step()
+    main_dc()

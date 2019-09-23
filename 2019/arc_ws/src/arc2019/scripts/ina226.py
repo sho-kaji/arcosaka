@@ -8,6 +8,9 @@
 import time
 import smbus
 
+
+ADDR_VOLT = 0x40 #I2Cアドレス
+
 class Ina226(object):
     """
 
@@ -19,7 +22,7 @@ class Ina226(object):
         """
         電圧読み取り
         """
-        word = self.i2c.read_word_data(0x40, 0x02) & 0xFFFF
+        word = self.i2c.read_word_data(ADDR_VOLT, 0x02) & 0xFFFF
         print word
         result = ((word << 8) & 0xFF00) + (word >> 8)
         volt = result * 1.25 / 1000
@@ -37,7 +40,7 @@ class Ina226(object):
         """
         電流読み取り
         """
-        word = self.i2c.read_word_data(0x40, 0x04) & 0xFFFF
+        word = self.i2c.read_word_data(ADDR_VOLT, 0x04) & 0xFFFF
         print word
         result = ((word << 8) & 0xFF00) + (word >> 8)
         curr = result * 1.25 / 1000

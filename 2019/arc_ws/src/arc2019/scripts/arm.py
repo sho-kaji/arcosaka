@@ -69,7 +69,7 @@ class ArmClass(object):
         self.twistx_req_o = 0 # ねじ切りハンド指定位置X前回値
         self.twistz_req_o = 0 # ねじ切りハンド指定位置Z前回値
 
-        self.is_hand_move = False
+        self.is_arm_move = False
         self.is_hand_call = False
         self.elbow = 0 # 肘モーター
         self.should = 0 # 肩モーター
@@ -86,7 +86,7 @@ class ArmClass(object):
         メッセージを受信したときに呼び出し
         """
 
-        self.is_hand_move = False
+        self.is_arm_move = False
         self.is_hand_call = True
 
         #モード変更確認
@@ -164,19 +164,14 @@ class ArmClass(object):
         """
         if self.mode_now == MODE.AUTO:
             handx = self.brain_mes.handx_req
-            handy = -1
             handz = self.brain_mes.handz_req
 
             handv = handz / STEP_1PULSE
             handh = handx / STEP_1PULSE
 
         elif self.mode_now == MODE.MANUAL:
-            handx = -1
-            handy = -1
-            handz = -1
-
-            handv = -1
-            handh = -1
+            handv = 0
+            handh = 0
 
         else:
             pass
@@ -190,9 +185,9 @@ class ArmClass(object):
         """
         肘
         """
-        self.is_hand_move = True
+        self.is_arm_move = True
         self.mmc.move_servo(CHANNEL_ELBOW, elbow)
-        self.is_hand_move = False
+        self.is_arm_move = False
 
     #end move_elbow
 
@@ -200,9 +195,9 @@ class ArmClass(object):
         """
         肩
         """
-        self.is_hand_move = True
+        self.is_arm_move = True
         self.mmc.move_servo(CHANNEL_SHOULD, should)
-        self.is_hand_move = False
+        self.is_arm_move = False
 
     #end move_should
 
@@ -210,9 +205,9 @@ class ArmClass(object):
         """
         土台
         """
-        self.is_hand_move = True
+        self.is_arm_move = True
         self.mmc.move_servo(CHANNEL_BASE, base)
-        self.is_hand_move = False
+        self.is_arm_move = False
 
     #end move_base
 
@@ -220,9 +215,9 @@ class ArmClass(object):
         """
         ねじ切り垂直
         """
-        self.is_hand_move = True
+        self.is_arm_move = True
         self.mmc.move_step(PORT_TWISTV_A, PORT_TWISTV_B, twistv)
-        self.is_hand_move = False
+        self.is_arm_move = False
 
     #end move_twistv
 
@@ -230,9 +225,9 @@ class ArmClass(object):
         """
         ねじ切り水平
         """
-        self.is_hand_move = True
+        self.is_arm_move = True
         self.mmc.move_step(PORT_TWISTH_A, PORT_TWISTH_B, twisth)
-        self.is_hand_move = False
+        self.is_arm_move = False
 
     #end move_twisth
 
@@ -240,9 +235,9 @@ class ArmClass(object):
         """
         ハンド垂直
         """
-        self.is_hand_move = True
+        self.is_arm_move = True
         self.mmc.move_step(PORT_HANDV_A, PORT_HANDV_B, handv)
-        self.is_hand_move = False
+        self.is_arm_move = False
 
     #end move_handv
 
@@ -250,9 +245,9 @@ class ArmClass(object):
         """
         ハンド水平
         """
-        self.is_hand_move = True
+        self.is_arm_move = True
         self.mmc.move_step(PORT_HANDH_A, PORT_HANDH_B, handh)
-        self.is_hand_move = False
+        self.is_arm_move = False
 
     #end move_handh
 
@@ -281,7 +276,15 @@ class ArmClass(object):
         self.msg_arm.frame_id = self.frame_id
         # 送信データ追加開始
 
-        
+        self.msg_arm.is_arm_move = self.is_arm_move
+        self.msg_arm.is_twistv_ulim = False
+        self.msg_arm.is_twistv_dlim = False
+        self.msg_arm.is_twisth_flim = False
+        self.msg_arm.is_twisth_blim = False
+        self.msg_arm.is_handv_ulim = False
+        self.msg_arm.is_handv_dlim = False
+        self.msg_arm.is_handh_flim = False
+        self.msg_arm.is_handh_blim = False
 
         # 送信データ追加終了
 
