@@ -33,3 +33,14 @@ class CAMERA(IntEnum):
     MAIN = 0        #トマト、雑草、主枝
     SUB = 1         #脇芽
     POLL = 2        #ポール
+
+class DIRECTION(IntEnum):
+    """
+    足　移動方向
+    """
+    UNKNOWN = -1
+    STOP    = 0     #停止    
+    AHEAD   = 1     #前移動
+    BACK    = 2     #後移動
+    RIGHT   = 3     #右旋回
+    LEFT    = 4     #左旋回

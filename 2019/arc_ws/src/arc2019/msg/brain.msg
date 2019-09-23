@@ -9,3 +9,5 @@ int32 handy_req
 int32 handz_req
 int32 twistx_req
 int32 twistz_req
+int32 foot_dirreq
+int32 foot_movreq

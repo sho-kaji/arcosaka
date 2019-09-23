@@ -20,51 +20,9 @@ from arc2019.msg import arm
 from arc2019.msg import foot
 
 # 定数などの定義ファイルimport
-from brain_consts import CYCLES
-from params import Mode, TARGET, CAMERA
+from brain_consts import CYCLES, WAIT
+from params import Mode, TARGET, CAMERA, DIRECTION
 
-# #
-# STICK_RIGHT_H     = 2   #右スティック水平 
-# STICK_RIGHT_V     = 5   #右スティック垂直 
-# STICK_LEFT_H      = 0   #左スティック水平 
-# STICK_LEFT_V      = 1   #左スティック垂直 
-# BUTTON_R1         = 18  #R1 
-# BUTTON_R2         = 4   #R2 
-# BUTTON_L1         = 17  #L1 
-# BUTTON_L2         = 3   #L2 
-# BUTTON_O          = 15  #Oボタン（サークル） 
-# BUTTON_X          = 14  #xボタン (クロス） 
-# BUTTON_DELTA      = 16  #△ボタン（デルタ） 
-# BUTTON_SQUARE     = 13  #□ボタン（スクエア） 
-# BUTTON_SHARE      = 21  #SHARE 
-# BUTTON_OPTION     = 22  #OPTION 
-# CROSS_H           = 9   #十字キー水平 左1 右-1
-# CROSS_V           = 10  #十字キー垂直 上1 下-1
-
-# #
-# INDEX_DIRECTION_H = STICK_RIGHT_H  
-# INDEX_DIRECTION_V = STICK_RIGHT_V 
-# INDEX_SPEED_L     = STICK_LEFT_V 
-# INDEX_SPEED_R     = STICK_RIGHT_V  
-# INDEX_STRIKE_ON   = BUTTON_O
-# INDEX_STRIKE_OFF  = BUTTON_X
-# INDEX_GRUB_ON     = BUTTON_O 
-# INDEX_GRUB_OFF    = BUTTON_X
-# INDEX_HOME        = BUTTON_DELTA 
-# INDEX_STORE       = BUTTON_L1
-# INDEX_TILT        = CROSS_V 
-# INDEX_UP          = BUTTON_R1
-# INDEX_DOWN        = BUTTON_R2 
-# INDEX_RELEASE     = BUTTON_SHARE
-# INDEX_MODE        = BUTTON_OPTION
-# INDEX_MAX         = BUTTON_OPTION
-# #
-# MAX = 1
-# MIN = -1
-
-# #
-# ON  = 1
-# OFF = 0 
 
 class Brain(object):
 #--------------------
@@ -81,8 +39,8 @@ class Brain(object):
         # messageのインスタンスを作る
         self.msg_brain = brain()
         #デフォルト
-        self.mode = Mode.INIT
-        self.target = TARGET.UNKNOWN
+        self.mode = self.rx_mode = Mode.INIT
+        self.target = self.rx_target = TARGET.UNKNOWN
 
         self.maintgt = Vec3D()
         self.subtgt = Vec3D()
@@ -108,8 +66,8 @@ class Brain(object):
 
     def clearMsg(self):
         #for all
-        self.msg_brain.mode_id = Mode.UNKNOWN
-        self.msg_brain.target_id = TARGET.UNKNOWN
+        self.msg_brain.mode_id = self.mode
+        self.msg_brain.target_id = self.target
         #for arm
         self.msg_brain.hand_req     = 0
         self.msg_brain.pluck_req    = 0
@@ -120,71 +78,200 @@ class Brain(object):
         self.msg_brain.handz_req    = 0
         self.msg_brain.twistx_req   = 0
         self.msg_brain.twistz_req   = 0
-
-    def initialize(self):
-        self.clearMsg()
-        self.msg_brain.mode_id = Mode.INIT
-
-        # Clientから動作モード&ターゲットを受けるまで1秒間隔でpublish
-        if self.mode == Mode.UNKNOWN | self.tartget == TARGET.UNKNOWN:
-            if self.cyclecount == 0:
-                self.pub_brain.publish(self.msg_brain)
-            else:
-                pass
+        #for foot
+        self.msg_brain.foot_dirreq  = 0
+        self.msg_brain.foot_movreq  = 0
+#--------------------
+    def OnOperation(self):
+        if self.is_arm_move | self.is_foot_move:
+            # 手・足いずれかが駆動中
+            self.waitformove = False
+            self.trans_time  = CYCLES * WAIT
+            return True
+        elif self.waitformove:
+            # 駆動指令をpublish済みだが、手・足がまだ動作中ではない中間状態
+            return True
         else:
-            pass
+            return False
 
+    def OnTransition(self):
+        if self.trans_time > 0:
+            # 手・足駆動終了後に一定時間Waitを挟む（カメラのブレを抑える目的）
+            self.trans_time -= 1
+            return True
+        else:
+            return False
+
+    def DoesFindAny(self):
+        if self.maintgt_find | self.subtgt_find | self.poll_find:
+            return True
+        else:
+            return False
 #--------------------
 # 受信コールバック
     def clientCallback(self, client_msg):
-        self.mode = client_msg.mode
-        self.target = client_msg.target
+        self.rx_mode = client_msg.mode
+        self.rx_target = client_msg.target
 
     def eyeCallback(self, eye_msg):
-        if eye_msg.target_find == True:
+        if OnOperation():
+            #駆動中は取得しない
+            pass
+        elif eye_msg.target_find == True:
             coord = [eye_msg.target_x, eye_msg.target_y, eye_msg.target_z, 1]
             
             if eye_msg.camera_id == CAMERA.MAIN:
-                #トマト、雑草、主枝
+                #トマト、雑草
                 res = self.maincam.Transform(coord)
                 self.maintgt.x = res[0]
                 self.maintgt.y = res[1]
                 self.maintgt.z = res[2]
+                self.maintgt_find = True
             elif eye_msg.camera_id == CAMERA.SUB:
                 #脇芽
                 res = self.subcam.Transform(coord)
-                self.maintgt.x = res[0]
-                self.maintgt.y = res[1]
-                self.maintgt.z = res[2]
+                self.subtgt.x = res[0]
+                self.subtgt.y = res[1]
+                self.subtgt.z = res[2]
+                self.subtgt_find = True
             elif eye_msg.camera_id == CAMERA.POLL:
                 #ポール
                 res = self.subcam.Transform(coord)
                 self.poll.x = res[0]
                 self.poll.y = res[1]
-                self.poll.z = res[2]s
-        else:
-            pass
+                self.poll.z = res[2]
+                self.poll_find = True
      
     def armCallback(self, arm_msg):
         self.is_arm_move = arm_msg.is_arm_move
 
     def footCallback(self, foot_msg):
         self.is_foot_move = foot_msg.is_foot_move
-#--------------------
 
+#--------------------
+# eye
+    def IsTargetCenter(self,pos_y):
+        # 対象がカメラ中央付近にあるかチェックする
+        # (中央付近にないと、奥行き方向の精度が下がる)
+
+        # pos_y : Vec3D.y
+        if -CENTER_THRESH <= pos_y | pos_y <= CENTER_THRESH:
+            return True
+        else:
+            return False
+
+#--------------------
+# arm
+    def DriveHand(self, tgtpos):
+        # tgtpos : Vec3D
+        self.msg_brain.handx_req = tgtpos.x
+        self.msg_brain.handy_req = tgtpos.y
+        self.msg_brain.handz_req = tgtpos.z
+
+        self.pub_brain.publish(self.msg_brain)
+        self.waitformove = True
+        self.clearMsg()
+
+    def DriveTwist(self, tgtpos):
+        # tgtpos : Vec3D
+        self.msg_brain.twistx_req = tgtpos.x
+        self.msg_brain.twistz_req = tgtpos.z
+        
+        self.pub_brain.publish(self.msg_brain)
+        self.waitformove = True
+        self.clearMsg()
+
+#--------------------
+# foot
+    def GoAhead(self,mm):
+        # 前進
+        self.msg_brain.foot_dirreq = DIRECTION.AHEAD
+        self.msg_brain.foot_movreq = mm
+
+        self.pub_brain.publish(self.msg_brain)
+        self.waitformove = True
+        self.clearMsg()
+
+    def GoBack(self,mm):
+        # 後退
+        self.msg_brain.foot_dirreq = DIRECTION.BACK
+        self.msg_brain.foot_movreq = mm
+
+        self.pub_brain.publish(self.msg_brain)
+        self.waitformove = True
+        self.clearMsg()
+    
+    def RotateRight(self,deg):
+        # 右旋回
+        self.msg_brain.foot_dirreq = DIRECTION.RIGHT
+        self.msg_brain.foot_movreq = deg
+
+        self.pub_brain.publish(self.msg_brain)
+        self.waitformove = True
+        self.clearMsg()
+
+    def RotateLeft(self,deg):
+        # 左旋回
+        self.msg_brain.foot_dirreq = DIRECTION.LEFT
+        self.msg_brain.foot_movreq = deg
+
+        self.pub_brain.publish(self.msg_brain)
+        self.waitformove = True
+        self.clearMsg()
+
+    def AdjustingMove(self, mm):
+        if mm >= 0:
+            GoAhead(mm)
+        else:
+            GoBack(mm)
+#--------------------
+    def initialize(self):
+        self.clearMsg()
+
+        # Clientから動作モード&ターゲットを受けるまで1秒間隔でpublish
+        if self.rx_mode == Mode.INIT | self.rx_tartget == TARGET.UNKNOWN:
+            if self.cyclecount == 0:
+                self.pub_brain.publish(self.msg_brain)
+            else:
+                pass
+        else:
+            # モード/ターゲット更新 & 通知
+            self.msg_brain.mode_id = self.mode = self.rx_mode
+            self.msg_brain.target_id = self.target = self.rx_target
+            self.pub_brain.publish(self.msg_brain)
 
     def main(self):
         if self.mode == Mode.INIT:
             self.initialize()
         elif self.mode == Mode.MANUAL:
-            #Todo 手動シーケンス
+            pass #Todo 手動シーケンス
         elif self.mode == Mode.AUTO:
-            if self.target == TARGET.GRASS:
-            #Todo 草刈りシーケンス
-            if self.target == TARGET.TOMATO:
-            #Todo 収穫シーケンス
-            if self.target == TARGET.SIDE_SPROUT:
-            #Todo 芽かきシーケンス
+            if OnOperation():
+                # 手・足いずれかが駆動中は何もしない
+                pass
+            elif OnTransition():
+                # 手・足駆動終了後に一定時間Wait（カメラのブレが収まるのを待つ）
+                pass
+            elif DoesFindAny():
+                # 検出対象を発見
+
+                #Todo 畝に寄る？
+
+                if self.maintgt_find:
+                    if IsTargetCenter(self.maintgt.y):
+                        DriveHand(self.maintgt)
+                    else:
+                        AdjustingMove(-self.maintgt.y/2.0)
+                elif self.subtgt_find:
+                    if IsTargetCenter(self.subtgt.y):
+                        DriveTwist(self.subtgt)
+                    else:
+                        AdjustingMove(-self.subtgt.y/2.0)
+                elif self.poll_find:
+                    pass #Todo ポール検出時動作
+            else:
+                # 何も見つからない場合は前進
+                GoAhead(DEFAULT_MOV)
         else:
             pass
 
@@ -214,4 +301,5 @@ if __name__ == '__main__':
     try:
         brain_py()
 
-    except rospy.ROSInterruptException: pass
+    except rospy.ROSInterruptException:
+        print("end brain")
