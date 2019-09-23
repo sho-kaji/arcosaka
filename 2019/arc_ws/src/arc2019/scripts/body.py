@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
+# pylint: disable=E1101,C0325
 """
 ボディ
 """
@@ -20,7 +21,7 @@ from body_consts import \
 
 from brain_consts import PUBLISH_RATE
 
-class BodyClass():
+class BodyClass(object):
     """
     ボディを動かすためのクラス
     """

@@ -74,7 +74,7 @@ void setup( void )
 
     // set pin modes
     DDRB = 0x02;    // PB1:OUTPUT
-    PORTB = 0x00;   // PB1:LOW
+    PORTB = 0x02;   // PB1:LOW
 
     // initialize state machine variables
     rcvstate = STATE_IDLE;
@@ -201,16 +201,16 @@ ISR(TIM0_OVF_vect)
 
                     if ( custom_code == (uint16_t)CUSTOMCODE )
                     {
-                        // Emergency enabled
+                        // Emergency disabled
                         if ((data_code == 0x00) || (data_code == 0xD8))
                         {
-                            PORTB |= 0x02;      // PB1 ON
+                            PORTB &= ~0x02;     // PB1 OFF
                         }
 
-                        // Emergency disabled
+                        // Emergency enabled
                         if (data_code == 0x80)
                         {
-                            PORTB &= ~0x02;     // PB1 OFF
+                            PORTB |= 0x02;      // PB1 ON
                         }
                     }
 

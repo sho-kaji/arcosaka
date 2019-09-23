@@ -1,0 +1,6 @@
+<launch>
+  <group ns="test1">
+    <node pkg="arc2019" name="arm" type="arm.py" output="screen"/>
+
+  </group>
+</launch>
