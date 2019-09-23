@@ -13,21 +13,21 @@ def main_dc():
     """
     DCモーターテスト
     """
-    mc = mortor.MortorClass()
+    mcc = mortor.MortorClass()
     while True:
         try:
             val = input('number(-2～2):')
             int_tmp = int(val)
             if int_tmp == 0:
-                mc.move_dc(DCROTATE.STOP,DCROTATE.STOP)
+                mcc.move_dc(DCROTATE.STOP, DCROTATE.STOP)
             elif int_tmp == 1:
-                mc.move_dc(DCROTATE.CW,DCROTATE.STOP)
+                mcc.move_dc(DCROTATE.CW, DCROTATE.STOP)
             elif int_tmp == 2:
-                mc.move_dc(DCROTATE.CW,DCROTATE.CCW)
+                mcc.move_dc(DCROTATE.CW, DCROTATE.CCW)
             elif int_tmp == -1:
-                mc.move_dc(DCROTATE.STOP,DCROTATE.CW)
+                mcc.move_dc(DCROTATE.STOP, DCROTATE.CW)
             elif int_tmp == -2:
-                mc.move_dc(DCROTATE.CCW,DCROTATE.CW)
+                mcc.move_dc(DCROTATE.CCW, DCROTATE.CW)
             else:
                 break
 
@@ -36,13 +36,35 @@ def main_dc():
             break
         except :
             pass
-    mc.endfnc()
+    mcc.endfnc()
+
+def main_dccut():
+    """
+    DCモーターテスト
+    """
+    mcc = mortor.MortorClass()
+    while True:
+        try:
+            val = input('number(0 or 1):')
+            int_tmp = int(val)
+            
+            if int_tmp >= 0:
+                mcc.move_dc_duty(9,11,int_tmp,0)
+            else:
+                break
+
+        except KeyboardInterrupt:
+            print("Ctrl+Cで停止しました")
+            break
+        except :
+            pass
+    mcc.endfnc()
 
 def main_servo():
     """
     サーボモーターテスト
     """
-    mc = mortor.MortorClass()
+    mcc = mortor.MortorClass()
     while True:
         try:
             port = input('  port:')
@@ -55,19 +77,19 @@ def main_servo():
             if int_tmp < 0:
                 break
 
-            mc.move_servo(0, int_tmp,False)
+            mcc.move_servo(0, int_tmp, False)
         except KeyboardInterrupt:
             print("Ctrl+Cで停止しました")
             break
         except :
             pass
-    mc.endfnc()
+    mcc.endfnc()
 
 def main_step():
     """
     ステッピングモーターテスト
     """
-    mc = mortor.MortorClass()
+    mcc = mortor.MortorClass()
     while True:
         try:
             val = input('  step:')
@@ -75,14 +97,14 @@ def main_step():
             if int_tmp == 0:
                 break
 
-            mc.move_step_step(11,8,int_tmp,2)
+            mcc.move_step_step(11, 8, int_tmp, 2)
 
         except KeyboardInterrupt:
             print("Ctrl+Cで停止しました")
             break
         except :
             pass
-    mc.endfnc()
+    mcc.endfnc()
 
 if __name__ == '__main__':
-    main_step()
+    main_dccut()

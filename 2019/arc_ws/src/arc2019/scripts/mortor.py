@@ -140,11 +140,12 @@ class MortorClass(object):
 
             print("cw  A = %d" % dcduty_a_cw)
             print("ccw A = %d" % dcduty_a_ccw)
-            print("cw  B = %d" % dcduty_b_cw)
-            print("ccw B = %d" % dcduty_b_ccw)
 
             if self.port_a_cw >= 0 and self.port_a_ccw >= 0:
                 self.move_dc_duty(self.port_a_cw, self.port_a_ccw, dcduty_a_cw, dcduty_a_ccw)
+
+            print("cw  B = %d" % dcduty_b_cw)
+            print("ccw B = %d" % dcduty_b_ccw)
 
             if self.port_b_cw >= 0 and self.port_b_ccw >= 0:
                 self.move_dc_duty(self.port_b_cw, self.port_b_ccw, dcduty_b_cw, dcduty_b_ccw)
@@ -160,6 +161,10 @@ class MortorClass(object):
         """
         DCモーターデューティー
         """
+        #絶対値に変換
+        dcduty_cw = abs(dcduty_cw)
+        dcduty_ccw = abs(dcduty_ccw)
+
         #上下限ガード
         if dcduty_cw > 100:
             dcduty_cw = 100
@@ -174,6 +179,8 @@ class MortorClass(object):
             dcduty_cw = 0
             dcduty_ccw = 0
 
+        print("cw  = %d" % dcduty_cw)
+        print("ccw = %d" % dcduty_ccw)
 
         if self.is_notdebug:
             #新しい値で出力
@@ -235,7 +242,7 @@ class MortorClass(object):
         """
         if freq < 0:
             freq = STEP_FREQ
-        
+
         print("step      = %d" % step)
         wait_hl = (1.0 / freq * (STEP_DUTY / 100.0))
         wait_lh = (1.0 / freq * (1 - (STEP_DUTY / 100.0)))
@@ -247,7 +254,7 @@ class MortorClass(object):
         print("wait_hl   = %f" % wait_hl)
         print("wait_lh   = %f" % wait_lh)
         print("wait      = %f" % (wait_hl + wait_lh))
-        
+
         if self.is_notdebug:
             self.pic.set_mode(18, pigpio.OUTPUT)
             self.pic.set_mode(port_a, pigpio.OUTPUT)

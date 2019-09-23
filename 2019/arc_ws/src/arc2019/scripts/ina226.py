@@ -42,3 +42,7 @@ class Ina226(object):
         result = ((word << 8) & 0xFF00) + (word >> 8)
         curr = result * 1.25 / 1000
         return curr
+
+if __name__ == '__main__':
+    ina = Ina226()
+    ina.read_v_loop()
