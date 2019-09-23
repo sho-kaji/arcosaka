@@ -179,8 +179,8 @@ class MortorClass(object):
             dcduty_cw = 0
             dcduty_ccw = 0
 
-        print("cw  = %d" % dcduty_cw)
-        print("ccw = %d" % dcduty_ccw)
+        print("cw   = %d" % dcduty_cw)
+        print("ccw  = %d" % dcduty_ccw)
 
         if self.is_notdebug:
             #新しい値で出力
@@ -215,13 +215,14 @@ class MortorClass(object):
         """
         サーボモーターパルス
         """
-        print("pulse = %d" % pulse)
 
         if limit:
             if pulse < SERVO_MIN:
                 pulse = SERVO_MIN
             if pulse > SERVO_MAX:
                 pulse = SERVO_MAX
+
+        print("pulse = %d" % pulse)
 
         if self.is_notdebug:
             self.pwm.set_pwm(channel, 0, int(pulse))

@@ -34,8 +34,8 @@ def main_dc():
         except KeyboardInterrupt:
             print("Ctrl+Cで停止しました")
             break
-        except :
-            pass
+        except TypeError as ex:
+            print(ex)
     mcc.endfnc()
 
 def main_dccut():
@@ -49,15 +49,15 @@ def main_dccut():
             int_tmp = int(val)
             
             if int_tmp >= 0:
-                mcc.move_dc_duty(9,11,int_tmp,0)
+                mcc.move_dc_duty(9, 11, int_tmp,0)
             else:
                 break
 
         except KeyboardInterrupt:
             print("Ctrl+Cで停止しました")
             break
-        except :
-            pass
+        except TypeError as ex:
+            print(ex)
     mcc.endfnc()
 
 def main_servo():
@@ -77,12 +77,13 @@ def main_servo():
             if int_tmp < 0:
                 break
 
-            mcc.move_servo(0, int_tmp, False)
+            mcc.move_servo(int_port, int_tmp, False)
         except KeyboardInterrupt:
             print("Ctrl+Cで停止しました")
             break
-        except :
-            pass
+        except TypeError as ex:
+            print(ex)
+
     mcc.endfnc()
 
 def main_step():
@@ -97,14 +98,14 @@ def main_step():
             if int_tmp == 0:
                 break
 
-            mcc.move_step_step(11, 8, int_tmp, 2)
+            mcc.move_step_step(11, 8, int_tmp)
 
         except KeyboardInterrupt:
             print("Ctrl+Cで停止しました")
             break
-        except :
-            pass
+        except TypeError as ex:
+            print(ex)
     mcc.endfnc()
 
 if __name__ == '__main__':
-    main_dccut()
+    main_step()

@@ -15,14 +15,22 @@ from arc2019.msg import brain
 
 from params import MODE,TARGET
 
-# from params import TARGET
-
 from arm_consts import \
                 DEBUG_ARM, \
                 LIM_BASE_L, LIM_BASE_R, \
                 LIM_ELBOW_B, LIM_ELBOW_F, \
                 LIM_SHOULD_B, LIM_SHOULD_F, \
+                CHANNEL_ELBOW, \
+                CHANNEL_SHOULD, \
+                CHANNEL_BASE, \
+                PORT_TWISTV_A, PORT_TWISTV_B, \
+                PORT_TWISTH_A, PORT_TWISTH_B, \
+                PORT_HANDV_A, PORT_HANDV_B, \
+                PORT_HANDH_A, PORT_HANDH_B, \
                 PORTS_ARM
+
+from mortor_consts import \
+                STEP_1PULSE
 
 from brain_consts import CYCLES
 
@@ -82,7 +90,7 @@ class ArmClass(object):
         self.is_hand_call = True
 
         #モード変更確認
-        self.modechange(brain_mes.mode, brain_mes.target)
+        self.modechange(brain_mes.mode_id, brain_mes.target_id)
 
         #関数コール
         if self.target_now == TARGET.GRASS: #草刈りモード時
@@ -133,7 +141,9 @@ class ArmClass(object):
         """
         草刈り
         """
-        
+        if self.mode_now == MODE.AUTO:
+            pass
+
 
         self.move_base(self.brain_mes.base_req)
         self.move_should(self.brain_mes.should_req)
@@ -152,7 +162,27 @@ class ArmClass(object):
         """
         収穫
         """
-        handx = 
+        if self.mode_now == MODE.AUTO:
+            handx = self.brain_mes.handx_req
+            handy = -1
+            handz = self.brain_mes.handz_req
+
+            handv = handz / STEP_1PULSE
+            handh = handx / STEP_1PULSE
+
+        elif self.mode_now == MODE.MANUAL:
+            handx = -1
+            handy = -1
+            handz = -1
+
+            handv = -1
+            handh = -1
+
+        else:
+            pass
+
+        self.move_handv(handv)
+        self.move_handh(handh)
 
     #end mode_tomato
 
@@ -160,6 +190,9 @@ class ArmClass(object):
         """
         肘
         """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_ELBOW, elbow)
+        self.is_hand_move = False
 
     #end move_elbow
 
@@ -167,6 +200,9 @@ class ArmClass(object):
         """
         肩
         """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_SHOULD, should)
+        self.is_hand_move = False
 
     #end move_should
 
@@ -174,6 +210,9 @@ class ArmClass(object):
         """
         土台
         """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_BASE, base)
+        self.is_hand_move = False
 
     #end move_base
 
@@ -181,6 +220,9 @@ class ArmClass(object):
         """
         ねじ切り垂直
         """
+        self.is_hand_move = True
+        self.mmc.move_step(PORT_TWISTV_A, PORT_TWISTV_B, twistv)
+        self.is_hand_move = False
 
     #end move_twistv
 
@@ -188,6 +230,9 @@ class ArmClass(object):
         """
         ねじ切り水平
         """
+        self.is_hand_move = True
+        self.mmc.move_step(PORT_TWISTH_A, PORT_TWISTH_B, twisth)
+        self.is_hand_move = False
 
     #end move_twisth
 
@@ -195,6 +240,9 @@ class ArmClass(object):
         """
         ハンド垂直
         """
+        self.is_hand_move = True
+        self.mmc.move_step(PORT_HANDV_A, PORT_HANDV_B, handv)
+        self.is_hand_move = False
 
     #end move_handv
 
@@ -202,6 +250,9 @@ class ArmClass(object):
         """
         ハンド水平
         """
+        self.is_hand_move = True
+        self.mmc.move_step(PORT_HANDH_A, PORT_HANDH_B, handh)
+        self.is_hand_move = False
 
     #end move_handh
 
