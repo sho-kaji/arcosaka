@@ -20,7 +20,7 @@ ADDR_PWM = 0x41 #
 
 # for move_dc
 DC_FREQ = 20 * 1000 # DCモーター周波数[Hz]
-DC_DUTY = 60 # DCモーターDuty[%]
+DC_DUTY = 40 # DCモーターDuty[%]
 DC_PLUS = 2 # DCモーターDuty1周期変化量[%]
 
 # for move_servo

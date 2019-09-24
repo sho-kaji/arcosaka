@@ -70,14 +70,14 @@ class ArmClass(object):
         self.twistz_req_o = 0 # ねじ切りハンド指定位置Z前回値
 
         self.is_arm_move = False
-        self.is_hand_call = False
-        self.elbow = 0 # 肘モーター
-        self.should = 0 # 肩モーター
-        self.base = 0 # 土台モーター
-        self.twistv = 0 # ねじ切り垂直モーター
-        self.twisth = 0 # ねじ切り水平モーター
-        self.handv = 0 # ハンド垂直モーター
-        self.handh = 0 # ハンド水平モーター
+        self.is_arm_call = False
+        self.elbow_o = 0 # 肘モーター
+        self.should_o = 0 # 肩モーター
+        self.base_o = 0 # 土台モーター
+        self.twistv_o = 0 # ねじ切り垂直モーター
+        self.twisth_o = 0 # ねじ切り水平モーター
+        self.handv_o = 0 # ハンド垂直モーター
+        self.handh_o = 0 # ハンド水平モーター
 
     #end __init__
 
@@ -87,7 +87,7 @@ class ArmClass(object):
         """
 
         self.is_arm_move = False
-        self.is_hand_call = True
+        self.is_arm_call = True
 
         #モード変更確認
         self.modechange(brain_mes.mode_id, brain_mes.target_id)
@@ -117,7 +117,7 @@ class ArmClass(object):
         # 今回値保存ここまで
 
         #区切り
-        self.is_hand_call = False
+        self.is_arm_call = False
         print("==============================")
     # end callback
 
@@ -143,11 +143,10 @@ class ArmClass(object):
         """
         if self.mode_now == MODE.AUTO:
             pass
-
-
-        self.move_base(self.brain_mes.base_req)
-        self.move_should(self.brain_mes.should_req)
-        self.move_elbow(self.brain_mes.elbow_req)
+        elif self.mode_now == MODE.MANUAL:
+            self.move_base(self.brain_mes.base_req)
+            self.move_should(self.brain_mes.should_req)
+            self.move_elbow(self.brain_mes.elbow_req)
 
     #end mode_grass
 
@@ -155,7 +154,7 @@ class ArmClass(object):
         """
         芽かき
         """
-        
+
     #end mode_sprout
 
     def mode_tomato(self):
@@ -175,7 +174,6 @@ class ArmClass(object):
 
         else:
             pass
-
         self.move_handv(handv)
         self.move_handh(handh)
 
@@ -211,45 +209,27 @@ class ArmClass(object):
 
     #end move_base
 
-    def move_twistv(self, twistv):
+    def move_twist(self, twistv, twisth):
         """
-        ねじ切り垂直
+        ねじ切り
         """
         self.is_arm_move = True
         self.mmc.move_step(PORT_TWISTV_A, PORT_TWISTV_B, twistv)
-        self.is_arm_move = False
-
-    #end move_twistv
-
-    def move_twisth(self, twisth):
-        """
-        ねじ切り水平
-        """
-        self.is_arm_move = True
         self.mmc.move_step(PORT_TWISTH_A, PORT_TWISTH_B, twisth)
         self.is_arm_move = False
 
-    #end move_twisth
+    #end move_twist
 
-    def move_handv(self, handv):
+    def move_hand(self, handv, handh):
         """
-        ハンド垂直
+        ハンド
         """
         self.is_arm_move = True
         self.mmc.move_step(PORT_HANDV_A, PORT_HANDV_B, handv)
-        self.is_arm_move = False
-
-    #end move_handv
-
-    def move_handh(self, handh):
-        """
-        ハンド水平
-        """
-        self.is_arm_move = True
         self.mmc.move_step(PORT_HANDH_A, PORT_HANDH_B, handh)
         self.is_arm_move = False
 
-    #end move_handh
+    #end move_hand
 
     def clear_msg(self):
         """
