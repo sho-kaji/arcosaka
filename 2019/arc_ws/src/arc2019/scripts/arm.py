@@ -6,31 +6,23 @@
 """
 
 import rospy
-
 import mortor
 
-from arc2019.msg import arm
-from arc2019.msg import client
-from arc2019.msg import brain
-
-from params import MODE,TARGET
+from params import MODE, TARGET
 
 from arm_consts import \
-                DEBUG_ARM, \
-                LIM_BASE_L, LIM_BASE_R, \
-                LIM_ELBOW_B, LIM_ELBOW_F, \
-                LIM_SHOULD_B, LIM_SHOULD_F, \
-                CHANNEL_ELBOW, \
-                CHANNEL_SHOULD, \
-                CHANNEL_BASE, \
-                PORT_TWISTV_A, PORT_TWISTV_B, \
-                PORT_TWISTH_A, PORT_TWISTH_B, \
-                PORT_HANDV_A, PORT_HANDV_B, \
-                PORT_HANDH_A, PORT_HANDH_B, \
-                PORTS_ARM
-
-from mortor_consts import \
-                STEP_1PULSE
+    DEBUG_ARM, \
+    LIM_BASE_L, LIM_BASE_R, \
+    LIM_ELBOW_B, LIM_ELBOW_F, \
+    LIM_SHOULD_B, LIM_SHOULD_F, \
+    CHANNEL_ELBOW, \
+    CHANNEL_SHOULD, \
+    CHANNEL_BASE, \
+    PORT_TWISTV_A, PORT_TWISTV_B, \
+    PORT_TWISTH_A, PORT_TWISTH_B, \
+    PORT_HANDV_A, PORT_HANDV_B, \
+    PORT_HANDH_A, PORT_HANDH_B, \
+    PORTS_ARM
 
 from brain_consts import CYCLES
 
@@ -41,21 +33,12 @@ class ArmClass(object):
 
     def __init__(self):
 
-        self.mortorc = mortor.MortorClass()
+        # MortorClass
+        self.mmc = mortor.MortorClass()
 
         # initialize port
         for key, val in PORTS_ARM.items():
-            self.mortorc.pic.set_mode(key, val)
-
-        # パブリッシャーの準備
-        self.pub_arm = rospy.Publisher('arm', arm, queue_size=100)
-        # messageのインスタンスを作る
-        self.msg_arm = arm()
-        # index
-        self.frame_id = 0
-
-        # MortorClass
-        self.mmc = mortor.MortorClass()
+            self.mmc.pic.set_mode(key, val)
 
         # モード今回値
         self.mode_now = MODE.UNKNOWN
@@ -81,45 +64,11 @@ class ArmClass(object):
 
     #end __init__
 
-    def callback(self, brain_mes):
+    def posinit(self):
         """
-        メッセージを受信したときに呼び出し
+        アーム位置初期化
         """
-
-        self.is_arm_move = False
-        self.is_arm_call = True
-
-        #モード変更確認
-        self.modechange(brain_mes.mode_id, brain_mes.target_id)
-
-        #関数コール
-        if self.target_now == TARGET.GRASS: #草刈りモード時
-            self.mode_grass()
-
-        elif self.target_now == TARGET.SIDE_SPROUT: #芽かきモード時
-            self.mode_sprout()
-
-        elif self.target_now == TARGET.TOMATO: #収穫モード時
-            self.mode_tomato()
-
-        else:
-            self.mc.endfnc()
-        
-
-        #今回値保存ここから
-        self.elbow_req_o = brain_mes.elbow_req # 肘モーター要求値
-        self.should_req_o = brain_mes.should_req # 肩モーター要求値
-        self.handx_req_o = brain_mes.handx_req # ハンド指定位置X
-        self.handy_req_o = brain_mes.handy_req # ハンド指定位置Y
-        self.handz_req_o = brain_mes.handz_req # ハンド指定位置Z
-        self.twistx_req_o = brain_mes.twistx_req # ねじ切りハンド指定位置X
-        self.twistz_req_o = brain_mes.twistz_req # ねじ切りハンド指定位置Z
-        # 今回値保存ここまで
-
-        #区切り
-        self.is_arm_call = False
-        print("==============================")
-    # end callback
+        pass
 
     def modechange(self, mode, target):
         """
@@ -136,48 +85,6 @@ class ArmClass(object):
             #何か処理
 
     #end modechange
-
-    def mode_grass(self):
-        """
-        草刈り
-        """
-        if self.mode_now == MODE.AUTO:
-            pass
-        elif self.mode_now == MODE.MANUAL:
-            self.move_base(self.brain_mes.base_req)
-            self.move_should(self.brain_mes.should_req)
-            self.move_elbow(self.brain_mes.elbow_req)
-
-    #end mode_grass
-
-    def mode_sprout(self):
-        """
-        芽かき
-        """
-
-    #end mode_sprout
-
-    def mode_tomato(self):
-        """
-        収穫
-        """
-        if self.mode_now == MODE.AUTO:
-            handx = self.brain_mes.handx_req
-            handz = self.brain_mes.handz_req
-
-            handv = handz / STEP_1PULSE
-            handh = handx / STEP_1PULSE
-
-        elif self.mode_now == MODE.MANUAL:
-            handv = 0
-            handh = 0
-
-        else:
-            pass
-        self.move_handv(handv)
-        self.move_handh(handh)
-
-    #end mode_tomato
 
     def move_elbow(self, elbow):
         """
@@ -209,27 +116,45 @@ class ArmClass(object):
 
     #end move_base
 
-    def move_twist(self, twistv, twisth):
+    def move_twistv(self, twistv):
         """
-        ねじ切り
+        ねじ切り垂直
         """
         self.is_arm_move = True
         self.mmc.move_step(PORT_TWISTV_A, PORT_TWISTV_B, twistv)
+        self.is_arm_move = False
+
+    #end move_twistv
+
+    def move_twisth(self, twisth):
+        """
+        ねじ切り水平
+        """
+        self.is_arm_move = True
         self.mmc.move_step(PORT_TWISTH_A, PORT_TWISTH_B, twisth)
         self.is_arm_move = False
 
-    #end move_twist
+    #end move_twisth
 
-    def move_hand(self, handv, handh):
+    def move_handv(self, handv):
         """
-        ハンド
+        ハンド垂直
         """
         self.is_arm_move = True
         self.mmc.move_step(PORT_HANDV_A, PORT_HANDV_B, handv)
+        self.is_arm_move = False
+
+    #end move_handv
+
+    def move_handh(self, handh):
+        """
+        ハンド水平
+        """
+        self.is_arm_move = True
         self.mmc.move_step(PORT_HANDH_A, PORT_HANDH_B, handh)
         self.is_arm_move = False
 
-    #end move_hand
+    #end move_handh
 
     def clear_msg(self):
         """
@@ -281,7 +206,6 @@ def arm_py():
     armc = ArmClass()
     rrate = rospy.Rate(CYCLES)
     rospy.init_node('arm_py_node', anonymous=True)
-    rospy.Subscriber('brain', brain, armc.callback, queue_size=1)
     print("start_arm")
     # ctl +　Cで終了しない限りwhileループでpublishし続ける
     while not rospy.is_shutdown():

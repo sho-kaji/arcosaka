@@ -5,153 +5,198 @@
 ハンド
 """
 
-
-import pigpio
 import rospy
+import pigpio
+import mortor
 
-from arc2019.msg import hand
-from params import Mode, TARGET
+from params import MODE, TARGET
 
 from hand_consts import \
-                DEBUG_HAND, \
-                LIM_BASE_L, LIM_BASE_R, \
-                LIM_ELBOW_B, LIM_ELBOW_F, \
-                LIM_SHOULD_B, LIM_SHOULD_F, \
-                LIM_WRIST_B, LIM_WRIST_F, \
-                PORT_BASE, PORT_ELBOW, \
-                PORT_HANDH_A, PORT_HANDH_B, \
-                PORT_HANDV_A, PORT_HANDV_B, \
-                PORT_SHOULD, \
-                PORT_TWISTH_A, PORT_TWISTH_B, \
-                PORT_TWISTV_A, PORT_TWISTV_B, \
-                PORT_WRIST
+    DEBUG_HAND, \
+    CATCH_HAND, RELEASE_HAND, \
+    CHANNEL_HAND, \
+    LIM_WRIST_F, LIM_WRIST_B, \
+    CHANNEL_WRIST, \
+    ON_PLUCK, OFF_PLUCK, \
+    CHANNEL_PLUCK, \
+    CATCH_GRAB, RELEASE_GRAB, \
+    CHANNEL_GRAB, \
+    ON_TWIST, OFF_TWIST, \
+    CHANNEL_TWIST, \
+    LIM_ATTACH_RL, LIM_ATTACH_RR, \
+    CHANNEL_ATTACH_RR, \
+    LIM_ATTACH_LL, LIM_ATTACH_LR, \
+    CHANNEL_ATTACH_LR, \
+    PORTS_HAND
 
-from brain_consts import PUBLISH_RATE
+from mortor_consts import \
+    DC_DUTY
+
+from brain_consts import CYCLES
 
 class HandClass(object):
     """
-    ハンドを動かすためのクラス
+    ボディを動かすためのクラス
     """
 
     def __init__(self):
 
-        # initialize gpio
+        # MortorClass
+        self.mmc = mortor.MortorClass()
+
+        # initialize port
         self.pic = pigpio.pi()
-        self.pic.set_mode(PORT_HANDH_A, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_HANDH_B, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_HANDV_A, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_HANDV_B, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_TWISTH_A, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_TWISTH_B, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_TWISTV_A, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_TWISTV_B, pigpio.OUTPUT)
+        for key, val in PORTS_HAND.items():
+            self.mmc.pic.set_mode(key, val)
 
-        # パブリッシャーの準備
-        self.pub_hand = rospy.Publisher('hand', hand, queue_size=100)
-        # messageのインスタンスを作る
-        self.msg_hand = hand()
-        # index
-        self.frame_id = 0
-        # モード前回値
-        self.mode_old = Mode.UNKNOWN
+        # モード今回値
+        self.mode_now = MODE.UNKNOWN
+        self.target_now = TARGET.UNKNOWN
 
-    def callback(self, handmes):
+        self.elbow_req_o = 0 # 肘モーター要求値前回値
+
+        self.is_hand_move = False
+        self.is_hand_call = False
+        self.is_pwoffsw = False
+
+    #end __init__
+
+    def posinit(self):
         """
-        メッセージを受信したときに呼び出し
+        アーム位置初期化
         """
+        pass
 
-        print('frame_id = %d ' % handmes.frame_id)
-
-        #モード変更確認
-        self.grubMotion(handmes.mode)
-
-        #区切り
-        print("==============================")
-
-    def modechange(self, mode):
+    def modechange(self, mode, target):
         """
-        モード変更処理
+        モード変更確認
         """
+        if self.mode_now != mode:
+            self.mode_now = mode
+            self.mmc.endfnc()
+            #何か処理
 
-        if mode != self.mode_old:
+        if self.target_now != target:
+            self.target_now = target
+            self.mmc.endfnc()
+            #何か処理
 
-            #モード変更時初期化
+    #end modechange
 
-            #モーター停止
 
-            self.mode_old = mode
-
-        else:
-            pass
-
-        if self.mode_old > -1:
-            print("mode = %s" % Mode(self.mode_old).name)
-        else:
-            print("mode = %s" % "UNKNOWN")
-
-    def move_hand(self, parameter_list):
+    def move_hand(self, hand):
         """
-        掴む/放す
+        ハンド
         """
-        
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_HAND, hand)
+        self.is_hand_move = False
 
-    def grubMotion(self, grub):
-        """
-        掴む/放す
-        """
-        
+    #end move_hand
 
+    def move_wrist(self, wrist):
+        """
+        手首
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_WRIST, wrist)
+        self.is_hand_move = False
+
+    #end move_wrist
+
+    def move_pluck(self, pluck):
+        """
+        引抜
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_PLUCK, pluck)
+        self.is_hand_move = False
+
+    #end move_pluck
+
+    def move_grab(self, grab):
+        """
+        枝掴み
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_GRAB, grab)
+        self.is_hand_move = False
+
+    #end move_grab
+
+    def move_twist(self, twist):
+        """
+        枝ねじり
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_TWIST, twist)
+        self.is_hand_move = False
+
+    #end move_twist
+
+    def move_attach_r(self, attach_r):
+        """
+        添え手右
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_ATTACH_RR, attach_r)
+        self.is_hand_move = False
+
+    #end move_attach_r
+
+    def move_attach_l(self, attach_l):
+        """
+        添え手左
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_ATTACH_LR, attach_l)
+        self.is_hand_move = False
+
+    #end move_attach_l
 
     def clear_msg(self):
         """
         メッセージ初期化
         """
         self.msg_hand.is_hand_move = False
-        self.msg_hand.is_twistv_ulim = False
-        self.msg_hand.is_twistv_dlim = False
-        self.msg_hand.is_twisth_flim = False
-        self.msg_hand.is_twisth_blim = False
-        self.msg_hand.is_handv_ulim = False
-        self.msg_hand.is_handv_dlim = False
-        self.msg_hand.is_handh_flim = False
-        self.msg_hand.is_handh_blim = False
 
-    def publishData(self):
+    #end clear_msg
+
+
+    def publish_data(self):
         """
         データ送信
         """
         # clear
         self.clear_msg()
         self.msg_hand.frame_id = self.frame_id
+        # 送信データ追加開始
+
+        self.msg_hand.is_hand_move = self.is_hand_move
+
+        # 送信データ追加終了
+
         # publishする関数
         self.pub_hand.publish(self.msg_hand)
         self.frame_id += 1
-
-def printDebug(message):
-    """
-    デバッグメッセージを表示
-    """
-    if DEBUG_HAND is True:
-        print(message)
-    else:
-        pass
+    #end publish_data
 
 def hand_py():
     """
-    ハンドのメイン
+    ボディのメイン
     """
 
     handc = HandClass()
-    r = rospy.Rate(PUBLISH_RATE)
+    rrate = rospy.Rate(CYCLES)
     rospy.init_node('hand_py_node', anonymous=True)
-    rospy.Subscriber('hand', hand, handc.callback, queue_size=1)
-    printDebug("start_hand")
+    print("start_hand")
     # ctl +　Cで終了しない限りwhileループでpublishし続ける
     while not rospy.is_shutdown():
         # publishする関数
-        handc.publishData()
+        handc.publish_data()
         #
-        r.sleep()
+        rrate.sleep()
+#end hand_py
 
 if __name__ == '__main__':
     hand_py()

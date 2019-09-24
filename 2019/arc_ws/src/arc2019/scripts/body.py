@@ -5,21 +5,25 @@
 ボディ
 """
 
-
-import pigpio
 import rospy
+import pigpio
+import mortor
 
-from arc2019.msg import body
-from params import Mode, TARGET
+from params import MODE, TARGET
 
 from body_consts import \
-                DEBUG_BODY,\
-                PORT_LID,\
-                PORT_SPRAY, \
-                PORT_BLADE_A, PORT_BLADE_B,\
-                PORT_PWOFFSW \
+    DEBUG_BODY, \
+    CHANNEL_LID, \
+    PORT_SPRAY, \
+    PORT_BLADE_A, PORT_BLADE_B, \
+    BLADE_MIMUS, BLADE_NONE, BLADE_PLUS, \
+    PORT_PWOFFSW, \
+    PORTS_BODY
 
-from brain_consts import PUBLISH_RATE
+from mortor_consts import \
+    DC_DUTY
+
+from brain_consts import CYCLES
 
 class BodyClass(object):
     """
@@ -28,61 +32,87 @@ class BodyClass(object):
 
     def __init__(self):
 
-        # initialize gpio
+        # MortorClass
+        self.mmc = mortor.MortorClass()
+
+        # initialize port
         self.pic = pigpio.pi()
-        self.pic.set_mode(PORT_LID, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_SPRAY, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_BLADE_A, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_BLADE_B, pigpio.OUTPUT)
-        self.pic.set_mode(PORT_PWOFFSW, pigpio.INPUT)
+        for key, val in PORTS_BODY.items():
+            self.mmc.pic.set_mode(key, val)
 
-        # パブリッシャーの準備
-        self.pub_body = rospy.Publisher('body', body, queue_size=100)
-        # messageのインスタンスを作る
-        self.msg_body = body()
-        # index
-        self.frame_id = 0
-        # モード前回値
-        self.mode_old = Mode.UNKNOWN
+        # モード今回値
+        self.mode_now = MODE.UNKNOWN
+        self.target_now = TARGET.UNKNOWN
 
-    def callback(self, bodymes):
+        self.elbow_req_o = 0 # 肘モーター要求値前回値
+
+        self.is_body_move = False
+        self.is_body_call = False
+        self.is_pwoffsw = False
+
+    #end __init__
+
+    def posinit(self):
         """
-        メッセージを受信したときに呼び出し
+        アーム位置初期化
+        """
+        pass
+
+    def modechange(self, mode, target):
+        """
+        モード変更確認
+        """
+        if self.mode_now != mode:
+            self.mode_now = mode
+            self.mmc.endfnc()
+            #何か処理
+
+        if self.target_now != target:
+            self.target_now = target
+            self.mmc.endfnc()
+            #何か処理
+
+    #end modechange
+
+
+    def move_lid(self, lid):
+        """
+        蓋
+        """
+        self.is_body_move = True
+        self.mmc.move_servo(CHANNEL_LID, lid)
+        self.is_body_move = False
+
+    #end move_lid
+
+    def move_spray(self, spray):
+        """
+        散布
+        """
+        self.is_body_move = True
+        self.mmc.move_dc_duty(PORT_SPRAY, -1, spray, 0)
+        self.is_body_move = False
+
+    #end move_spray
+
+    def move_blade(self, blade):
+        """
+        刃
         """
 
-        print('frame_id = %d ' % bodymes.frame_id)
+        blade_p = blade * DC_DUTY
+        if blade_p < 0:
+            blade_p = 0
 
-        #モード変更確認
-        self.grubMotion(bodymes.mode)
+        blade_m = -(blade * DC_DUTY)
+        if blade_m < 0:
+            blade_m = 0
 
-        #区切り
-        print("==============================")
+        self.is_body_move = True
+        self.mmc.move_dc_duty(PORT_BLADE_A, PORT_BLADE_B, blade_p, blade_m)
+        self.is_body_move = False
 
-    def modeChange(self, mode):
-        """
-        モード変更処理
-        """
-
-        if mode != self.mode_old:
-
-            #モード変更時初期化
-
-            #モーター停止
-
-            self.mode_old = mode
-
-        else:
-            pass
-
-        if self.mode_old > -1:
-            print("mode = %s" % Mode(self.mode_old).name)
-        else:
-            print("mode = %s" % "UNKNOWN")
-
-    def grubMotion(self, grub):
-        """
-        掴む/放す
-        """
+    #end move_blade
 
 
     def clear_msg(self):
@@ -90,28 +120,29 @@ class BodyClass(object):
         メッセージ初期化
         """
         self.msg_body.is_body_move = False
-        self.msg_body.is_pwoffsw = False
-        
-    def publishData(self):
+
+    #end clear_msg
+
+
+    def publish_data(self):
         """
         データ送信
         """
         # clear
         self.clear_msg()
         self.msg_body.frame_id = self.frame_id
+        # 送信データ追加開始
+
+        self.msg_body.is_body_move = self.is_body_move
+        self.is_pwoffsw = self.pic.read(PORT_PWOFFSW) is pigpio.HIGH
+        self.msg_body.is_pwoffsw = self.is_pwoffsw
+
+        # 送信データ追加終了
+
         # publishする関数
         self.pub_body.publish(self.msg_body)
         self.frame_id += 1
-
-
-def printDebug(message):
-    """
-    デバッグメッセージを表示
-    """
-    if DEBUG_BODY is True:
-        print(message)
-    else:
-        pass
+    #end publish_data
 
 def body_py():
     """
@@ -119,16 +150,16 @@ def body_py():
     """
 
     bodyc = BodyClass()
-    r = rospy.Rate(PUBLISH_RATE)
+    rrate = rospy.Rate(CYCLES)
     rospy.init_node('body_py_node', anonymous=True)
-    rospy.Subscriber('body', body, bodyc.callback, queue_size=1)
-    printDebug("start_body")
+    print("start_body")
     # ctl +　Cで終了しない限りwhileループでpublishし続ける
     while not rospy.is_shutdown():
         # publishする関数
-        bodyc.publishData()
+        bodyc.publish_data()
         #
-        r.sleep()
+        rrate.sleep()
+#end body_py
 
 if __name__ == '__main__':
     body_py()

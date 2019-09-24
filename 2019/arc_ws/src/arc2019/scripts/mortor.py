@@ -247,8 +247,6 @@ class MortorClass(object):
         print("step      = %d" % step)
         wait_hl = (1.0 / freq * (STEP_DUTY / 100.0))
         wait_lh = (1.0 / freq * (1 - (STEP_DUTY / 100.0)))
-        #wait_hl /= 1000.0
-        #wait_lh /= 1000.0
 
         print("freq      = %d" % freq)
         print("STEP_DUTY = %d" % STEP_DUTY)
