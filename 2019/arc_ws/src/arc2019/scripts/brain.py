@@ -6,11 +6,11 @@
 import rospy
 
 # gpio制御用
-import pigpio
+#import pigpio
 
 # 自作ライブラリ
-from .mylib.Vec3D import Vec3D
-from .mylib.Transform3D import Transform3D
+from mylib.Vec3D import Vec3D
+from mylib.Transform3D import Transform3D
 
 # 自分で定義したmessageファイルから生成されたモジュール
 from arc2019.msg import client
@@ -246,32 +246,32 @@ class Brain(object):
         elif self.mode == Mode.MANUAL:
             pass #Todo 手動シーケンス
         elif self.mode == Mode.AUTO:
-            if OnOperation():
+            if self.OnOperation():
                 # 手・足いずれかが駆動中は何もしない
                 pass
-            elif OnTransition():
+            elif self.OnTransition():
                 # 手・足駆動終了後に一定時間Wait（カメラのブレが収まるのを待つ）
                 pass
-            elif DoesFindAny():
+            elif self.DoesFindAny():
                 # 検出対象を発見
 
                 #Todo 畝に寄る？
 
                 if self.maintgt_find:
-                    if IsTargetCenter(self.maintgt.y):
-                        DriveHand(self.maintgt)
+                    if self.IsTargetCenter(self.maintgt.y):
+                        self.DriveHand(self.maintgt)
                     else:
-                        AdjustingMove(-self.maintgt.y/2.0)
+                        self.AdjustingMove(-self.maintgt.y/2.0)
                 elif self.subtgt_find:
-                    if IsTargetCenter(self.subtgt.y):
-                        DriveTwist(self.subtgt)
+                    if self.IsTargetCenter(self.subtgt.y):
+                        self.DriveTwist(self.subtgt)
                     else:
-                        AdjustingMove(-self.subtgt.y/2.0)
+                        self.AdjustingMove(-self.subtgt.y/2.0)
                 elif self.poll_find:
                     pass #Todo ポール検出時動作
             else:
                 # 何も見つからない場合は前進
-                GoAhead(DEFAULT_MOV)
+                self.GoAhead(DEFAULT_MOV)
         else:
             pass
 
