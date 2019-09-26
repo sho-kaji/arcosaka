@@ -139,7 +139,7 @@ class Brain(object):
         """
         目（カメラ）の受信コールバック
         """
-        if self.OnOperation():
+        if OnOperation():
             #駆動中は取得しない
             pass
         elif eye_msg.target_find == True:
@@ -279,9 +279,9 @@ class Brain(object):
         足を前進/後退駆動する(publish)　微調整用
         """
         if mm >= 0:
-            self.GoAhead(mm)
+            GoAhead(mm)
         else:
-            self.GoBack(mm)
+            GoBack(mm)
 #--------------------
     def initialize(self):
         """
@@ -290,7 +290,7 @@ class Brain(object):
         self.clearMsg()
 
         # Clientから動作モード&ターゲットを受けるまで1秒間隔でpublish
-        if self.rx_mode == MODE.INIT | self.rx_target == TARGET.UNKNOWN:
+        if self.rx_mode == MODE.INIT or self.rx_target == TARGET.UNKNOWN:
             if self.cyclecount == 0:
                 self.pub_brain.publish(self.msg_brain)
                 print("brain is waiting client messsage...")
@@ -352,7 +352,6 @@ class Brain(object):
         else:
             pass
 
-        print self.cyclecount
         # サイクル数カウント
         self.cyclecount += 1
         if self.cyclecount == CYCLES:
