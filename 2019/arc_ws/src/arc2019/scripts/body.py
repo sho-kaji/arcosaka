@@ -167,6 +167,3 @@ def body_py():
         #
         rrate.sleep()
 #end body_py
-
-if __name__ == '__main__':
-    body_py()

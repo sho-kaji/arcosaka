@@ -6,6 +6,7 @@
 """
 
 import rospy
+import threading
 
 import arm
 import body
@@ -31,6 +32,14 @@ class AbhClass(object):
         self.bodyc = body.BodyClass()
         self.handc = hand.HandClass()
 
+        th_arm = threading.Thread(target=self.armc.arm_py)
+        th_body = threading.Thread(target=self.bodyc.body_py)
+        th_hand = threading.Thread(target=self.handc.hand_py)
+
+        th_arm.start()
+        th_body.start()
+        th_hand.start()
+
         # index
         self.frame_id = 0
 
@@ -49,6 +58,10 @@ class AbhClass(object):
         self.handz_req_o = 0 # ハンド指定位置Z
         self.twistx_req_o = 0 # ねじ切りハンド指定位置X
         self.twistz_req_o = 0 # ねじ切りハンド指定位置Z
+
+        #body用
+
+        #hand用
 
         self.mode_now = MODE.UNKNOWN
         self.target_now = TARGET.UNKNOWN

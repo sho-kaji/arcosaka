@@ -89,12 +89,12 @@ class HandClass(object):
     #end modechange
 
 
-    def move_hand(self, hand):
+    def move_hand(self, handm):
         """
         ハンド
         """
         self.is_hand_move = True
-        self.mmc.move_servo(CHANNEL_HAND, hand)
+        self.mmc.move_servo(CHANNEL_HAND, handm)
         self.is_hand_move = False
 
     #end move_hand
@@ -202,6 +202,3 @@ def hand_py():
         #
         rrate.sleep()
 #end hand_py
-
-if __name__ == '__main__':
-    hand_py()
