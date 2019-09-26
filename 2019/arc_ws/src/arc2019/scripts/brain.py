@@ -9,8 +9,8 @@ import rospy
 #import pigpio
 
 # 自作ライブラリ
-from mylib.Vec3D import Vec3D
-from mylib.Transform3D import Transform3D
+from Vec3D import Vec3D
+from Transform3D import Transform3D
 
 # 自分で定義したmessageファイルから生成されたモジュール
 from arc2019.msg import client
@@ -20,14 +20,21 @@ from arc2019.msg import arm
 from arc2019.msg import foot
 
 # 定数などの定義ファイルimport
-from brain_consts import CYCLES, WAIT
-from params import Mode, TARGET, CAMERA, DIRECTION
+from brain_consts import  \
+    CYCLES, WAIT, DEFAULT_MOV, DEFAULT_ROT, CENTER_THRESH, ROTATE_DIST, JUUGO_GOU, KARIN_SAMA, I_AM
+from params import MODE, TARGET, CAMERA, DIRECTION
 
 
 class Brain(object):
+    """
+    全体の動作を制御するクラス
+    """
 #--------------------
 # コンストラクタ
     def __init__(self):
+        """
+        コンストラクタ
+        """
         self.cyclecount = 0
         # 受信作成
         self.sub_client  = rospy.Subscriber('client', client, self.clientCallback, queue_size=1)
@@ -39,7 +46,7 @@ class Brain(object):
         # messageのインスタンスを作る
         self.msg_brain = brain()
         #デフォルト
-        self.mode = self.rx_mode = Mode.INIT
+        self.mode = self.rx_mode = MODE.INIT
         self.target = self.rx_target = TARGET.UNKNOWN
 
         self.maintgt = Vec3D()
@@ -65,6 +72,9 @@ class Brain(object):
 #--------------------
 
     def clearMsg(self):
+        """
+        publishするメッセージのクリア
+        """
         #for all
         self.msg_brain.mode_id = self.mode
         self.msg_brain.target_id = self.target
@@ -83,6 +93,9 @@ class Brain(object):
         self.msg_brain.foot_movreq  = 0
 #--------------------
     def OnOperation(self):
+        """
+        手足が駆動中であるか否かの判定
+        """
         if self.is_arm_move | self.is_foot_move:
             # 手・足いずれかが駆動中
             self.waitformove = False
@@ -95,6 +108,9 @@ class Brain(object):
             return False
 
     def OnTransition(self):
+        """
+        手足駆動終了後にIdle遷移の待ち時間を挟む
+        """
         if self.trans_time > 0:
             # 手・足駆動終了後に一定時間Waitを挟む（カメラのブレを抑える目的）
             self.trans_time -= 1
@@ -103,6 +119,9 @@ class Brain(object):
             return False
 
     def DoesFindAny(self):
+        """
+        カメラが対象物いずれかを検出したか否かの判定
+        """
         if self.maintgt_find | self.subtgt_find | self.poll_find:
             return True
         else:
@@ -110,10 +129,16 @@ class Brain(object):
 #--------------------
 # 受信コールバック
     def clientCallback(self, client_msg):
+        """
+        クライアントの受信コールバック
+        """
         self.rx_mode = client_msg.mode
         self.rx_target = client_msg.target
 
     def eyeCallback(self, eye_msg):
+        """
+        目（カメラ）の受信コールバック
+        """
         if OnOperation():
             #駆動中は取得しない
             pass
@@ -143,26 +168,45 @@ class Brain(object):
                 self.poll_find = True
      
     def armCallback(self, arm_msg):
+        """
+        手（アーム）の受信コールバック
+        """
         self.is_arm_move = arm_msg.is_arm_move
 
     def footCallback(self, foot_msg):
+        """
+        足の受信コールバック
+        """
         self.is_foot_move = foot_msg.is_foot_move
 
 #--------------------
 # eye
     def IsTargetCenter(self,pos_y):
-        # 対象がカメラ中央付近にあるかチェックする
-        # (中央付近にないと、奥行き方向の精度が下がる)
-
+        """
+        対象がカメラ中央付近にあるかチェックする
+        (中央付近にないと、奥行き方向の精度が下がる)
+        """
         # pos_y : Vec3D.y
         if -CENTER_THRESH <= pos_y | pos_y <= CENTER_THRESH:
             return True
         else:
             return False
 
+    def IsPollNear(self,poll_z):
+        """
+        ポールがロボットから一定距離以内にあるかチェックする
+        """
+        # poll_z : Vec3D.z
+        if 0 <= poll_z | poll_z <= ROTATE_DIST:
+            return True
+        else:
+            return False
 #--------------------
 # arm
     def DriveHand(self, tgtpos):
+        """
+        つかみハンドを駆動する(publish)
+        """
         # tgtpos : Vec3D
         self.msg_brain.handx_req = tgtpos.x
         self.msg_brain.handy_req = tgtpos.y
@@ -173,6 +217,9 @@ class Brain(object):
         self.clearMsg()
 
     def DriveTwist(self, tgtpos):
+        """
+        ねじりハンドを駆動する(publish)
+        """
         # tgtpos : Vec3D
         self.msg_brain.twistx_req = tgtpos.x
         self.msg_brain.twistz_req = tgtpos.z
@@ -184,7 +231,9 @@ class Brain(object):
 #--------------------
 # foot
     def GoAhead(self,mm):
-        # 前進
+        """
+        足を前進駆動する(publish)
+        """
         self.msg_brain.foot_dirreq = DIRECTION.AHEAD
         self.msg_brain.foot_movreq = mm
 
@@ -193,7 +242,9 @@ class Brain(object):
         self.clearMsg()
 
     def GoBack(self,mm):
-        # 後退
+        """
+        足を後退駆動する(publish)
+        """
         self.msg_brain.foot_dirreq = DIRECTION.BACK
         self.msg_brain.foot_movreq = mm
 
@@ -202,7 +253,9 @@ class Brain(object):
         self.clearMsg()
     
     def RotateRight(self,deg):
-        # 右旋回
+        """
+        足を右旋回駆動する(publish)
+        """
         self.msg_brain.foot_dirreq = DIRECTION.RIGHT
         self.msg_brain.foot_movreq = deg
 
@@ -211,7 +264,9 @@ class Brain(object):
         self.clearMsg()
 
     def RotateLeft(self,deg):
-        # 左旋回
+        """
+        足を左旋回駆動する(publish)
+        """
         self.msg_brain.foot_dirreq = DIRECTION.LEFT
         self.msg_brain.foot_movreq = deg
 
@@ -220,18 +275,25 @@ class Brain(object):
         self.clearMsg()
 
     def AdjustingMove(self, mm):
+        """
+        足を前進/後退駆動する(publish)　微調整用
+        """
         if mm >= 0:
             GoAhead(mm)
         else:
             GoBack(mm)
 #--------------------
     def initialize(self):
+        """
+        動作モードと検出対象を決定する
+        """
         self.clearMsg()
 
         # Clientから動作モード&ターゲットを受けるまで1秒間隔でpublish
-        if self.rx_mode == Mode.INIT | self.rx_tartget == TARGET.UNKNOWN:
+        if self.rx_mode == MODE.INIT | self.rx_target == TARGET.UNKNOWN:
             if self.cyclecount == 0:
                 self.pub_brain.publish(self.msg_brain)
+                print("brain is waiting client messsage...")
             else:
                 pass
         else:
@@ -241,11 +303,14 @@ class Brain(object):
             self.pub_brain.publish(self.msg_brain)
 
     def main(self):
-        if self.mode == Mode.INIT:
+        """
+        メインシーケンス
+        """
+        if self.mode == MODE.INIT:
             self.initialize()
-        elif self.mode == Mode.MANUAL:
+        elif self.mode == MODE.MANUAL:
             pass #Todo 手動シーケンス
-        elif self.mode == Mode.AUTO:
+        elif self.mode == MODE.AUTO:
             if self.OnOperation():
                 # 手・足いずれかが駆動中は何もしない
                 pass
@@ -258,23 +323,36 @@ class Brain(object):
                 #Todo 畝に寄る？
 
                 if self.maintgt_find:
+                    # 雑草orトマトを発見
+                    #   カメラの左右中央付近であればつかみハンド駆動
+                    #   そうでなければ前後移動して調整
                     if self.IsTargetCenter(self.maintgt.y):
                         self.DriveHand(self.maintgt)
                     else:
                         self.AdjustingMove(-self.maintgt.y/2.0)
                 elif self.subtgt_find:
+                    # 脇芽を発見
+                    #   カメラの左右中央付近であればつかみハンド駆動
+                    #   そうでなければ前後移動して調整
                     if self.IsTargetCenter(self.subtgt.y):
                         self.DriveTwist(self.subtgt)
                     else:
                         self.AdjustingMove(-self.subtgt.y/2.0)
                 elif self.poll_find:
-                    pass #Todo ポール検出時動作
+                    # ポールを発見
+                    #   一定距離以内であれば右旋回
+                    #   そうでなければ前進して調整
+                    if self.IsPollNear(self.poll.z):
+                        self.RotateRight(DEFAULT_ROT)   # とりあえず右旋回のみ（ひたすら畝を回る）
+                    else:
+                        self.GoAhead(50)  #50mm前進
             else:
                 # 何も見つからない場合は前進
                 self.GoAhead(DEFAULT_MOV)
         else:
             pass
 
+        print self.cyclecount
         # サイクル数カウント
         self.cyclecount += 1
         if self.cyclecount == CYCLES:
