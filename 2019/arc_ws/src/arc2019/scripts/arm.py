@@ -8,6 +8,9 @@
 import rospy
 import mortor
 
+
+from arc2019.msg import arm
+
 from params import MODE, TARGET
 
 from arm_consts import \
@@ -39,6 +42,9 @@ class ArmClass(object):
         # initialize port
         for key, val in PORTS_ARM.items():
             self.mmc.pic.set_mode(key, val)
+
+        # パブリッシャーの準備
+        self.pub_arm = rospy.Publisher('arm', arm, queue_size=100)
 
         # モード今回値
         self.mode_now = MODE.UNKNOWN
@@ -214,6 +220,3 @@ def arm_py():
         #
         rrate.sleep()
 #end arm_py
-
-if __name__ == '__main__':
-    arm_py()

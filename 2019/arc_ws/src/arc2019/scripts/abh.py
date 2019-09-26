@@ -11,10 +11,6 @@ import arm
 import body
 import hand
 
-from arc2019.msg import arm
-from arc2019.msg import body
-from arc2019.msg import hand
-
 from arc2019.msg import brain
 
 from params import MODE, TARGET
@@ -35,12 +31,6 @@ class AbhClass(object):
         self.bodyc = body.BodyClass()
         self.handc = hand.HandClass()
 
-        # パブリッシャーの準備
-        self.pub_arm = rospy.Publisher('arm', arm, queue_size=100)
-        self.pub_body = rospy.Publisher('body', body, queue_size=100)
-        self.pub_hand = rospy.Publisher('hand', hand, queue_size=100)
-        # messageのインスタンスを作る
-        self.msg_arm = arm()
         # index
         self.frame_id = 0
 
@@ -144,6 +134,7 @@ class AbhClass(object):
         => 枝ねじり => 枝掴み => 添え手右・添え手左 => ねじ切り水平
         """
 
+
     #end mode_sprout
 
     def mode_tomato(self):
@@ -164,8 +155,10 @@ class AbhClass(object):
 
         else:
             pass
-        self.move_handv(handv) # ハンド垂直
-        self.move_handh(handh) # ハンド水平
+        self.armc.move_handv(handv) # ハンド垂直
+        self.armc.move_handh(handh) # ハンド水平
+        self.handc.move_hand(CATCH_HAND) # ハンド
+
 
 
 
@@ -178,7 +171,7 @@ def abh_py():
     abhc = AbhClass()
 
     rrate = rospy.Rate(CYCLES)
-    rospy.init_node('arm_py_node', anonymous=True)
+    rospy.init_node('abh_py_node', anonymous=True)
     rospy.Subscriber('brain', brain, abhc.callback, queue_size=1)
     print("start_abh")
     # ctl +　Cで終了しない限りwhileループでpublishし続ける

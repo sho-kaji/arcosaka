@@ -9,6 +9,8 @@ import rospy
 import pigpio
 import mortor
 
+from arc2019.msg import hand
+
 from params import MODE, TARGET
 
 from hand_consts import \
@@ -48,6 +50,9 @@ class HandClass(object):
         self.pic = pigpio.pi()
         for key, val in PORTS_HAND.items():
             self.mmc.pic.set_mode(key, val)
+
+        # パブリッシャーの準備
+        self.pub_arm = rospy.Publisher('hand', hand, queue_size=100)
 
         # モード今回値
         self.mode_now = MODE.UNKNOWN

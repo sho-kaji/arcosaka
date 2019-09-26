@@ -40,6 +40,8 @@ class Ina226(object):
         """
         電流読み取り
         """
+
+        self.i2c.write_word_data(ADDR_VOLT, 0x05, 0x0A00)
         word = self.i2c.read_word_data(ADDR_VOLT, 0x04) & 0xFFFF
         print word
         result = ((word << 8) & 0xFF00) + (word >> 8)

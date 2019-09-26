@@ -9,6 +9,8 @@ import rospy
 import pigpio
 import mortor
 
+from arc2019.msg import body
+
 from params import MODE, TARGET
 
 from body_consts import \
@@ -40,6 +42,9 @@ class BodyClass(object):
         for key, val in PORTS_BODY.items():
             self.mmc.pic.set_mode(key, val)
 
+        # パブリッシャーの準備
+        self.pub_arm = rospy.Publisher('body', body, queue_size=100)
+
         # モード今回値
         self.mode_now = MODE.UNKNOWN
         self.target_now = TARGET.UNKNOWN
@@ -55,7 +60,9 @@ class BodyClass(object):
     def posinit(self):
         """
         アーム位置初期化
+        蓋を閉める => 
         """
+        
         pass
 
     def modechange(self, mode, target):
