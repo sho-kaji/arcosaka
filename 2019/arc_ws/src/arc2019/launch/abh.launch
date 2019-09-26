@@ -1,9 +1,5 @@
 <launch>
   <group ns="test1">
-    <node pkg="arc2019" name="arm" type="arm.py" output="screen"/>
-    <node pkg="arc2019" name="body" type="body.py" output="screen"/>
-    <node pkg="arc2019" name="hand" type="hand.py" output="screen"/>
-    <node pkg="arc2019" name="brain" type="brain.py" output="screen"/>
-
+    <node pkg="arc2019" name="abh" type="abh.py" output="screen"/>
   </group>
 </launch>
