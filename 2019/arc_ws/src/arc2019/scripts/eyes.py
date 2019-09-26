@@ -1,4 +1,6 @@
-# coding:utf-8
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# license removed for brevity
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
