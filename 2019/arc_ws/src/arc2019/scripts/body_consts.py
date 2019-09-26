@@ -23,7 +23,12 @@ BLADE_NONE = 0 # シュレッダー刃_無回転
 BLADE_PLUS = 1 # シュレッダー刃_正回転
 PORT_PWOFFSW = 21 # シャットダウンSWポート番号
 
-
+PORTS_BODY = {
+    PORT_SPRAY:pigpio.OUTPUT,
+    PORT_BLADE_A:pigpio.OUTPUT,
+    PORT_BLADE_B:pigpio.OUTPUT,
+    PORT_PWOFFSW:pigpio.Input
+}
 
 class MOTORB(Enum):
     """
@@ -32,12 +37,5 @@ class MOTORB(Enum):
     LID = 0 # 蓋モーター
     SPRAY = 1 # 散布ファン
     BLADE = 2 # シュレッダー刃
-
-PORTS_PWM_BODY = {
-    PORT_SPRAY:pigpio.OUTPUT,
-    PORT_BLADE_A:pigpio.OUTPUT,
-    PORT_BLADE_B:pigpio.OUTPUT,
-    PORT_PWOFFSW:pigpio.Input
-}
 
 # (.+)\t(.+)\t(.+) $1 = $2 # $3
