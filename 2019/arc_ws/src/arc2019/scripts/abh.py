@@ -5,8 +5,9 @@
 アーム・ボディ・ハンド
 """
 
-import rospy
 import threading
+
+import rospy
 
 import arm
 import body
@@ -15,6 +16,19 @@ import hand
 from arc2019.msg import brain
 
 from params import MODE, TARGET
+
+from arm_consts import \
+    LIM_HANDH_MIN, LIM_HANDV_MIN, \
+    LIM_TWISTH_MIN
+
+from hand_consts import \
+    CATCH_HAND, RELEASE_HAND, \
+    LIM_WRIST_F, LIM_WRIST_B, \
+    LIM_ATTACH_LR, LIM_ATTACH_RR, \
+    LIM_ATTACH_LL, LIM_ATTACH_RL, \
+    CATCH_GRAB, RELEASE_GRAB, \
+    ON_TWIST
+
 from brain_consts import \
     CYCLES
 
@@ -23,7 +37,7 @@ from mortor_consts import \
 
 class AbhClass(object):
     """
-    アームを動かすためのクラス
+    アクチュエータを動かすためのクラス
     """
 
     def __init__(self):
@@ -32,6 +46,7 @@ class AbhClass(object):
         self.bodyc = body.BodyClass()
         self.handc = hand.HandClass()
 
+        #非同期処理をしたい
         th_arm = threading.Thread(target=self.armc.arm_py)
         th_body = threading.Thread(target=self.bodyc.body_py)
         th_hand = threading.Thread(target=self.handc.hand_py)
@@ -146,6 +161,30 @@ class AbhClass(object):
         ねじ切り垂直 => ねじ切り水平 => 添え手右・添え手左 => 枝掴み =>
         => 枝ねじり => 枝掴み => 添え手右・添え手左 => ねじ切り水平
         """
+        if self.mode_now == MODE.AUTO: # 自動モード
+            twistx = self.brain_mes.twistx_req
+            twistz = self.brain_mes.twistz_req
+
+            twistv = twistz / STEP_1PULSE
+            twisth = twistx / STEP_1PULSE
+
+        elif self.mode_now == MODE.MANUAL: # 手動モード
+            twistv = 0 #brainから値が来るはず
+            twisth = 0
+
+        else:
+            pass
+
+        self.armc.move_twistv(twistv)
+        self.armc.move_twisth(twisth)
+        self.handc.move_attach_l(LIM_ATTACH_LR)
+        self.handc.move_attach_r(LIM_ATTACH_RL)
+        self.handc.move_grab(CATCH_GRAB)
+        self.handc.move_twist(ON_TWIST)
+        self.handc.move_grab(RELEASE_GRAB)
+        self.handc.move_attach_l(LIM_ATTACH_LL)
+        self.handc.move_attach_r(LIM_ATTACH_RR)
+        self.armc.move_twisth(LIM_TWISTH_MIN)
 
 
     #end mode_sprout
@@ -153,7 +192,7 @@ class AbhClass(object):
     def mode_tomato(self):
         """
         収穫
-        ハンド垂直 => ハンド水平 => ハンド => 手首 => ハンド => ハンド水平 => ハンド垂直
+        ハンド垂直 => ハンド水平 => ハンド => 手首 => ハンド => ハンド水平 => 手首
         """
         if self.mode_now == MODE.AUTO: # 自動モード
             handx = self.brain_mes.handx_req
@@ -163,16 +202,19 @@ class AbhClass(object):
             handh = handx / STEP_1PULSE
 
         elif self.mode_now == MODE.MANUAL: # 手動モード
-            handv = 0
-            handh = 0
+            handv = LIM_HANDV_MIN #brainから値が来るはず
+            handh = LIM_HANDH_MIN
 
         else:
             pass
         self.armc.move_handv(handv) # ハンド垂直
         self.armc.move_handh(handh) # ハンド水平
         self.handc.move_hand(CATCH_HAND) # ハンド
-
-
+        self.handc.move_wrist(LIM_WRIST_F) #手首
+        self.handc.move_hand(RELEASE_HAND) # ハンド
+        self.armc.move_handh(handh) # ハンド水平
+        self.handc.move_wrist(LIM_WRIST_B) #手首
+        self.armc.move_handh(LIM_HANDH_MIN) # ハンド水平
 
 
     #end mode_tomato

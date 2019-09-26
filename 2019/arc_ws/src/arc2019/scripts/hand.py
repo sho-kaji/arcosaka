@@ -28,8 +28,7 @@ from hand_consts import \
     LIM_ATTACH_RL, LIM_ATTACH_RR, \
     CHANNEL_ATTACH_RR, \
     LIM_ATTACH_LL, LIM_ATTACH_LR, \
-    CHANNEL_ATTACH_LR, \
-    PORTS_HAND
+    CHANNEL_ATTACH_LR
 
 from mortor_consts import \
     DC_DUTY
@@ -48,8 +47,8 @@ class HandClass(object):
 
         # initialize port
         self.pic = pigpio.pi()
-        for key, val in PORTS_HAND.items():
-            self.mmc.pic.set_mode(key, val)
+
+
 
         # パブリッシャーの準備
         self.pub_arm = rospy.Publisher('hand', hand, queue_size=100)

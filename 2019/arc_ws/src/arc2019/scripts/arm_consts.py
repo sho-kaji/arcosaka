@@ -15,8 +15,16 @@ LIM_BASE_L = 0 # 土台モーター_左制限値
 LIM_BASE_R = 100 # 土台モーター_右制限値
 LIM_ELBOW_B = 100 # 肘モーター_後制限値
 LIM_ELBOW_F = 0 # 肘モーター_前制限値
+LIM_HANDH_MAX = 3500 # ハンド水平モーター最大値
+LIM_HANDH_MIN = 0 # ハンド水平モーター最小値
+LIM_HANDV_MAX = 3500 # ハンド垂直モーター最大値
+LIM_HANDV_MIN = 0 # ハンド垂直モーター最小値
 LIM_SHOULD_B = 100 # 肩モーター_後制限値
 LIM_SHOULD_F = 0 # 肩モーター_前制限値
+LIM_TWISTH_MAX = 3500 # ねじ切り水平モーター最大値
+LIM_TWISTH_MIN = 0 # ねじ切り水平モーター最小値
+LIM_TWISTV_MAX = 3500 # ねじ切り垂直モーター最大値
+LIM_TWISTV_MIN = 0 # ねじ切り垂直モーター最小値
 
 #サーボモーター用
 CHANNEL_ELBOW = 3 # 肘モーターポート番号
