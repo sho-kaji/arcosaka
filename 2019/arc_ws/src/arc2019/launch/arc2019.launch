@@ -3,6 +3,7 @@
     <node pkg="arc2019" name="abh" type="abh.py" output="screen"/>
     <node pkg="arc2019" name="brain" type="brain.py" output="screen"/>
     <node pkg="arc2019" name="eyes" type="eyes.py" output="screen"/>
+    <node pkg="arc2019" name="dummyclient" type="client_dummy.py" output="screen"/>
 
   </group>
 </launch>
