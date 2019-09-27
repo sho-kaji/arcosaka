@@ -279,9 +279,9 @@ class Brain(object):
         足を前進/後退駆動する(publish)　微調整用
         """
         if mm >= 0:
-            GoAhead(mm)
+            self.GoAhead(mm)
         else:
-            GoBack(mm)
+            self.GoBack(mm)
 #--------------------
     def initialize(self):
         """
