@@ -48,6 +48,8 @@ class Brain(object):
         #デフォルト
         self.mode = self.rx_mode = MODE.INIT
         self.target = self.rx_target = TARGET.UNKNOWN
+        self.is_arm_move = False
+        self.is_foot_move = False
 
         self.maintgt = Vec3D()
         self.subtgt = Vec3D()
@@ -96,7 +98,7 @@ class Brain(object):
         """
         手足が駆動中であるか否かの判定
         """
-        if self.is_arm_move | self.is_foot_move:
+        if self.is_arm_move or self.is_foot_move:
             # 手・足いずれかが駆動中
             self.waitformove = False
             self.trans_time  = CYCLES * WAIT
@@ -122,7 +124,7 @@ class Brain(object):
         """
         カメラが対象物いずれかを検出したか否かの判定
         """
-        if self.maintgt_find | self.subtgt_find | self.poll_find:
+        if self.maintgt_find or self.subtgt_find or self.poll_find:
             return True
         else:
             return False
@@ -187,7 +189,7 @@ class Brain(object):
         (中央付近にないと、奥行き方向の精度が下がる)
         """
         # pos_y : Vec3D.y
-        if -CENTER_THRESH <= pos_y | pos_y <= CENTER_THRESH:
+        if -CENTER_THRESH <= pos_y or pos_y <= CENTER_THRESH:
             return True
         else:
             return False
@@ -197,7 +199,7 @@ class Brain(object):
         ポールがロボットから一定距離以内にあるかチェックする
         """
         # poll_z : Vec3D.z
-        if 0 <= poll_z | poll_z <= ROTATE_DIST:
+        if 0 <= poll_z or poll_z <= ROTATE_DIST:
             return True
         else:
             return False
