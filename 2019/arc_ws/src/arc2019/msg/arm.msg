@@ -1,3 +1,4 @@
+int32 frame_id
 bool is_arm_move
 bool is_twistv_ulim
 bool is_twistv_dlim

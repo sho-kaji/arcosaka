@@ -8,32 +8,64 @@
 import threading
 
 import rospy
-
-import arm
-import body
-import hand
+import pigpio
+import mortor
 
 from arc2019.msg import brain
+
+from arc2019.msg import arm
+from arc2019.msg import body
+from arc2019.msg import hand
 
 from params import MODE, TARGET
 
 from arm_consts import \
+    DEBUG_ARM, \
+    LIM_BASE_L, LIM_BASE_R, \
+    LIM_ELBOW_B, LIM_ELBOW_F, \
+    LIM_SHOULD_B, LIM_SHOULD_F, \
+    CHANNEL_ELBOW, \
+    CHANNEL_SHOULD, \
+    CHANNEL_BASE, \
+    PORT_TWISTV_A, PORT_TWISTV_B, \
+    PORT_TWISTH_A, PORT_TWISTH_B, \
+    PORT_HANDV_A, PORT_HANDV_B, \
+    PORT_HANDH_A, PORT_HANDH_B, \
+    PORTS_ARM, \
     LIM_HANDH_MIN, LIM_HANDV_MIN, \
     LIM_TWISTH_MIN
 
+from body_consts import \
+    DEBUG_BODY, \
+    CHANNEL_LID, \
+    PORT_SPRAY, \
+    PORT_BLADE_A, PORT_BLADE_B, \
+    BLADE_MIMUS, BLADE_NONE, BLADE_PLUS, \
+    PORT_PWOFFSW, \
+    PORTS_BODY
+
 from hand_consts import \
+    DEBUG_HAND, \
     CATCH_HAND, RELEASE_HAND, \
+    CHANNEL_HAND, \
     LIM_WRIST_F, LIM_WRIST_B, \
-    LIM_ATTACH_LR, LIM_ATTACH_RR, \
-    LIM_ATTACH_LL, LIM_ATTACH_RL, \
+    CHANNEL_WRIST, \
+    ON_PLUCK, OFF_PLUCK, \
+    CHANNEL_PLUCK, \
     CATCH_GRAB, RELEASE_GRAB, \
-    ON_TWIST
+    CHANNEL_GRAB, \
+    ON_TWIST, OFF_TWIST, \
+    CHANNEL_TWIST, \
+    CHANNEL_ATTACH_RR, \
+    CHANNEL_ATTACH_LR, \
+    LIM_ATTACH_LR, LIM_ATTACH_RR, \
+    LIM_ATTACH_LL, LIM_ATTACH_RL
 
 from brain_consts import \
     CYCLES
 
 from mortor_consts import \
-    STEP_1PULSE
+    STEP_1PULSE, DC_DUTY
 
 class AbhClass(object):
     """
@@ -42,21 +74,18 @@ class AbhClass(object):
 
     def __init__(self):
 
-        self.armc = arm.ArmClass()
-        self.bodyc = body.BodyClass()
-        self.handc = hand.HandClass()
-
-        #非同期処理をしたい
-        th_arm = threading.Thread(target=self.armc.arm_py)
-        th_body = threading.Thread(target=self.bodyc.body_py)
-        th_hand = threading.Thread(target=self.handc.hand_py)
-
-        th_arm.start()
-        th_body.start()
-        th_hand.start()
-
         # index
         self.frame_id = 0
+
+        # パブリッシャーの準備
+        self.pub_arm = rospy.Publisher('arm', arm, queue_size=100)
+        self.pub_body = rospy.Publisher('body', body, queue_size=100)
+        self.pub_hand = rospy.Publisher('hand', hand, queue_size=100)
+
+        self.mes_arm = arm()
+        self.mes_body = body()
+        self.mes_hand = hand()
+        
 
         self.is_arm_move = False
         self.is_arm_call = False
@@ -75,13 +104,312 @@ class AbhClass(object):
         self.twistz_req_o = 0 # ねじ切りハンド指定位置Z
 
         #body用
+        self.is_body_move = False
+        self.is_pwoffsw = False
 
         #hand用
+        self.is_hand_move = False
 
         self.mode_now = MODE.UNKNOWN
         self.target_now = TARGET.UNKNOWN
 
+        # MortorClass
+        self.mmc = mortor.MortorClass()
+
+        # initialize port
+        self.pic = pigpio.pi()
+        for key, val in PORTS_ARM.items():
+            self.mmc.pic.set_mode(key, val)
+        for key, val in PORTS_BODY.items():
+            self.mmc.pic.set_mode(key, val)
+
+        # モード今回値
+        self.mode_now = MODE.UNKNOWN
+        self.target_now = TARGET.UNKNOWN
+
+        self.elbow_req_o = 0 # 肘モーター要求値前回値
+        self.should_req_o = 0 # 肩モーター要求値前回値
+        self.handx_req_o = 0 # ハンド指定位置X前回値
+        self.handy_req_o = 0 # ハンド指定位置Y前回値
+        self.handz_req_o = 0 # ハンド指定位置Z前回値
+        self.twistx_req_o = 0 # ねじ切りハンド指定位置X前回値
+        self.twistz_req_o = 0 # ねじ切りハンド指定位置Z前回値
+
+        self.is_arm_move = False
+        self.is_arm_call = False
+        self.elbow_o = 0 # 肘モーター
+        self.should_o = 0 # 肩モーター
+        self.base_o = 0 # 土台モーター
+        self.twistv_o = 0 # ねじ切り垂直モーター
+        self.twisth_o = 0 # ねじ切り水平モーター
+        self.handv_o = 0 # ハンド垂直モーター
+        self.handh_o = 0 # ハンド水平モーター
+
+        self.elbow_req_o = 0 # 肘モーター要求値前回値
+        self.is_body_move = False
+        self.is_body_call = False
+        self.is_pwoffsw = False
+
+        self.is_hand_move = False
+        self.is_hand_call = False
+
+
     #end __init__
+
+    def posinit(self):
+        """
+        位置初期化
+        """
+        pass
+
+    def modechange(self, mode, target):
+        """
+        モード変更確認
+        """
+        if self.mode_now != mode:
+            self.mode_now = mode
+            self.mmc.endfnc()
+            #何か処理
+
+        if self.target_now != target:
+            self.target_now = target
+            self.mmc.endfnc()
+            #何か処理
+
+    #end modechange
+
+    def clear_msg(self):
+        """
+        メッセージ初期化
+        """
+        self.mes_arm.is_arm_move = False
+        self.mes_arm.is_twistv_ulim = False
+        self.mes_arm.is_twistv_dlim = False
+        self.mes_arm.is_twisth_flim = False
+        self.mes_arm.is_twisth_blim = False
+        self.mes_arm.is_handv_ulim = False
+        self.mes_arm.is_handv_dlim = False
+        self.mes_arm.is_handh_flim = False
+        self.mes_arm.is_handh_blim = False
+    #end clear_msg
+
+
+    def publish_data(self):
+        """
+        データ送信
+        """
+        # clear
+        self.clear_msg()
+
+        # 送信データ追加開始
+
+        self.mes_arm.frame_id = self.frame_id
+        self.mes_arm.is_arm_move = self.is_arm_move
+        self.mes_arm.is_twistv_ulim = False
+        self.mes_arm.is_twistv_dlim = False
+        self.mes_arm.is_twisth_flim = False
+        self.mes_arm.is_twisth_blim = False
+        self.mes_arm.is_handv_ulim = False
+        self.mes_arm.is_handv_dlim = False
+        self.mes_arm.is_handh_flim = False
+        self.mes_arm.is_handh_blim = False
+
+
+        self.mes_body.frame_id = self.frame_id
+        self.mes_body.is_body_move = self.is_body_move
+        self.is_pwoffsw = self.pic.read(PORT_PWOFFSW) is pigpio.HIGH
+        self.mes_body.is_pwoffsw = self.is_pwoffsw
+
+        self.mes_hand.frame_id = self.frame_id
+        self.mes_hand.is_hand_move = self.is_hand_move
+
+        # 送信データ追加終了
+
+        # publishする関数
+        self.pub_arm.publish(self.mes_arm)
+        self.pub_body.publish(self.mes_body)
+        self.pub_hand.publish(self.mes_hand)
+        self.frame_id += 1
+    #end publish_data
+
+    def move_elbow(self, elbow):
+        """
+        肘
+        """
+        self.is_arm_move = True
+        self.mmc.move_servo(CHANNEL_ELBOW, elbow)
+        self.is_arm_move = False
+
+    #end move_elbow
+
+    def move_should(self, should):
+        """
+        肩
+        """
+        self.is_arm_move = True
+        self.mmc.move_servo(CHANNEL_SHOULD, should)
+        self.is_arm_move = False
+
+    #end move_should
+
+    def move_base(self, base):
+        """
+        土台
+        """
+        self.is_arm_move = True
+        self.mmc.move_servo(CHANNEL_BASE, base)
+        self.is_arm_move = False
+
+    #end move_base
+
+    def move_twistv(self, twistv):
+        """
+        ねじ切り垂直
+        """
+        self.is_arm_move = True
+        self.mmc.move_step(PORT_TWISTV_A, PORT_TWISTV_B, twistv)
+        self.is_arm_move = False
+
+    #end move_twistv
+
+    def move_twisth(self, twisth):
+        """
+        ねじ切り水平
+        """
+        self.is_arm_move = True
+        self.mmc.move_step(PORT_TWISTH_A, PORT_TWISTH_B, twisth)
+        self.is_arm_move = False
+
+    #end move_twisth
+
+    def move_handv(self, handv):
+        """
+        ハンド垂直
+        """
+        self.is_arm_move = True
+        self.mmc.move_step(PORT_HANDV_A, PORT_HANDV_B, handv)
+        self.is_arm_move = False
+
+    #end move_handv
+
+    def move_handh(self, handh):
+        """
+        ハンド水平
+        """
+        self.is_arm_move = True
+        self.mmc.move_step(PORT_HANDH_A, PORT_HANDH_B, handh)
+        self.is_arm_move = False
+
+    #end move_handh
+
+    def move_lid(self, lid):
+        """
+        蓋
+        """
+        self.is_body_move = True
+        self.mmc.move_servo(CHANNEL_LID, lid)
+        self.is_body_move = False
+
+    #end move_lid
+
+    def move_spray(self, spray):
+        """
+        散布
+        """
+        self.is_body_move = True
+        self.mmc.move_dc_duty(PORT_SPRAY, -1, spray, 0)
+        self.is_body_move = False
+
+    #end move_spray
+
+    def move_blade(self, blade):
+        """
+        刃
+        """
+
+        blade_p = blade * DC_DUTY
+        if blade_p < 0:
+            blade_p = 0
+
+        blade_m = -(blade * DC_DUTY)
+        if blade_m < 0:
+            blade_m = 0
+
+        self.is_body_move = True
+        self.mmc.move_dc_duty(PORT_BLADE_A, PORT_BLADE_B, blade_p, blade_m)
+        self.is_body_move = False
+
+    #end move_blade
+
+    def move_hand(self, handm):
+        """
+        ハンド
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_HAND, handm)
+        self.is_hand_move = False
+
+    #end move_hand
+
+    def move_wrist(self, wrist):
+        """
+        手首
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_WRIST, wrist)
+        self.is_hand_move = False
+
+    #end move_wrist
+
+    def move_pluck(self, pluck):
+        """
+        引抜
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_PLUCK, pluck)
+        self.is_hand_move = False
+
+    #end move_pluck
+
+    def move_grab(self, grab):
+        """
+        枝掴み
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_GRAB, grab)
+        self.is_hand_move = False
+
+    #end move_grab
+
+    def move_twist(self, twist):
+        """
+        枝ねじり
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_TWIST, twist)
+        self.is_hand_move = False
+
+    #end move_twist
+
+    def move_attach_r(self, attach_r):
+        """
+        添え手右
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_ATTACH_RR, attach_r)
+        self.is_hand_move = False
+
+    #end move_attach_r
+
+    def move_attach_l(self, attach_l):
+        """
+        添え手左
+        """
+        self.is_hand_move = True
+        self.mmc.move_servo(CHANNEL_ATTACH_LR, attach_l)
+        self.is_hand_move = False
+
+    #end move_attach_l
 
     def callback(self, brain_mes):
         """
@@ -122,24 +450,6 @@ class AbhClass(object):
         self.is_arm_call = False
         print("==============================")
     # end callback
-
-    def modechange(self, mode, target):
-        """
-        モード変更確認
-        """
-        if self.mode_now != mode:
-            self.mode_now = mode
-            #何か処理
-
-        if self.target_now != target:
-            self.target_now = target
-            #何か処理
-
-        self.armc.mode_now(mode, target)
-        self.bodyc.mode_now(mode, target)
-        self.handc.mode_now(mode, target)
-
-    #end modechange
 
     def mode_grass(self):
         """
@@ -192,7 +502,8 @@ class AbhClass(object):
     def mode_tomato(self):
         """
         収穫
-        ハンド垂直 => ハンド水平 => ハンド => 手首 => ハンド => ハンド水平 => 手首
+        ハンド垂直 => ハンド水平 => ハンド => 手首
+         =>ハンド => ハンド水平 => 手首
         """
         if self.mode_now == MODE.AUTO: # 自動モード
             handx = self.brain_mes.handx_req
@@ -216,7 +527,6 @@ class AbhClass(object):
         self.handc.move_wrist(LIM_WRIST_B) #手首
         self.armc.move_handh(LIM_HANDH_MIN) # ハンド水平
 
-
     #end mode_tomato
 
 def abh_py():
@@ -225,14 +535,15 @@ def abh_py():
     """
     abhc = AbhClass()
 
-    rrate = rospy.Rate(CYCLES)
     rospy.init_node('abh_py_node', anonymous=True)
+    rrate = rospy.Rate(CYCLES)
     rospy.Subscriber('brain', brain, abhc.callback, queue_size=1)
     print("start_abh")
     # ctl +　Cで終了しない限りwhileループでpublishし続ける
     while not rospy.is_shutdown():
+        abhc.publish_data()
         rrate.sleep()
-#end arm_py
+#end abh_py
 
 if __name__ == '__main__':
     abh_py()

@@ -1,9 +1,3 @@
 int32 frame_id
-bool  strike 
-bool  grub 
-bool  store
-bool  home
-int32 tilt
-int32 updown
-bool  release
-int32 mode
+bool is_body_move
+bool  is_pwoffsw

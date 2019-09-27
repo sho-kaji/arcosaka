@@ -9,7 +9,7 @@ import time
 import smbus
 
 
-ADDR_VOLT = 0x40 #I2Cアドレス
+ADDR_INA226 = 0x40 #I2Cアドレス
 
 class Ina226(object):
     """
@@ -22,32 +22,33 @@ class Ina226(object):
         """
         電圧読み取り
         """
-        word = self.i2c.read_word_data(ADDR_VOLT, 0x02) & 0xFFFF
-        print word
+        word = self.i2c.read_word_data(ADDR_INA226, 0x02) & 0xFFFF
         result = ((word << 8) & 0xFF00) + (word >> 8)
         volt = result * 1.25 / 1000
         return volt
-
-    def read_v_loop(self):
-        """
-        電圧読み取りループ
-        """
-        while True:
-            print self.read_v()
-            time.sleep(1)
 
     def read_i(self):
         """
         電流読み取り
         """
-
-        self.i2c.write_word_data(ADDR_VOLT, 0x05, 0x0A00)
-        word = self.i2c.read_word_data(ADDR_VOLT, 0x04) & 0xFFFF
-        print word
+        self.i2c.write_word_data(ADDR_INA226, 0x05, 20)
+        word = self.i2c.read_word_data(ADDR_INA226, 0x04) & 0xFFFF
         result = ((word << 8) & 0xFF00) + (word >> 8)
-        curr = result * 1.25 / 1000
+        curr = result
         return curr
+
+    def read_vi_loop(self):
+        """
+        電流電圧読み取りループ
+        """
+        self.read_v()
+        self.read_i()
+        while True:
+            print str(self.read_v()) + "[V]"
+            print str(self.read_i()) + "[mA]"
+            time.sleep(1)
+
 
 if __name__ == '__main__':
     ina = Ina226()
-    ina.read_v_loop()
+    ina.read_vi_loop()
