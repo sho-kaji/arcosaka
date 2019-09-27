@@ -17,6 +17,8 @@ class Ina226(object):
     """
     def __init__(self):
         self.i2c = smbus.SMBus(1)
+        
+        self.i2c.write_word_data(ADDR_INA226, 0x05, 0x14)
 
     def read_v(self):
         """
@@ -31,10 +33,8 @@ class Ina226(object):
         """
         電流読み取り
         """
-        self.i2c.write_word_data(ADDR_INA226, 0x05, 20)
         word = self.i2c.read_word_data(ADDR_INA226, 0x04) & 0xFFFF
-        result = ((word << 8) & 0xFF00) + (word >> 8)
-        curr = result
+        curr = ((word << 8) & 0xFF00) + (word >> 8)
         return curr
 
     def read_vi_loop(self):
