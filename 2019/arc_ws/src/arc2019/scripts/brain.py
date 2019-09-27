@@ -21,7 +21,7 @@ from arc2019.msg import foot
 
 # 定数などの定義ファイルimport
 from brain_consts import  \
-    CYCLES, WAIT, DEFAULT_MOV, DEFAULT_ROT, CENTER_THRESH, ROTATE_DIST, JUUGO_GOU, KARIN_SAMA, I_AM
+    DEBUG_BRAIN, CYCLES, WAIT, DEFAULT_MOV, DEFAULT_ROT, CENTER_THRESH, ROTATE_DIST, JUUGO_GOU, KARIN_SAMA, I_AM
 from params import MODE, TARGET, CAMERA, DIRECTION
 
 
@@ -38,7 +38,7 @@ class Brain(object):
         self.cyclecount = 0
         # 受信作成
         self.sub_client  = rospy.Subscriber('client', client, self.clientCallback, queue_size=1)
-        self.sub_eye  = rospy.Subscriber('client', eye, self.eyeCallback, queue_size=1)
+        self.sub_eye  = rospy.Subscriber('eye', eye, self.eyeCallback, queue_size=1)
         self.sub_arm  = rospy.Subscriber('arm', arm, self.armCallback, queue_size=1)
         self.sub_foot = rospy.Subscriber('foot', foot, self.footCallback, queue_size=1)
         # 送信作成
@@ -50,6 +50,11 @@ class Brain(object):
         self.target = self.rx_target = TARGET.UNKNOWN
         self.is_arm_move = False
         self.is_foot_move = False
+        self.waitformove = False
+        self.trans_time = 0
+        self.maintgt_find = False
+        self.subtgt_find = False
+        self.poll_find = False
 
         self.maintgt = Vec3D()
         self.subtgt = Vec3D()
@@ -192,6 +197,8 @@ class Brain(object):
         if -CENTER_THRESH <= pos_y or pos_y <= CENTER_THRESH:
             return True
         else:
+            if DEBUG_BRAIN:
+                print("[brain] target is not center, start adjust moving...")
             return False
 
     def IsPollNear(self,poll_z):
@@ -202,6 +209,8 @@ class Brain(object):
         if 0 <= poll_z or poll_z <= ROTATE_DIST:
             return True
         else:
+            if DEBUG_BRAIN:
+                print("[brain] poll is too far")
             return False
 #--------------------
 # arm
@@ -217,6 +226,8 @@ class Brain(object):
         self.pub_brain.publish(self.msg_brain)
         self.waitformove = True
         self.clearMsg()
+        if DEBUG_BRAIN:
+            print("[brain] drve hand")
 
     def DriveTwist(self, tgtpos):
         """
@@ -229,6 +240,8 @@ class Brain(object):
         self.pub_brain.publish(self.msg_brain)
         self.waitformove = True
         self.clearMsg()
+        if DEBUG_BRAIN:
+            print("[brain] drve twist")
 
 #--------------------
 # foot
@@ -242,6 +255,8 @@ class Brain(object):
         self.pub_brain.publish(self.msg_brain)
         self.waitformove = True
         self.clearMsg()
+        if DEBUG_BRAIN:
+            print("[brain] go ahead")
 
     def GoBack(self,mm):
         """
@@ -253,6 +268,8 @@ class Brain(object):
         self.pub_brain.publish(self.msg_brain)
         self.waitformove = True
         self.clearMsg()
+        if DEBUG_BRAIN:
+            print("[brain] go back")
     
     def RotateRight(self,deg):
         """
@@ -264,6 +281,8 @@ class Brain(object):
         self.pub_brain.publish(self.msg_brain)
         self.waitformove = True
         self.clearMsg()
+        if DEBUG_BRAIN:
+            print("[brain] turn right")
 
     def RotateLeft(self,deg):
         """
@@ -275,6 +294,8 @@ class Brain(object):
         self.pub_brain.publish(self.msg_brain)
         self.waitformove = True
         self.clearMsg()
+        if DEBUG_BRAIN:
+            print("[brain] turn left")
 
     def AdjustingMove(self, mm):
         """
@@ -295,7 +316,7 @@ class Brain(object):
         if self.rx_mode == MODE.INIT or self.rx_target == TARGET.UNKNOWN:
             if self.cyclecount == 0:
                 self.pub_brain.publish(self.msg_brain)
-                print("brain is waiting client messsage...")
+                print("[brain] waiting client messsage...")
             else:
                 pass
         else:
@@ -303,6 +324,7 @@ class Brain(object):
             self.msg_brain.mode_id = self.mode = self.rx_mode
             self.msg_brain.target_id = self.target = self.rx_target
             self.pub_brain.publish(self.msg_brain)
+            print("[brain] recieved client messsage, and start main sequence")
 
     def main(self):
         """
@@ -368,7 +390,7 @@ def brain_py():
     # 処理周期の設定
     r = rospy.Rate(CYCLES)
 
-    print("start brain")
+    print("[brain] start")
     # ctl +　Cで終了しない限りwhileループで処理し続ける
     while not rospy.is_shutdown():
         # メイン処理
