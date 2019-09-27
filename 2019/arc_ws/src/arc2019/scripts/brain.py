@@ -139,7 +139,7 @@ class Brain(object):
         """
         目（カメラ）の受信コールバック
         """
-        if OnOperation():
+        if self.OnOperation():
             #駆動中は取得しない
             pass
         elif eye_msg.target_find == True:
