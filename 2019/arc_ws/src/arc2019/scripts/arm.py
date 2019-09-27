@@ -204,19 +204,20 @@ class ArmClass(object):
         self.frame_id += 1
     #end publish_data
 
-def arm_py():
-    """
-    アームのメイン
-    """
+    def arm_py(self):
+        """
+        アームのメイン
+        """
 
-    armc = ArmClass()
-    rrate = rospy.Rate(CYCLES)
-    rospy.init_node('arm_py_node', anonymous=True)
-    print("start_arm")
-    # ctl +　Cで終了しない限りwhileループでpublishし続ける
-    while not rospy.is_shutdown():
-        # publishする関数
-        armc.publish_data()
-        #
-        rrate.sleep()
-#end arm_py
+        rrate = rospy.Rate(CYCLES)
+        
+        print("start_arm")
+        # ctl +　Cで終了しない限りwhileループでpublishし続ける
+        while not rospy.is_shutdown():
+            # publishする関数
+            self.publish_data()
+            #
+            rrate.sleep()
+    #end arm_py
+
+rospy.init_node('arm_py_node', anonymous=True)

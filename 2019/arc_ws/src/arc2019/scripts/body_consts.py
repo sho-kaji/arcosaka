@@ -27,7 +27,7 @@ PORTS_BODY = {
     PORT_SPRAY:pigpio.OUTPUT,
     PORT_BLADE_A:pigpio.OUTPUT,
     PORT_BLADE_B:pigpio.OUTPUT,
-    PORT_PWOFFSW:pigpio.Input
+    PORT_PWOFFSW:pigpio.INPUT
 }
 
 class MOTORB(Enum):
