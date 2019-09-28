@@ -5,8 +5,6 @@
 アーム・ボディ・ハンド
 """
 
-import threading
-
 import rospy
 import pigpio
 import mortor
@@ -19,47 +17,7 @@ from arc2019.msg import hand
 
 from params import MODE, TARGET
 
-from arm_consts import \
-    DEBUG_ARM, \
-    LIM_BASE_L, LIM_BASE_R, \
-    LIM_ELBOW_B, LIM_ELBOW_F, \
-    LIM_SHOULD_B, LIM_SHOULD_F, \
-    CHANNEL_ELBOW, \
-    CHANNEL_SHOULD, \
-    CHANNEL_BASE, \
-    PORT_TWISTV_A, PORT_TWISTV_B, \
-    PORT_TWISTH_A, PORT_TWISTH_B, \
-    PORT_HANDV_A, PORT_HANDV_B, \
-    PORT_HANDH_A, PORT_HANDH_B, \
-    PORTS_ARM, \
-    LIM_HANDH_MIN, LIM_HANDV_MIN, \
-    LIM_TWISTH_MIN
-
-from body_consts import \
-    DEBUG_BODY, \
-    CHANNEL_LID, \
-    PORT_SPRAY, \
-    PORT_BLADE_A, PORT_BLADE_B, \
-    BLADE_MIMUS, BLADE_NONE, BLADE_PLUS, \
-    PORT_PWOFFSW, \
-    PORTS_BODY
-
-from hand_consts import \
-    DEBUG_HAND, \
-    CATCH_HAND, RELEASE_HAND, \
-    CHANNEL_HAND, \
-    LIM_WRIST_F, LIM_WRIST_B, \
-    CHANNEL_WRIST, \
-    ON_PLUCK, OFF_PLUCK, \
-    CHANNEL_PLUCK, \
-    CATCH_GRAB, RELEASE_GRAB, \
-    CHANNEL_GRAB, \
-    ON_TWIST, OFF_TWIST, \
-    CHANNEL_TWIST, \
-    CHANNEL_ATTACH_RR, \
-    CHANNEL_ATTACH_LR, \
-    LIM_ATTACH_LR, LIM_ATTACH_RR, \
-    LIM_ATTACH_LL, LIM_ATTACH_RL
+from abh_consts import *
 
 from brain_consts import \
     CYCLES
@@ -85,7 +43,6 @@ class AbhClass(object):
         self.mes_arm = arm()
         self.mes_body = body()
         self.mes_hand = hand()
-        
 
         self.is_arm_move = False
         self.is_arm_call = False
@@ -118,9 +75,7 @@ class AbhClass(object):
 
         # initialize port
         self.pic = pigpio.pi()
-        for key, val in PORTS_ARM.items():
-            self.mmc.pic.set_mode(key, val)
-        for key, val in PORTS_BODY.items():
+        for key, val in PORTS_ABH.items():
             self.mmc.pic.set_mode(key, val)
 
         # モード今回値
@@ -182,6 +137,8 @@ class AbhClass(object):
         """
         メッセージ初期化
         """
+
+        self.mes_arm.frame_id = -1
         self.mes_arm.is_arm_move = False
         self.mes_arm.is_twistv_ulim = False
         self.mes_arm.is_twistv_dlim = False
@@ -191,6 +148,14 @@ class AbhClass(object):
         self.mes_arm.is_handv_dlim = False
         self.mes_arm.is_handh_flim = False
         self.mes_arm.is_handh_blim = False
+
+        self.mes_body.frame_id = -1
+        self.mes_body.is_body_move = False
+        self.mes_body.is_pwoffsw = False
+
+        self.mes_hand.frame_id = -1
+        self.mes_hand.is_hand_move = False
+
     #end clear_msg
 
 
@@ -214,7 +179,6 @@ class AbhClass(object):
         self.mes_arm.is_handh_flim = False
         self.mes_arm.is_handh_blim = False
 
-
         self.mes_body.frame_id = self.frame_id
         self.mes_body.is_body_move = self.is_body_move
         self.is_pwoffsw = self.pic.read(PORT_PWOFFSW) is pigpio.HIGH
@@ -232,12 +196,28 @@ class AbhClass(object):
         self.frame_id += 1
     #end publish_data
 
+    def calc_saturation(self, num_val, num_min, num_max):
+        """
+        上下限ガード
+        """
+        if num_min > num_max:
+            num_tmp = num_max
+            num_max = num_min
+            num_min = num_tmp
+        if num_val < num_min:
+            num_val = num_min
+        elif num_max < num_val:
+            num_val = num_max
+
+        return num_val
+    #end calc_saturation
+
     def move_elbow(self, elbow):
         """
         肘
         """
         self.is_arm_move = True
-        self.mmc.move_servo(CHANNEL_ELBOW, elbow)
+        self.mmc.move_servo(CHANNEL_ELBOW, elbow, LIM_ELBOW_B, LIM_ELBOW_F)
         self.is_arm_move = False
 
     #end move_elbow
@@ -247,7 +227,7 @@ class AbhClass(object):
         肩
         """
         self.is_arm_move = True
-        self.mmc.move_servo(CHANNEL_SHOULD, should)
+        self.mmc.move_servo(CHANNEL_SHOULD, should, LIM_SHOULD_B, LIM_SHOULD_F)
         self.is_arm_move = False
 
     #end move_should
@@ -257,7 +237,7 @@ class AbhClass(object):
         土台
         """
         self.is_arm_move = True
-        self.mmc.move_servo(CHANNEL_BASE, base)
+        self.mmc.move_servo(CHANNEL_BASE, base, LIM_BASE_L, LIM_BASE_R)
         self.is_arm_move = False
 
     #end move_base
@@ -267,6 +247,7 @@ class AbhClass(object):
         ねじ切り垂直
         """
         self.is_arm_move = True
+        twistv = self.calc_saturation(twistv, LIM_TWISTV_MIN, LIM_TWISTV_MAX)
         self.mmc.move_step(PORT_TWISTV_A, PORT_TWISTV_B, twistv)
         self.is_arm_move = False
 
@@ -277,6 +258,7 @@ class AbhClass(object):
         ねじ切り水平
         """
         self.is_arm_move = True
+        twisth = self.calc_saturation(twisth, LIM_TWISTH_MIN, LIM_TWISTH_MAX)
         self.mmc.move_step(PORT_TWISTH_A, PORT_TWISTH_B, twisth)
         self.is_arm_move = False
 
@@ -287,6 +269,7 @@ class AbhClass(object):
         ハンド垂直
         """
         self.is_arm_move = True
+        handv = self.calc_saturation(handv, LIM_HANDV_MIN, LIM_HANDV_MAX)
         self.mmc.move_step(PORT_HANDV_A, PORT_HANDV_B, handv)
         self.is_arm_move = False
 
@@ -297,6 +280,7 @@ class AbhClass(object):
         ハンド水平
         """
         self.is_arm_move = True
+        handh = self.calc_saturation(handh, LIM_HANDH_MIN, LIM_HANDH_MAX)
         self.mmc.move_step(PORT_HANDH_A, PORT_HANDH_B, handh)
         self.is_arm_move = False
 
@@ -307,7 +291,7 @@ class AbhClass(object):
         蓋
         """
         self.is_body_move = True
-        self.mmc.move_servo(CHANNEL_LID, lid)
+        self.mmc.move_servo(CHANNEL_LID, lid, LIM_LID_MIN, LIM_LID_MAX)
         self.is_body_move = False
 
     #end move_lid
@@ -317,6 +301,7 @@ class AbhClass(object):
         散布
         """
         self.is_body_move = True
+        spray = self.calc_saturation(spray, OFF_SPRAY, ON_SPRAY)
         self.mmc.move_dc_duty(PORT_SPRAY, -1, spray, 0)
         self.is_body_move = False
 
@@ -326,7 +311,7 @@ class AbhClass(object):
         """
         刃
         """
-
+        blade = self.calc_saturation(blade, BLADE_MIMUS, BLADE_PLUS)
         blade_p = blade * DC_DUTY
         if blade_p < 0:
             blade_p = 0
@@ -346,7 +331,7 @@ class AbhClass(object):
         ハンド
         """
         self.is_hand_move = True
-        self.mmc.move_servo(CHANNEL_HAND, handm)
+        self.mmc.move_servo(CHANNEL_HAND, handm, RELEASE_HAND, CATCH_HAND)
         self.is_hand_move = False
 
     #end move_hand
@@ -356,7 +341,7 @@ class AbhClass(object):
         手首
         """
         self.is_hand_move = True
-        self.mmc.move_servo(CHANNEL_WRIST, wrist)
+        self.mmc.move_servo(CHANNEL_WRIST, wrist, LIM_WRIST_F, LIM_WRIST_B)
         self.is_hand_move = False
 
     #end move_wrist
@@ -366,7 +351,7 @@ class AbhClass(object):
         引抜
         """
         self.is_hand_move = True
-        self.mmc.move_servo(CHANNEL_PLUCK, pluck)
+        self.mmc.move_servo(CHANNEL_PLUCK, pluck, OFF_PLUCK, ON_PLUCK)
         self.is_hand_move = False
 
     #end move_pluck
@@ -376,7 +361,7 @@ class AbhClass(object):
         枝掴み
         """
         self.is_hand_move = True
-        self.mmc.move_servo(CHANNEL_GRAB, grab)
+        self.mmc.move_servo(CHANNEL_GRAB, grab, RELEASE_GRAB, CATCH_GRAB)
         self.is_hand_move = False
 
     #end move_grab
@@ -386,7 +371,7 @@ class AbhClass(object):
         枝ねじり
         """
         self.is_hand_move = True
-        self.mmc.move_servo(CHANNEL_TWIST, twist)
+        self.mmc.move_servo(CHANNEL_TWIST, twist, OFF_TWIST, ON_TWIST)
         self.is_hand_move = False
 
     #end move_twist
@@ -396,7 +381,7 @@ class AbhClass(object):
         添え手右
         """
         self.is_hand_move = True
-        self.mmc.move_servo(CHANNEL_ATTACH_RR, attach_r)
+        self.mmc.move_servo(CHANNEL_ATTACH_RR, attach_r, LIM_ATTACH_RL, LIM_ATTACH_RR)
         self.is_hand_move = False
 
     #end move_attach_r
@@ -406,7 +391,7 @@ class AbhClass(object):
         添え手左
         """
         self.is_hand_move = True
-        self.mmc.move_servo(CHANNEL_ATTACH_LR, attach_l)
+        self.mmc.move_servo(CHANNEL_ATTACH_LR, attach_l, LIM_ATTACH_LL, LIM_ATTACH_LR)
         self.is_hand_move = False
 
     #end move_attach_l
@@ -447,7 +432,7 @@ class AbhClass(object):
         # 今回値保存ここまで
 
         #区切り
-        self.is_arm_call = False
+        self.is_abh_call = False
         print("==============================")
     # end callback
 

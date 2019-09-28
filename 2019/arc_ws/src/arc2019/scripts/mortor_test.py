@@ -6,6 +6,9 @@
 """
 
 import mortor
+
+from abh_consts import *
+
 from mortor_consts import \
     DCROTATE
 
@@ -40,16 +43,16 @@ def main_dc():
 
 def main_dccut():
     """
-    DCモーターテスト
+    刃DCモーターテスト
     """
     mcc = mortor.MortorClass()
     while True:
         try:
             val = input('number(0 or 1):')
             int_tmp = int(val)
-            
+
             if int_tmp >= 0:
-                mcc.move_dc_duty(9, 11, int_tmp,0)
+                mcc.move_dc_duty(PORT_BLADE_A, PORT_BLADE_B, int_tmp, 0)
             else:
                 break
 
@@ -72,12 +75,12 @@ def main_servo():
             if int_port < 0:
                 break
 
-            val = input('number:')
+            val = input(' pulse:')
             int_tmp = int(val)
             if int_tmp < 0:
                 break
 
-            mcc.move_servo(int_port, int_tmp, False)
+            mcc.move_servo_pulse(int_port, int_tmp)
         except KeyboardInterrupt:
             print("Ctrl+Cで停止しました")
             break

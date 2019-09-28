@@ -179,8 +179,8 @@ class MortorClass(object):
             dcduty_cw = 0
             dcduty_ccw = 0
 
-        print("cw   = %d" % dcduty_cw)
-        print("ccw  = %d" % dcduty_ccw)
+        #print("cw   = %d" % dcduty_cw)
+        #print("ccw  = %d" % dcduty_ccw)
 
         if self.is_notdebug:
             #新しい値で出力
@@ -196,10 +196,15 @@ class MortorClass(object):
             print ("dcduty_cw=%3d\tcduty_ccw=%3d" %(dcduty_cw, dcduty_ccw))
     #end move_dc_duty
 
-    def move_servo(self, channel, power, limit=True):
+    def move_servo(self, channel, power, lim_min, lim_max):
         """
         サーボモーター
         """
+        if lim_min > lim_max:
+            num_tmp = lim_max
+            lim_max = lim_min
+            lim_min = num_tmp
+
         # 上下限ガード
         if power < 0:
             power = 0
@@ -207,20 +212,14 @@ class MortorClass(object):
             power = 100
 
         # 割合から
-        pulse = ((SERVO_MAX - SERVO_MIN) * (power / 100.0)) + SERVO_MIN
-        self.move_servo_pulse(channel, pulse, limit)
+        pulse = ((lim_max - lim_min) * (power / 100.0)) + lim_min
+        self.move_servo_pulse(channel, pulse)
     #end move_servo
 
-    def move_servo_pulse(self, channel, pulse, limit=True):
+    def move_servo_pulse(self, channel, pulse):
         """
         サーボモーターパルス
         """
-
-        if limit:
-            if pulse < SERVO_MIN:
-                pulse = SERVO_MIN
-            if pulse > SERVO_MAX:
-                pulse = SERVO_MAX
 
         print("pulse = %d" % pulse)
 
@@ -237,7 +236,7 @@ class MortorClass(object):
         self.move_step_step(port_a, port_b, step)
     #end move_step
 
-    def move_step_step(self, port_a, port_b, step, freq = -1):
+    def move_step_step(self, port_a, port_b, step, freq=-1):
         """
         ステッピングモーターステップ数入力
         """
