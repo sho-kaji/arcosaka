@@ -28,8 +28,7 @@ class MortorClass(object):
     """
     モータークラス
     """
-    def __init__(self, is_debug=False, port_a_cw=16, port_a_ccw=20, port_b_cw=19, port_b_ccw=26):
-
+    def __init__(self, is_debug=False, ports=(16, 20, 19, 26)):
         self.is_notdebug = not((os.name != 'posix') or is_debug)
         print(os.name)
         print(self.is_notdebug)
@@ -38,10 +37,10 @@ class MortorClass(object):
             # initialize gpio
             self.pic = pigpio.pi()
 
-            self.port_a_cw = port_a_cw
-            self.port_a_ccw = port_a_ccw
-            self.port_b_cw = port_b_cw
-            self.port_b_ccw = port_b_ccw
+            self.port_a_cw = ports[0]
+            self.port_a_ccw = ports[1]
+            self.port_b_cw = ports[2]
+            self.port_b_ccw = ports[3]
 
             # initialize move_dc
             self.dcduty_a_o = 0
@@ -73,6 +72,7 @@ class MortorClass(object):
         デバッグモード設定
         """
         self.is_notdebug = not(val)
+    #end set_debug
 
     def move_dc(self, rotate_a, rotate_b, limit=True):
         """
@@ -264,30 +264,22 @@ class MortorClass(object):
             if self.is_notdebug:
                 if step > 0:
                     self.pic.write(port_a, pigpio.HIGH)
-                    #print("port_a ON")
                     time.sleep(wait_hl/2)
                     self.pic.write(port_b, pigpio.HIGH)
-                    #print("port_b ON")
                     time.sleep(wait_hl/2)
                     self.pic.write(port_a, pigpio.LOW)
-                    #print("port_a OFF")10
                     time.sleep(wait_lh/2)
                     self.pic.write(port_b, pigpio.LOW)
-                    #print("port_b OFF")
                     time.sleep(wait_lh/2)
 
                 elif step < 0:
                     self.pic.write(port_b, pigpio.HIGH)
-                    #print("port_b ON")
                     time.sleep(wait_hl/2)
                     self.pic.write(port_a, pigpio.HIGH)
-                    #print("port_a ON")
                     time.sleep(wait_hl/2)
                     self.pic.write(port_b, pigpio.LOW)
-                    #print("port_b OFF")
                     time.sleep(wait_lh/2)
                     self.pic.write(port_a, pigpio.LOW)
-                    #print("port_a OFF")
                     time.sleep(wait_lh/2)
             else:
                 if step > 0:

@@ -5,6 +5,8 @@
 アーム・ボディ・ハンド
 """
 
+import math
+
 import rospy
 import pigpio
 import mortor
@@ -45,11 +47,10 @@ class AbhClass(object):
         self.mes_hand = hand()
 
         self.is_arm_move = False
-        self.is_arm_call = False
         self.is_body_move = False
-        self.is_body_call = False
         self.is_hand_move = False
-        self.is_hand_call = False
+
+        self.is_abh_call = False
 
         #arm用
         self.elbow_req_o = 0 # 肘モーター要求値
@@ -61,14 +62,9 @@ class AbhClass(object):
         self.twistz_req_o = 0 # ねじ切りハンド指定位置Z
 
         #body用
-        self.is_body_move = False
         self.is_pwoffsw = False
 
         #hand用
-        self.is_hand_move = False
-
-        self.mode_now = MODE.UNKNOWN
-        self.target_now = TARGET.UNKNOWN
 
         # MortorClass
         self.mmc = mortor.MortorClass()
@@ -90,8 +86,6 @@ class AbhClass(object):
         self.twistx_req_o = 0 # ねじ切りハンド指定位置X前回値
         self.twistz_req_o = 0 # ねじ切りハンド指定位置Z前回値
 
-        self.is_arm_move = False
-        self.is_arm_call = False
         self.elbow_o = 0 # 肘モーター
         self.should_o = 0 # 肩モーター
         self.base_o = 0 # 土台モーター
@@ -101,13 +95,6 @@ class AbhClass(object):
         self.handh_o = 0 # ハンド水平モーター
 
         self.elbow_req_o = 0 # 肘モーター要求値前回値
-        self.is_body_move = False
-        self.is_body_call = False
-        self.is_pwoffsw = False
-
-        self.is_hand_move = False
-        self.is_hand_call = False
-
 
     #end __init__
 
@@ -298,7 +285,7 @@ class AbhClass(object):
 
     def move_spray(self, spray):
         """
-        散布
+        散布ファン
         """
         self.is_body_move = True
         spray = self.calc_saturation(spray, OFF_SPRAY, ON_SPRAY)
@@ -401,8 +388,7 @@ class AbhClass(object):
         メッセージを受信したときに呼び出し
         """
 
-        self.is_arm_move = False
-        self.is_arm_call = True
+        self.is_abh_call = True
 
         #モード変更確認
         self.modechange(brain_mes.mode_id, brain_mes.target_id)
@@ -439,10 +425,38 @@ class AbhClass(object):
     def mode_grass(self):
         """
         草刈り
-
+        土台 => 肩 => ハンド => 引抜 => (肘) => 手首 => 散布ファン => ハンド => 引抜 =>
+        => 肩 => 土台(66.7%) => 蓋 => 手首 => 肘 => ハンド => 蓋 => 刃
         """
         if self.mode_now == MODE.AUTO:
-            pass
+            #土台モーターの角度計算
+            tmp_base = 0
+            #肩モーターの角度計算
+            tmp_should = 0
+            #手首モーターの角度計算
+            tmp_wrist = 0
+            #モーター動作
+            self.move_base(tmp_base)
+            self.move_should(tmp_should)
+            self.move_hand(RELEASE_HAND)
+            self.move_pluck(ON_PLUCK)
+            #self.move_elbow()
+            self.move_wrist(tmp_wrist)
+            self.move_spray(ON_SPRAY)
+            self.move_spray(OFF_SPRAY)
+            self.move_hand(CATCH_HAND)
+            self.move_pluck(ON_PLUCK)
+            self.move_should(0)
+            self.move_base((2.0/3.0)*100)
+            self.move_wrist(100)
+            self.move_elbow(100)
+            self.move_lid(100)
+            self.move_hand(RELEASE_HAND)
+            self.move_lid(0)
+            self.move_blade(BLADE_PLUS)
+            self.move_blade(BLADE_NONE)
+
+
         elif self.mode_now == MODE.MANUAL:
             self.move_base(self.brain_mes.base_req)
             self.move_should(self.brain_mes.should_req)
@@ -457,11 +471,22 @@ class AbhClass(object):
         => 枝ねじり => 枝掴み => 添え手右・添え手左 => ねじ切り水平
         """
         if self.mode_now == MODE.AUTO: # 自動モード
-            twistx = self.brain_mes.twistx_req
-            twistz = self.brain_mes.twistz_req
+            tmp_twistx = self.brain_mes.twistx_req
+            tmp_twistz = self.brain_mes.twistz_req
 
-            twistv = twistz / STEP_1PULSE
-            twisth = twistx / STEP_1PULSE
+            tmp_twistv = tmp_twistz / STEP_1PULSE
+            tmp_twisth = tmp_twistx / STEP_1PULSE
+
+            self.armc.move_twistv(tmp_twistv)
+            self.armc.move_twisth(tmp_twisth)
+            self.handc.move_attach_l(LIM_ATTACH_LR)
+            self.handc.move_attach_r(LIM_ATTACH_RL)
+            self.handc.move_grab(CATCH_GRAB)
+            self.handc.move_twist(ON_TWIST)
+            self.handc.move_grab(RELEASE_GRAB)
+            self.handc.move_attach_l(LIM_ATTACH_LL)
+            self.handc.move_attach_r(LIM_ATTACH_RR)
+            self.armc.move_twisth(LIM_TWISTH_MIN)
 
         elif self.mode_now == MODE.MANUAL: # 手動モード
             twistv = 0 #brainから値が来るはず
@@ -469,18 +494,6 @@ class AbhClass(object):
 
         else:
             pass
-
-        self.armc.move_twistv(twistv)
-        self.armc.move_twisth(twisth)
-        self.handc.move_attach_l(LIM_ATTACH_LR)
-        self.handc.move_attach_r(LIM_ATTACH_RL)
-        self.handc.move_grab(CATCH_GRAB)
-        self.handc.move_twist(ON_TWIST)
-        self.handc.move_grab(RELEASE_GRAB)
-        self.handc.move_attach_l(LIM_ATTACH_LL)
-        self.handc.move_attach_r(LIM_ATTACH_RR)
-        self.armc.move_twisth(LIM_TWISTH_MIN)
-
 
     #end mode_sprout
 
@@ -497,23 +510,23 @@ class AbhClass(object):
             handv = handz / STEP_1PULSE
             handh = handx / STEP_1PULSE
 
+            self.armc.move_handv(handv) # ハンド垂直
+            self.armc.move_handh(handh) # ハンド水平
+            self.handc.move_hand(CATCH_HAND) # ハンド
+            self.handc.move_wrist(LIM_WRIST_F) #手首
+            self.handc.move_hand(RELEASE_HAND) # ハンド
+            self.armc.move_handh(handh) # ハンド水平
+            self.handc.move_wrist(LIM_WRIST_B) #手首
+            self.armc.move_handh(LIM_HANDH_MIN) # ハンド水平
+
         elif self.mode_now == MODE.MANUAL: # 手動モード
             handv = LIM_HANDV_MIN #brainから値が来るはず
             handh = LIM_HANDH_MIN
 
         else:
             pass
-        self.armc.move_handv(handv) # ハンド垂直
-        self.armc.move_handh(handh) # ハンド水平
-        self.handc.move_hand(CATCH_HAND) # ハンド
-        self.handc.move_wrist(LIM_WRIST_F) #手首
-        self.handc.move_hand(RELEASE_HAND) # ハンド
-        self.armc.move_handh(handh) # ハンド水平
-        self.handc.move_wrist(LIM_WRIST_B) #手首
-        self.armc.move_handh(LIM_HANDH_MIN) # ハンド水平
 
     #end mode_tomato
-
 def abh_py():
     """
     アーム・ボディ・ハンドのメイン
@@ -524,11 +537,10 @@ def abh_py():
     rrate = rospy.Rate(CYCLES)
     rospy.Subscriber('brain', brain, abhc.callback, queue_size=1)
     print("start_abh")
-    # ctl +　Cで終了しない限りwhileループでpublishし続ける
+    # ctl + Cで終了しない限りwhileループでpublishし続ける
     while not rospy.is_shutdown():
         abhc.publish_data()
         rrate.sleep()
 #end abh_py
-
 if __name__ == '__main__':
     abh_py()

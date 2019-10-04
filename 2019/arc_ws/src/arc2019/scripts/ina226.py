@@ -2,22 +2,20 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=E1101,C0325
 """
-電圧検知IC
+電流電圧測定IC
 """
 
 import time
 import smbus
 
-
-ADDR_INA226 = 0x40 #I2Cアドレス
+ADDR_INA226 = 0x40 #I2Cアドレス(固定)
 
 class Ina226(object):
     """
-
+    電流電圧測定IC値取得クラス
     """
     def __init__(self):
         self.i2c = smbus.SMBus(1)
-        
         self.i2c.write_word_data(ADDR_INA226, 0x05, 0x14)
 
     def read_v(self):
@@ -50,5 +48,5 @@ class Ina226(object):
 
 
 if __name__ == '__main__':
-    ina = Ina226()
-    ina.read_vi_loop()
+    inac = Ina226()
+    inac.read_vi_loop()
