@@ -85,4 +85,4 @@ if __name__ == '__main__':
         client_py()
 
     except rospy.ROSInterruptException:
-        print("end client")
+        print("[client_dummy] end")

@@ -403,4 +403,4 @@ if __name__ == '__main__':
         brain_py()
 
     except rospy.ROSInterruptException:
-        print("end brain")
+        print("[brain] end")
