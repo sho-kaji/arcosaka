@@ -59,8 +59,8 @@ class Ina226(object):
             i_now = self.read_i() / 1000.0
             self.v_ave = (self.v_ave + v_now) / 2.0
             self.i_ave = (self.i_ave + i_now) / 2.0
-            print str(v_now) + "[V]\t" + str(self.v_ave) + "[V]\t" + \
-                str(i_now) + "[A]\t" + str(self.i_ave) + "[A]"
+            print "NOW={:.2f}[V]\t".format(v_now) + "AVE={:.2f}[V]\t".format(self.v_ave) + \
+                "NOW={:.4f}[A]\t".format(i_now) + "NOW={:.4f}[A]\t".format(self.i_ave)
             if self.v_ave < BATT_LOW:
                 self.cnt_battlow += 1
             else:
