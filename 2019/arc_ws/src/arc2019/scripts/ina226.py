@@ -91,6 +91,7 @@ class Ina226(object):
 
             if self.v_ave < BATT_LOW:
                 self.cnt_battlow += 1
+                print "電圧低下(" + str(self.cnt_battlow) + ")"
             else:
                 self.cnt_battlow = 0
 
