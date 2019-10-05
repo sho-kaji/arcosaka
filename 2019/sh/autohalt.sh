@@ -8,5 +8,5 @@ do
     res=$(gpio -1 read 40)
     #echo ${res}
 done
-wall < echo "shutdown now"
+echo "shutdown now" | wall
 #shutdown -h now
