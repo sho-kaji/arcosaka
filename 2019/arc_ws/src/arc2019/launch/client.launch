@@ -1,0 +1,7 @@
+<launch>
+  <group ns="arc2019_2">
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+    <node pkg="arc2019" name="server" type="server.py" output="screen"/>
+    <include file="$(find roswww)/launch/roswww.launch" />
+  </group>
+</launch>

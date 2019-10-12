@@ -58,6 +58,7 @@ find_package(catkin REQUIRED COMPONENTS
     brain.msg
     eye.msg
     client.msg
+    client_abh_debug.msg
  )
 
 ## Generate services in the 'srv' folder
