@@ -10,6 +10,7 @@ import math
 import rospy
 import pigpio
 import mortor
+import ina226
 
 from arc2019.msg import brain
 
@@ -64,10 +65,14 @@ class AbhClass(object):
         #body用
         self.is_pwoffsw = False
 
+
         #hand用
 
         # MortorClass
         self.mmc = mortor.MortorClass()
+
+        #ina226Class
+        self.inac = ina226.Ina226Class()
 
         # initialize port
         self.pic = pigpio.pi()
@@ -139,6 +144,8 @@ class AbhClass(object):
         self.mes_body.frame_id = -1
         self.mes_body.is_body_move = False
         self.mes_body.is_pwoffsw = False
+        self.mes_body.batt_v = 0.0
+        self.mes_body.batt_i = 0.0
 
         self.mes_hand.frame_id = -1
         self.mes_hand.is_hand_move = False
@@ -170,6 +177,8 @@ class AbhClass(object):
         self.mes_body.is_body_move = self.is_body_move
         self.is_pwoffsw = self.pic.read(PORT_PWOFFSW) is pigpio.HIGH
         self.mes_body.is_pwoffsw = self.is_pwoffsw
+        self.mes_body.batt_v = self.inac.read_v()
+        self.mes_body.batt_i = self.inac.read_i()
 
         self.mes_hand.frame_id = self.frame_id
         self.mes_hand.is_hand_move = self.is_hand_move

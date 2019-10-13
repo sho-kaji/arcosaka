@@ -12,4 +12,4 @@ do
     #echo ${res}
 done
 echo "shutdown now" | wall
-#shutdown -h now
+shutdown -h now

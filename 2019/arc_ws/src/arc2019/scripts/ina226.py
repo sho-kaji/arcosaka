@@ -25,7 +25,7 @@ SET_MODE = 0b111
 BATT_LOW = 6.2
 BATT_ERR = 10
 
-class Ina226(object):
+class Ina226Class(object):
     """
     電流電圧測定IC値取得クラス
     """
@@ -105,5 +105,5 @@ class Ina226(object):
 
 
 if __name__ == '__main__':
-    inac = Ina226()
+    inac = Ina226Class()
     inac.read_vi_loop()
