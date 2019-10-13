@@ -89,6 +89,33 @@ def main_servo():
 
     mcc.endfnc()
 
+
+def main_servo360():
+    """
+    360サーボモーターテスト
+    """
+    mcc = mortor.MortorClass()
+    while True:
+        try:
+            port = input('  port:')
+            int_port = int(port)
+            if int_port < 0:
+                break
+
+            val = input(' pulse:')
+            int_tmp = int(val)
+            if int_tmp < 0:
+                break
+
+            mcc.move_servo_pulse(int_port, int_tmp)
+        except KeyboardInterrupt:
+            print("Ctrl+Cで停止しました")
+            break
+        except TypeError as ex:
+            print(ex)
+
+    mcc.endfnc()
+
 def main_step():
     """
     ステッピングモーターテスト
@@ -111,4 +138,4 @@ def main_step():
     mcc.endfnc()
 
 if __name__ == '__main__':
-    main_step()
+    main_servo360()

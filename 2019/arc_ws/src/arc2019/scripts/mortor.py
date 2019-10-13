@@ -221,6 +221,13 @@ class MortorClass(object):
         サーボモーターパルス
         """
 
+        if pulse > 500:
+            pulse = 500
+        elif pulse < 300:
+            pulse = 300
+        else:
+            pass
+
         print("pulse = %d" % pulse)
 
         if self.is_notdebug:
