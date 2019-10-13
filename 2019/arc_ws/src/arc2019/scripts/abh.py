@@ -46,6 +46,7 @@ class AbhClass(object):
         self.mes_arm = arm()
         self.mes_body = body()
         self.mes_hand = hand()
+        self.mes_brain = brain()
 
         self.is_arm_move = False
         self.is_body_move = False
@@ -392,15 +393,16 @@ class AbhClass(object):
 
     #end move_attach_l
 
-    def callback(self, brain_mes):
+    def callback(self, mes_brain):
         """
         メッセージを受信したときに呼び出し
         """
 
         self.is_abh_call = True
+        self.mes_brain = mes_brain
 
         #モード変更確認
-        self.modechange(brain_mes.mode_id, brain_mes.target_id)
+        self.modechange(mes_brain.mode_id, mes_brain.target_id)
 
         #関数コール
         if self.target_now == TARGET.GRASS: #草刈りモード時
@@ -417,13 +419,13 @@ class AbhClass(object):
 
 
         #今回値保存ここから
-        self.elbow_req_o = brain_mes.elbow_req # 肘モーター要求値
-        self.should_req_o = brain_mes.should_req # 肩モーター要求値
-        self.handx_req_o = brain_mes.handx_req # ハンド指定位置X
-        self.handy_req_o = brain_mes.handy_req # ハンド指定位置Y
-        self.handz_req_o = brain_mes.handz_req # ハンド指定位置Z
-        self.twistx_req_o = brain_mes.twistx_req # ねじ切りハンド指定位置X
-        self.twistz_req_o = brain_mes.twistz_req # ねじ切りハンド指定位置Z
+        self.elbow_req_o = mes_brain.elbow_req # 肘モーター要求値
+        self.should_req_o = mes_brain.should_req # 肩モーター要求値
+        self.handx_req_o = mes_brain.handx_req # ハンド指定位置X
+        self.handy_req_o = mes_brain.handy_req # ハンド指定位置Y
+        self.handz_req_o = mes_brain.handz_req # ハンド指定位置Z
+        self.twistx_req_o = mes_brain.twistx_req # ねじ切りハンド指定位置X
+        self.twistz_req_o = mes_brain.twistz_req # ねじ切りハンド指定位置Z
         # 今回値保存ここまで
 
         #区切り
@@ -438,12 +440,19 @@ class AbhClass(object):
         => 肩 => 土台(66.7%) => 蓋 => 手首 => 肘 => ハンド => 蓋 => 刃
         """
         if self.mode_now == MODE.AUTO:
+
+            tmp_handx = self.mes_brain.handx_req
+            tmp_handy = self.mes_brain.handy_req
+            tmp_handz = self.mes_brain.handz_req
+
             #土台モーターの角度計算
             #X座標とY座標で算出
-            tmp_base = 0
+            tmp_base = math.atan2(tmp_handy, tmp_handx)
+
             #肩モーターの角度計算
             #Y座標とZ座標で算出
-            tmp_should = 0
+            tmp_should = math.atan2(tmp_handz, tmp_handy)
+
             #手首モーターの角度計算
             tmp_wrist = 0
             #モーター動作
@@ -469,9 +478,9 @@ class AbhClass(object):
 
 
         elif self.mode_now == MODE.MANUAL:
-            self.move_base(self.brain_mes.base_req)
-            self.move_should(self.brain_mes.should_req)
-            self.move_elbow(self.brain_mes.elbow_req)
+            self.move_base(self.mes_brain.base_req)
+            self.move_should(self.mes_brain.should_req)
+            self.move_elbow(self.mes_brain.elbow_req)
 
     #end mode_grass
 
@@ -482,22 +491,22 @@ class AbhClass(object):
         => 枝ねじり => 枝掴み => 添え手右・添え手左 => ねじ切り水平
         """
         if self.mode_now == MODE.AUTO: # 自動モード
-            tmp_twistx = self.brain_mes.twistx_req
-            tmp_twistz = self.brain_mes.twistz_req
+            tmp_twistx = self.mes_brain.twistx_req
+            tmp_twistz = self.mes_brain.twistz_req
 
             tmp_twistv = tmp_twistz / STEP_1PULSE
             tmp_twisth = tmp_twistx / STEP_1PULSE
 
-            self.armc.move_twistv(tmp_twistv)
-            self.armc.move_twisth(tmp_twisth)
-            self.handc.move_attach_l(LIM_ATTACH_LR)
-            self.handc.move_attach_r(LIM_ATTACH_RL)
-            self.handc.move_grab(CATCH_GRAB)
-            self.handc.move_twist(ON_TWIST)
-            self.handc.move_grab(RELEASE_GRAB)
-            self.handc.move_attach_l(LIM_ATTACH_LL)
-            self.handc.move_attach_r(LIM_ATTACH_RR)
-            self.armc.move_twisth(LIM_TWISTH_MIN)
+            self.move_twistv(tmp_twistv)
+            self.move_twisth(tmp_twisth)
+            self.move_attach_l(LIM_ATTACH_LR)
+            self.move_attach_r(LIM_ATTACH_RL)
+            self.move_grab(CATCH_GRAB)
+            self.move_twist(ON_TWIST)
+            self.move_grab(RELEASE_GRAB)
+            self.move_attach_l(LIM_ATTACH_LL)
+            self.move_attach_r(LIM_ATTACH_RR)
+            self.move_twisth(LIM_TWISTH_MIN)
 
         elif self.mode_now == MODE.MANUAL: # 手動モード
             twistv = 0 #brainから値が来るはず
@@ -515,20 +524,20 @@ class AbhClass(object):
          =>ハンド => ハンド水平 => 手首
         """
         if self.mode_now == MODE.AUTO: # 自動モード
-            handx = self.brain_mes.handx_req
-            handz = self.brain_mes.handz_req
+            handx = self.mes_brain.handx_req
+            handz = self.mes_brain.handz_req
 
             handv = handz / STEP_1PULSE
             handh = handx / STEP_1PULSE
 
-            self.armc.move_handv(handv) # ハンド垂直
-            self.armc.move_handh(handh) # ハンド水平
-            self.handc.move_hand(CATCH_HAND) # ハンド
-            self.handc.move_wrist(LIM_WRIST_F) #手首
-            self.handc.move_hand(RELEASE_HAND) # ハンド
-            self.armc.move_handh(handh) # ハンド水平
-            self.handc.move_wrist(LIM_WRIST_B) #手首
-            self.armc.move_handh(LIM_HANDH_MIN) # ハンド水平
+            self.move_handv(handv) # ハンド垂直
+            self.move_handh(handh) # ハンド水平
+            self.move_hand(CATCH_HAND) # ハンド
+            self.move_wrist(LIM_WRIST_F) #手首
+            self.move_hand(RELEASE_HAND) # ハンド
+            self.move_handh(handh) # ハンド水平
+            self.move_wrist(LIM_WRIST_B) #手首
+            self.move_handh(LIM_HANDH_MIN) # ハンド水平
 
         elif self.mode_now == MODE.MANUAL: # 手動モード
             handv = LIM_HANDV_MIN #brainから値が来るはず

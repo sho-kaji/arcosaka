@@ -22,7 +22,7 @@ SET_VBUSCT = 0b100
 SET_VSHCT = 0b100
 SET_MODE = 0b111
 
-BATT_LOW = 6.2
+BATT_VLOW = 6.2
 BATT_ERR = 10
 
 class Ina226Class(object):
@@ -89,7 +89,7 @@ class Ina226Class(object):
                 "NOW={:.4f}[A]\t".format(i_now) + "AVE={:.4f}[A]\t".format(self.i_ave) + \
                 "SGM={:.4f}[Asec]\t".format(self.i_sgm)
 
-            if self.v_ave < BATT_LOW:
+            if self.v_ave < BATT_VLOW:
                 self.cnt_battlow += 1
                 print "電圧低下(" + str(self.cnt_battlow) + ")"
             else:
