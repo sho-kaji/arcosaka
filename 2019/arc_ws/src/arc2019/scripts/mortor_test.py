@@ -12,6 +12,8 @@ from abh_consts import *
 from mortor_consts import \
     DCROTATE
 
+from abh_consts import *
+
 def main_dc():
     """
     DCモーターテスト
@@ -123,12 +125,34 @@ def main_step():
     mcc = mortor.MortorClass()
     while True:
         try:
+            print("(1)ハンド水平\n(2)ハンド垂直\n(3)ねじ切り水平\n(4)ねじ切り垂直")
+            mortornum = input('mortor:')
+
+            if mortornum == 1:
+                int_porta = PORT_HANDH_A
+                int_portb = PORT_HANDH_B
+
+            elif mortornum == 2:
+                int_porta = PORT_HANDV_A
+                int_portb = PORT_HANDV_B
+
+            elif mortornum == 3:
+                int_porta = PORT_TWISTH_A
+                int_portb = PORT_TWISTH_B
+
+            elif mortornum == 4:
+                int_porta = PORT_TWISTV_A
+                int_portb = PORT_TWISTV_B
+
+            else:
+                break
+
             val = input('  step:')
             int_tmp = int(val)
             if int_tmp == 0:
                 break
 
-            mcc.move_step_step(11, 8, int_tmp)
+            mcc.move_step_step(int_porta, int_portb, int_tmp)
 
         except KeyboardInterrupt:
             print("Ctrl+Cで停止しました")
@@ -138,4 +162,4 @@ def main_step():
     mcc.endfnc()
 
 if __name__ == '__main__':
-    main_servo360()
+    main_step()
