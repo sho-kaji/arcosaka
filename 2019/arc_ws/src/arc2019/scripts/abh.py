@@ -430,8 +430,10 @@ class AbhClass(object):
         """
         if self.mode_now == MODE.AUTO:
             #土台モーターの角度計算
+            #X座標とY座標で算出
             tmp_base = 0
             #肩モーターの角度計算
+            #Y座標とZ座標で算出
             tmp_should = 0
             #手首モーターの角度計算
             tmp_wrist = 0
