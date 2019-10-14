@@ -12,6 +12,8 @@ from abh_consts import *
 from mortor_consts import \
     DCROTATE
 
+from abh_consts import *
+
 def main_dc():
     """
     DCモーターテスト
@@ -89,6 +91,33 @@ def main_servo():
 
     mcc.endfnc()
 
+
+def main_servo360():
+    """
+    360サーボモーターテスト
+    """
+    mcc = mortor.MortorClass()
+    while True:
+        try:
+            port = input('  port:')
+            int_port = int(port)
+            if int_port < 0:
+                break
+
+            val = input(' pulse:')
+            int_tmp = int(val)
+            if int_tmp < 0:
+                break
+
+            mcc.move_servo_pulse(int_port, int_tmp)
+        except KeyboardInterrupt:
+            print("Ctrl+Cで停止しました")
+            break
+        except TypeError as ex:
+            print(ex)
+
+    mcc.endfnc()
+
 def main_step():
     """
     ステッピングモーターテスト
@@ -96,12 +125,34 @@ def main_step():
     mcc = mortor.MortorClass()
     while True:
         try:
+            print("(1)ハンド水平\n(2)ハンド垂直\n(3)ねじ切り水平\n(4)ねじ切り垂直")
+            mortornum = input('mortor:')
+
+            if mortornum == 1:
+                int_porta = PORT_HANDH_A
+                int_portb = PORT_HANDH_B
+
+            elif mortornum == 2:
+                int_porta = PORT_HANDV_A
+                int_portb = PORT_HANDV_B
+
+            elif mortornum == 3:
+                int_porta = PORT_TWISTH_A
+                int_portb = PORT_TWISTH_B
+
+            elif mortornum == 4:
+                int_porta = PORT_TWISTV_A
+                int_portb = PORT_TWISTV_B
+
+            else:
+                break
+
             val = input('  step:')
             int_tmp = int(val)
             if int_tmp == 0:
                 break
 
-            mcc.move_step_step(11, 8, int_tmp)
+            mcc.move_step_step(int_porta, int_portb, int_tmp)
 
         except KeyboardInterrupt:
             print("Ctrl+Cで停止しました")

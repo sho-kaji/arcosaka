@@ -2,7 +2,9 @@
   <group ns="arc2019_1">
     <node pkg="arc2019" name="abh" type="abh.py" output="screen"/>
     <node pkg="arc2019" name="brain" type="brain.py" output="screen"/>
-    <node pkg="arc2019" name="eyes" type="eyes.py" output="screen"/>
+    <node pkg="arc2019" name="eyes1" type="eyes1.py" output="screen"/>
+    <node pkg="arc2019" name="eyes2" type="eyes2.py" output="screen"/>
+    <node pkg="arc2019" name="eyes3" type="eyes3.py" output="screen"/>
     <node pkg="arc2019" name="dummyclient" type="client_dummy.py" output="screen"/>
 
   </group>

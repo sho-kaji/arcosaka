@@ -44,3 +44,6 @@ class DIRECTION(IntEnum):
     BACK    = 2     #後移動
     RIGHT   = 3     #右旋回
     LEFT    = 4     #左旋回
+
+
+INVALID_POS = -99999
