@@ -33,6 +33,8 @@ class Ina226Class(object):
             #1回目は変な値をとるときが多いので...
             self.read_v()
             self.read_i()
+        except IOError:
+            self.is_enable = False
 
         finally:
             self.is_battlow = False

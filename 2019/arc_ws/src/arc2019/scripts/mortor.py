@@ -34,27 +34,36 @@ class MortorClass(object):
         print(self.is_notdebug)
 
         if self.is_notdebug:
-            # initialize gpio
-            self.pic = pigpio.pi()
+            try:
+                # initialize gpio
+                self.pic = pigpio.pi()
 
-            self.port_a_cw = ports[0]
-            self.port_a_ccw = ports[1]
-            self.port_b_cw = ports[2]
-            self.port_b_ccw = ports[3]
+                self.port_a_cw = ports[0]
+                self.port_a_ccw = ports[1]
+                self.port_b_cw = ports[2]
+                self.port_b_ccw = ports[3]
 
-            # initialize move_dc
-            self.dcduty_a_o = 0
-            self.dcduty_b_o = 0
+                # initialize move_dc
+                self.dcduty_a_o = 0
+                self.dcduty_b_o = 0
 
-            # initialize move_servo
-            self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
-            self.pwm.set_pwm_freq(60)
+                # initialize move_servo
+                self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
+                self.pwm.set_pwm_freq(60)
 
-            # initialize move_step
-            self.pic.set_mode(18, pigpio.OUTPUT)
+                # initialize move_step
+                self.pic.set_mode(18, pigpio.OUTPUT)
+
+            except IOError:
+                self.is_notdebug = False
 
         else:
-            print("debug")
+            pass
+
+        if self.is_notdebug:
+            print("mortor is move")
+        else:
+            print("mortor is debug")
     #end __init__
 
     def endfnc(self):
