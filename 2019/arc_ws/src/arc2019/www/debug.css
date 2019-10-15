@@ -1,0 +1,40 @@
+.box1{
+    position: relative;
+    top:20px;
+}
+.slider{
+    z-index:3;
+    position: absolute;
+    top:0px;
+    left:940px;
+    
+}
+.slider_title {
+    display: inline-block;
+    width: 150px;
+    /* border: solid 1px; */
+}
+.camera1{
+    z-index:2;
+    position: absolute;
+    top:0;
+    left:0;
+}
+.camera2{
+    z-index:2;
+    position: absolute;
+    top:0;
+    left:650px;
+}
+.status{
+    z-index:4;
+    position: absolute ;
+    top:0;
+    left:10px;
+}
+.button_back{
+    z-index:4;
+    position: absolute ;
+    top:0;
+    left:300px;
+}
