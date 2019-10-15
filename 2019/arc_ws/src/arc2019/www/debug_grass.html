@@ -2,70 +2,63 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-    <style type="text/css">
-        .slider_title {
-            display: inline-block;
-            width: 150px;
-            /* border: solid 1px; */
-        }
-    <!--
-      *{ padding:0px; margin:0px;}
-    -->
-    </style>
+    <link rel="stylesheet" type="text/css" href="debug.css">
     <title>Debug Grass</title>
     <script src="https://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
     <script src="https://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
   </head>
 
   <body>
-    <p><label>Grass </label></p>
-    <p> 
-    <div><span class="slider_title">ハンドモータ</span>
-    <input id="slider_hand" type="range" min="0" max="100" step="1" />
-    <span id="value_hand">5</span>
+      <div class="status">
+          Grass  status： <label id="state">Disconnect</label>
+      </div>
+      <div class="button_back">
+          <form action="javascript:back_index();" id="ui">
+              <input type="submit" value="back" id="btn" />
+          <!-- <form action="javascript:Talker.send();" id="ui">-->
+          </form>
+      </div>
+     <div class="box1">
+        <script src="camera.js"></script>
+	<div class="slider">
+	    <div><span class="slider_title">ハンドモータ</span>
+		<input id="slider_hand" type="range" min="0" max="100" step="1" />
+		<span id="value_hand">5</span>
+	    </div>
+	    <div><span class="slider_title">引き抜きモータ</span>
+		<input class="col-1" id="slider_pluck" type="range" min="0" max="100" step="1" />
+		<span id="value_pluck">5</span>
+	    </div>
+	    <div><span class="slider_title">手首モータ</span>
+		<input id="slider_wrist" type="range" min="0" max="100" step="1" />
+		<span id="value_wrist">5</span>
+	    </div>
+	    <div><span class="slider_title">肘モータ</span>
+		<input id="slider_elbow" type="range" min="0" max="100" step="1" />
+		<span id="value_elbow">5</span>
+	    </div>
+	    <div><span class="slider_title">肩モータ</span>
+		<input id="slider_sholder" type="range" min="0" max="100" step="1" />
+		<span id="value_sholder">5</span>
+	    </div>
+	    <div><span class="slider_title">土台モータ</span>
+		<input id="slider_base" type="range" min="0" max="100" step="1" />
+		<span id="value_base">5</span>
+	    </div>
+	    <div><span class="slider_title">蓋モータ</span>
+		<input id="slider_lid" type="range" min="0" max="100" step="1" />
+		<span id="value_lid">5</span>
+	    </div>
+	    <div><span class="slider_title">散水モータ</span>
+		<input id="slider_splay" type="range" min="0" max="100" step="1" />
+		<span id="value_splay">5</span>
+	    </div>
+	    <div><span class="slider_title">刃モータ</span>
+		<input id="slider_blade" type="range" min="0" max="100" step="1" />
+		<span id="value_blade">5</span>
+	    </div>
+        </div>
     </div>
-    </p>
-    <p> 
-    <div><span class="slider_title">引き抜きモータ</span>
-    <input class="col-1" id="slider_pluck" type="range" min="0" max="100" step="1" />
-    <span id="value_pluck">5</span>
-    </div>
-    </p>
-    <div><span class="slider_title">手首モータ</span>
-    <input id="slider_wrist" type="range" min="0" max="100" step="1" />
-    <span id="value_wrist">5</span>
-    </div>
-    </p>
-    <div><span class="slider_title">肘モータ</span>
-    <input id="slider_elbow" type="range" min="0" max="100" step="1" />
-    <span id="value_elbow">5</span>
-    </div>
-    </p>
-    <div><span class="slider_title">肩モータ</span>
-    <input id="slider_sholder" type="range" min="0" max="100" step="1" />
-    <span id="value_sholder">5</span>
-    </div>
-    </p>
-    <div><span class="slider_title">土台モータ</span>
-    <input id="slider_base" type="range" min="0" max="100" step="1" />
-    <span id="value_base">5</span>
-    </div>
-    </p>
-    <div><span class="slider_title">蓋モータ</span>
-    <input id="slider_lid" type="range" min="0" max="100" step="1" />
-    <span id="value_lid">5</span>
-    </div>
-    </p>
-    <div><span class="slider_title">散水モータ</span>
-    <input id="slider_splay" type="range" min="0" max="100" step="1" />
-    <span id="value_splay">5</span>
-    </div>
-    </p>
-    <div><span class="slider_title">刃モータ</span>
-    <input id="slider_blade" type="range" min="0" max="100" step="1" />
-    <span id="value_blade">5</span>
-    </div>
-    </p>
     <script type="text/javascript">
 	if(!Talker){
 	    var Talker = {
@@ -180,11 +173,5 @@
             location.href = "index.html";
 	};
     </script>
-
-    <p>status： <label id="state">Disconnect</label></p>
-    <form action="javascript:back_index();" id="ui">
-        <input type="submit" value="back" id="btn" />
-    <!-- <form action="javascript:Talker.send();" id="ui">-->
-    </form>
   </body>
 </html>
