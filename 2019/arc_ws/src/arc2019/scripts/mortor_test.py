@@ -50,7 +50,7 @@ def main_dccut():
     """
     刃DCモーターテスト
     """
-    mcc = mortor.MortorClass()
+    mcc = mortor.DcMortorClass()
     while True:
         try:
             val = input('number(0 or 1):')

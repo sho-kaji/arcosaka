@@ -7,10 +7,6 @@
 
 import time
 import os
-if os.name == 'posix':
-    import pigpio
-    # Import the PCA9685 module.
-    import Adafruit_PCA9685
 
 from mortor_consts import \
     ADDR_PWM, \
@@ -18,12 +14,16 @@ from mortor_consts import \
     DC_FREQ, \
     DC_DUTY, \
     DC_PLUS, \
-    SERVO_MIN, \
-    SERVO_MAX, \
     STEPROTATE, \
     STEP_1PULSE, \
     STEP_FREQ, \
     STEP_DUTY
+
+if os.name == 'posix':
+    import pigpio
+    # Import the PCA9685 module.
+    import Adafruit_PCA9685
+
 
 class DcMortorClass(object):
     """
@@ -39,8 +39,12 @@ class DcMortorClass(object):
 
                 self.port_a_cw = ports[0]
                 self.port_a_ccw = ports[1]
-                self.port_b_cw = ports[2]
-                self.port_b_ccw = ports[3]
+                if len(ports) > 2:
+                    self.port_b_cw = ports[2]
+                    self.port_b_ccw = ports[3]
+                else:
+                    self.port_b_cw = -1
+                    self.port_b_ccw = -1
 
                 self.limit_min = -limit
                 self.limit_max = limit
@@ -165,6 +169,8 @@ class DcMortorClass(object):
         """
         DCモーターデューティー
         """
+        if (port_cw < 0) or (port_ccw < 0):
+            return
         #絶対値に変換
         dcduty_cw = abs(dcduty_cw)
         dcduty_ccw = abs(dcduty_ccw)

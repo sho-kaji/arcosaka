@@ -66,11 +66,19 @@ class AbhClass(object):
         #body用
         self.is_pwoffsw = False
 
-
         #hand用
 
         # MortorClass
-        self.mmc = mortor.MortorClass()
+        self.stmc_handh = mortor.StepMortorClass(
+            False, (PORT_HANDH_A, PORT_HANDH_B), (LIM_HANDH_MIN, LIM_HANDH_MAX))
+        self.stmc_handv = mortor.StepMortorClass(
+            False, (PORT_HANDV_A, PORT_HANDV_B), (LIM_HANDV_MIN, LIM_HANDV_MAX))
+        self.stmc_twisth = mortor.StepMortorClass(
+            False, (PORT_TWISTH_A, PORT_TWISTH_B), (LIM_TWISTH_MIN, LIM_TWISTH_MAX))
+        self.stmc_twistv = mortor.StepMortorClass(
+            False, (PORT_TWISTV_A, PORT_TWISTV_B), (LIM_TWISTV_MIN, LIM_TWISTV_MAX))
+
+        self.svmc = mortor.ServoMortorClass(DEBUG_ARM or DEBUG_HAND)
 
         #ina226Class
         self.inac = ina226.Ina226Class()
