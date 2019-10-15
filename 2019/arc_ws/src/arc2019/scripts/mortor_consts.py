@@ -16,6 +16,14 @@ class DCROTATE(IntEnum):
     STOP = 0
     CW = 1
 
+class STEPROTATE(IntEnum):
+    """
+    ステップモーター回転方向
+    """
+    MINUS = -1
+    STOP = 0
+    PLUS = 1
+
 ADDR_PWM = 0x41 #
 
 # for move_dc

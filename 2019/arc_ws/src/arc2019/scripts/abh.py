@@ -447,14 +447,15 @@ class AbhClass(object):
 
             #土台モーターの角度計算
             #X座標とY座標で算出
-            tmp_base = math.atan2(tmp_handy, tmp_handx)
+            tmp_base = (math.atan2(tmp_handy, tmp_handx) / 90.0) * 100.0
 
             #肩モーターの角度計算
             #Y座標とZ座標で算出
-            tmp_should = math.atan2(tmp_handz, tmp_handy)
+            tmp_should = (math.atan2(tmp_handz, tmp_handy) / 90.0) * 100.0
 
             #手首モーターの角度計算
-            tmp_wrist = 0
+            tmp_wrist = 90.0 - tmp_should
+
             #モーター動作
             self.move_base(tmp_base)
             self.move_should(tmp_should)

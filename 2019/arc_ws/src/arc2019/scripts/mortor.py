@@ -20,18 +20,17 @@ from mortor_consts import \
     DC_PLUS, \
     SERVO_MIN, \
     SERVO_MAX, \
+    STEPROTATE, \
     STEP_1PULSE, \
     STEP_FREQ, \
     STEP_DUTY
 
-class MortorClass(object):
+class DcMortorClass(object):
     """
-    モータークラス
+    DCモータークラス
     """
-    def __init__(self, is_debug=False, ports=(16, 20, 19, 26)):
+    def __init__(self, is_debug=False, ports=(16, 20, 19, 26), limit=DC_DUTY):
         self.is_notdebug = not((os.name != 'posix') or is_debug)
-        print(os.name)
-        print(self.is_notdebug)
 
         if self.is_notdebug:
             try:
@@ -43,18 +42,15 @@ class MortorClass(object):
                 self.port_b_cw = ports[2]
                 self.port_b_ccw = ports[3]
 
+                self.limit_min = -limit
+                self.limit_max = limit
+
                 # initialize move_dc
                 self.dcduty_a_o = 0
                 self.dcduty_b_o = 0
 
-                # initialize move_servo
-                self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
-                self.pwm.set_pwm_freq(60)
-
-                # initialize move_step
-                self.pic.set_mode(18, pigpio.OUTPUT)
-
-            except IOError:
+            except TypeError as ex:
+                print(ex)
                 self.is_notdebug = False
 
         else:
@@ -73,7 +69,6 @@ class MortorClass(object):
         if self.is_notdebug:
             self.move_dc_duty(self.port_a_cw, self.port_a_ccw, 0, 0)
             self.move_dc_duty(self.port_b_cw, self.port_b_ccw, 0, 0)
-            self.pwm.set_all_pwm(0, 0) # 全モーターPWM解除
     #end endfnc
 
     def set_debug(self, val):
@@ -110,14 +105,14 @@ class MortorClass(object):
 
             #上下限ガード
             if limit:
-                if dcduty_a > DC_DUTY:
-                    dcduty_a = DC_DUTY
-                if dcduty_a < -DC_DUTY:
-                    dcduty_a = -DC_DUTY
-                if dcduty_b > DC_DUTY:
-                    dcduty_b = DC_DUTY
-                if dcduty_b < -DC_DUTY:
-                    dcduty_b = -DC_DUTY
+                if dcduty_a > self.limit_max:
+                    dcduty_a = self.limit_max
+                if dcduty_a < self.limit_min:
+                    dcduty_a = self.limit_min
+                if dcduty_b > self.limit_max:
+                    dcduty_b = self.limit_max
+                if dcduty_b < self.limit_min:
+                    dcduty_b = self.limit_min
 
             if dcduty_a > 100:
                 dcduty_a = 100
@@ -147,14 +142,14 @@ class MortorClass(object):
             elif dcduty_b < 0:
                 dcduty_b_ccw = dcduty_b
 
-            print("cw  A = %d" % dcduty_a_cw)
-            print("ccw A = %d" % dcduty_a_ccw)
+            #print("cw  A = %d" % dcduty_a_cw)
+            #print("ccw A = %d" % dcduty_a_ccw)
 
             if self.port_a_cw >= 0 and self.port_a_ccw >= 0:
                 self.move_dc_duty(self.port_a_cw, self.port_a_ccw, dcduty_a_cw, dcduty_a_ccw)
 
-            print("cw  B = %d" % dcduty_b_cw)
-            print("ccw B = %d" % dcduty_b_ccw)
+            #print("cw  B = %d" % dcduty_b_cw)
+            #print("ccw B = %d" % dcduty_b_ccw)
 
             if self.port_b_cw >= 0 and self.port_b_ccw >= 0:
                 self.move_dc_duty(self.port_b_cw, self.port_b_ccw, dcduty_b_cw, dcduty_b_ccw)
@@ -188,9 +183,6 @@ class MortorClass(object):
             dcduty_cw = 0
             dcduty_ccw = 0
 
-        #print("cw   = %d" % dcduty_cw)
-        #print("ccw  = %d" % dcduty_ccw)
-
         if self.is_notdebug:
             #新しい値で出力
             self.pic.set_PWM_frequency(port_cw, DC_FREQ)
@@ -204,6 +196,40 @@ class MortorClass(object):
         else:
             print ("dcduty_cw=%3d\tcduty_ccw=%3d" %(dcduty_cw, dcduty_ccw))
     #end move_dc_duty
+#end DcMortorClass
+
+class ServoMortorClass(object):
+    """
+    サーボモータークラス
+    """
+    def __init__(self, is_debug=False):
+        self.is_notdebug = not((os.name != 'posix') or is_debug)
+
+        if self.is_notdebug:
+            try:
+                # initialize move_servo
+                self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
+                self.pwm.set_pwm_freq(60)
+            except TypeError as ex:
+                print(ex)
+                self.is_notdebug = False
+
+        else:
+            pass
+
+        if self.is_notdebug:
+            print("mortor is move")
+        else:
+            print("mortor is debug")
+    #end __init__
+
+    def endfnc(self):
+        """
+        終了処理
+        """
+        if self.is_notdebug:
+            self.pwm.set_all_pwm(0, 0) # 全モーターPWM解除
+    #end endfnc
 
     def move_servo(self, channel, power, lim_min, lim_max):
         """
@@ -242,61 +268,124 @@ class MortorClass(object):
         if self.is_notdebug:
             self.pwm.set_pwm(channel, 0, int(pulse))
     #end move_servo_pulse
+#end ServoMortorClass
 
-    def move_step(self, port_a, port_b, distance):
+class StepMortorClass(object):
+    """
+    ステップモータークラス
+    """
+    def __init__(self, is_debug=False, ports=(16, 20), limit=(0, 3500), port_en=18):
+        self.is_notdebug = not((os.name != 'posix') or is_debug)
+
+        if self.is_notdebug:
+            try:
+                # initialize gpio
+                self.pic = pigpio.pi()
+
+                self.port_a = ports[0]
+                self.port_b = ports[1]
+                self.port_en = port_en
+
+                if limit[0] < limit[1]:
+                    self.limit_min = limit[0]
+                    self.limit_max = limit[1]
+                else:
+                    self.limit_min = limit[1]
+                    self.limit_max = limit[0]
+                self.stepcnt = 0
+
+            except TypeError as ex:
+                print(ex)
+                self.is_notdebug = False
+
+        else:
+            pass
+
+        if self.is_notdebug:
+            print("mortor is move")
+        else:
+            print("mortor is debug")
+    #end __init__
+
+    def endfnc(self):
+        """
+        終了処理
+        """
+        if self.is_notdebug:
+            self.pic.write(self.port_en, pigpio.LOW)
+            self.pic.write(self.port_a, pigpio.LOW)
+            self.pic.write(self.port_b, pigpio.LOW)
+    #end endfnc
+
+    def resetpos(self, steplotate):
+        """
+        モーター位置初期化
+        """
+        if steplotate != STEPROTATE.STOP:
+            self.move_step_step(self.limit_max * steplotate)
+        else:
+            pass
+        self.stepcnt = 0
+    #end resetpos
+
+    def move_step(self, distance):
         """
         ステッピングモーター
         """
-        # 周波数とDuty比から1パルスの待機時間を計算
+        #要求値を1ステップ当たりの距離で割る
         step = int(distance / STEP_1PULSE)
-        self.move_step_step(port_a, port_b, step)
+        self.move_step_step(step)
     #end move_step
 
-    def move_step_step(self, port_a, port_b, step, freq=-1):
+    def move_step_step(self, step, freq=-1):
         """
         ステッピングモーターステップ数入力
         """
         if freq < 0:
             freq = STEP_FREQ
 
-        print("step      = %d" % step)
+        #print("step      = %d" % step)
         wait_hl = (1.0 / freq * (STEP_DUTY / 100.0))
         wait_lh = (1.0 / freq * (1 - (STEP_DUTY / 100.0)))
 
-        print("freq      = %d" % freq)
-        print("STEP_DUTY = %d" % STEP_DUTY)
-        print("wait_hl   = %f" % wait_hl)
-        print("wait_lh   = %f" % wait_lh)
-        print("wait      = %f" % (wait_hl + wait_lh))
+        #print("freq      = %d" % freq)
+        #print("STEP_DUTY = %d" % STEP_DUTY)
+        #print("wait_hl   = %f" % wait_hl)
+        #print("wait_lh   = %f" % wait_lh)
+        #print("wait      = %f" % (wait_hl + wait_lh))
 
         if self.is_notdebug:
-            self.pic.set_mode(18, pigpio.OUTPUT)
-            self.pic.set_mode(port_a, pigpio.OUTPUT)
-            self.pic.set_mode(port_b, pigpio.OUTPUT)
+            self.pic.set_mode(self.port_en, pigpio.OUTPUT)
+            self.pic.set_mode(self.port_a, pigpio.OUTPUT)
+            self.pic.set_mode(self.port_b, pigpio.OUTPUT)
             # ENABLE端子
-            self.pic.write(18, pigpio.HIGH)
+            self.pic.write(self.port_en, pigpio.HIGH)
 
         for i in range(abs(step)):
-            if self.is_notdebug:
+            if self.is_notdebug \
+                and (self.limit_min <= self.stepcnt) \
+                and (self.stepcnt <= self.limit_max):
                 if step > 0:
-                    self.pic.write(port_a, pigpio.HIGH)
+                    self.pic.write(self.port_a, pigpio.HIGH)
                     time.sleep(wait_hl/2)
-                    self.pic.write(port_b, pigpio.HIGH)
+                    self.pic.write(self.port_b, pigpio.HIGH)
                     time.sleep(wait_hl/2)
-                    self.pic.write(port_a, pigpio.LOW)
+                    self.pic.write(self.port_a, pigpio.LOW)
                     time.sleep(wait_lh/2)
-                    self.pic.write(port_b, pigpio.LOW)
+                    self.pic.write(self.port_b, pigpio.LOW)
                     time.sleep(wait_lh/2)
+                    self.stepcnt += 1
 
                 elif step < 0:
-                    self.pic.write(port_b, pigpio.HIGH)
+                    self.pic.write(self.port_b, pigpio.HIGH)
                     time.sleep(wait_hl/2)
-                    self.pic.write(port_a, pigpio.HIGH)
+                    self.pic.write(self.port_a, pigpio.HIGH)
                     time.sleep(wait_hl/2)
-                    self.pic.write(port_b, pigpio.LOW)
+                    self.pic.write(self.port_b, pigpio.LOW)
                     time.sleep(wait_lh/2)
-                    self.pic.write(port_a, pigpio.LOW)
+                    self.pic.write(self.port_a, pigpio.LOW)
                     time.sleep(wait_lh/2)
+                    self.stepcnt -= 1
             else:
                 if step > 0:
                     print("port_a ON  %f" % wait_hl)
@@ -307,6 +396,7 @@ class MortorClass(object):
                     time.sleep(wait_lh)
                     print("port_b OFF %f" % wait_lh)
                     time.sleep(wait_lh)
+                    self.stepcnt += 1
 
                 elif step < 0:
                     print("port_b ON  %f" % wait_hl)
@@ -317,13 +407,16 @@ class MortorClass(object):
                     time.sleep(wait_lh)
                     print("port_a OFF %f" % wait_lh)
                     time.sleep(wait_lh)
+                    self.stepcnt -= 1
+            #end if self.is_notdebug
 
             print("pulse     = %d/%d" % (i+1, step))
+        #end for i in range(abs(step))
 
-        if self.is_notdebug:
-            self.pic.write(18, pigpio.LOW)
-            self.pic.write(port_a, pigpio.LOW)
-            self.pic.write(port_b, pigpio.LOW)
+        self.stepcnt += step
+
+        self.endfnc()
 
         print("move_step_step end")
     #end move_step_step
+#end StepMortorClass
