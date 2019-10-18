@@ -112,10 +112,12 @@ def main_step():
         try:
             print("(1)ハンド水平\n(2)ハンド垂直\n(3)ねじ切り水平\n(4)ねじ切り垂直")
             mortornum = input('mortor:')
+            if mortornum < 1:
+                break
 
             val = input('  step:')
             int_tmp = int(val)
-            if int_tmp == 0:
+            if int_tmp < 0:
                 break
 
             if mortornum == 1:

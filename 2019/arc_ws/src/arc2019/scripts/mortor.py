@@ -392,6 +392,9 @@ class StepMortorClass(object):
                     self.pic.write(self.port_a, pigpio.LOW)
                     time.sleep(wait_lh/2)
                     self.stepcnt -= 1
+            elif (self.limit_max < self.stepcnt) \
+                or (self.stepcnt < self.limit_min):
+                break
             else:
                 if step > 0:
                     print("port_a ON  %f" % wait_hl)
