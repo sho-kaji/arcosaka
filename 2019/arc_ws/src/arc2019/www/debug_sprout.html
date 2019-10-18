@@ -15,15 +15,14 @@
     <div class="button_back">
           <form action="javascript:back_index();" id="ui">
               <input type="submit" value="back" id="btn" />
-          <!-- <form action="javascript:Talker.send();" id="ui">-->
           </form>
     </div>
     <div class="box1">
         <script src="camera.js"></script>
 	<div class="slider"> 
-	    <div><span class="slider_title">掴むモータ</span>
+            <div><span class="slider_title">掴むモータ</span>
 		<input id="slider_grub" type="range" min="0" max="100" step="1" />
-		<span id="value_grub">5</span>
+                <span id="value_grub">5</span>
 	    </div>
 	    <div><span class="slider_title">ねじりモータ</span>
 		<input class="col-1" id="slider_twist" type="range" min="0" max="100" step="1" />
@@ -67,22 +66,28 @@
 		},
 		send : function(){
 		    document.getElementById('state').innerHTML = "bf1 Send";
-		    var pub = new ROSLIB.Topic({
+		    var pub_to_brain = new ROSLIB.Topic({
 			ros : this.ros,
 			name :'/arc2019_2/client2',
+			//messageType : 'arc2019/brain'
+			messageType : 'arc2019/client'
+		    });
+		    var pub_to_abh = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_to_abh',
 			//messageType : 'arc2019/brain'
 			messageType : 'arc2019/client_abh_debug'
 		    });
 
 		    document.getElementById('state').innerHTML = "bf3 Send";
-		    /*  var str = new ROSLIB.Message({
-					    target:1
+		        var to_brain = new ROSLIB.Message({
+					    mode:3,  //debug:3
+					    target:2 //side_sprout:2
 					  });
-					  */
 			
-			var str = new ROSLIB.Message({
-				      mode                  :2,
-				      target                :1,
+			var to_abh = new ROSLIB.Message({
+				      mode                  :3,
+				      target                :2,
 				      arm_grass_hand        :0,
 				      arm_grass_pluck       :0,
 				      arm_grass_wrist       :0,
@@ -106,7 +111,8 @@
 			
 
 		    document.getElementById('state').innerHTML = "bf4 Send";
-		    pub.publish(str);
+		    pub_to_brain.publish(to_brain);
+		    pub_to_abh.publish(to_abh);
 		    document.getElementById('state').innerHTML = "Sending";
 		}
 	    }
