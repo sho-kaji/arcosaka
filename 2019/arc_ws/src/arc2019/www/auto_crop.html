@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="debug.css">
+    <title>Auto Crop</title>
+    <script src="eventemitter2.min.js"></script>
+    <script src="roslib.min.js"></script>
+  </head>
+
+  <body>
+    <div class="status">
+	Crop  status： <label id="state">Disconnect</label>
+    </div>
+    <div class="button_back">
+	<form action="javascript:back_index();" id="ui">
+	    <input type="submit" value="back" id="btn" />
+	<!-- <form action="javascript:Talker.send();" id="ui">-->
+	</form>
+    </div>
+    <div class="box1">
+        <script src="camera.js"></script>
+    </div>
+    <script type="text/javascript">
+	if(!Talker){
+	    var Talker = {
+		ros : null,
+		name : "",
+		init : function(){
+		    this.ros = new ROSLIB.Ros();
+		    this.ros.on('error', function(error) {
+			document.getElementById('state').innerHTML = "Error";
+		    });
+		    this.ros.on('connection', function(error) {
+			document.getElementById('state').innerHTML = "Connect";
+		    });
+		    this.ros.on('close', function(error) {
+			document.getElementById('state').innerHTML = "Close";
+		    });
+		    this.ros.connect('ws://' + location.hostname + ':9090');
+		},
+		send : function(){
+		    document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client2',
+			//messageType : 'arc2019/brain'
+			messageType : 'arc2019/client'
+		    });
+
+		    document.getElementById('state').innerHTML = "bf3 Send";
+			
+			var str = new ROSLIB.Message({
+				      mode                  :1,// auto:1
+				      target                :1// crop=tomato=1
+			});
+			
+
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub.publish(str);
+		    document.getElementById('state').innerHTML = "Sending";
+		}
+	    }
+
+	    Talker.init();
+
+	    window.onload = function(){
+	    };
+	    window.onunload = function(){
+		Talker.ros.close();
+	    };
+        };
+
+        // 周期送信タイマー
+	var setTimerEvent = setInterval(myTimer,500);
+        function myTimer(){
+            Talker.send();
+	};
+
+	function back_index(){
+	    clearInterval(setTimerEvent);
+            location.href = "index.html";
+	};
+    </script>
+
+  </body>
+</html>

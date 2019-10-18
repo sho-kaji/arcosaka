@@ -79,22 +79,29 @@
 		},
 		send : function(){
 		    document.getElementById('state').innerHTML = "bf1 Send";
-		    var pub = new ROSLIB.Topic({
+		    var pub_to_brain = new ROSLIB.Topic({
 			ros : this.ros,
 			name :'/arc2019_2/client2',
+			//messageType : 'arc2019/brain'
+			messageType : 'arc2019/client'
+		    });
+		    var pub_to_abh = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_to_abh',
 			//messageType : 'arc2019/brain'
 			messageType : 'arc2019/client_abh_debug'
 		    });
 
 		    document.getElementById('state').innerHTML = "bf3 Send";
-		    /*  var str = new ROSLIB.Message({
-					    target:1
+		        var to_brain= new ROSLIB.Message({
+					    mode:3,  // debug:3
+					    target:0 // grass:0
 					  });
-					  */
+					  
 			
-			var str = new ROSLIB.Message({
-				      mode                  :1,
-				      target                :2,
+			var to_abh = new ROSLIB.Message({
+				      mode                  :3,
+				      target                :0,
 				      arm_grass_hand        :Number(slider_elem[0].value),
 				      arm_grass_pluck       :Number(slider_elem[1].value),
 				      arm_grass_wrist       :Number(slider_elem[2].value),
@@ -119,7 +126,8 @@
 
 			//var str = new ROSLIB.Message({data        :"a"});
 		    document.getElementById('state').innerHTML = "bf4 Send";
-		    pub.publish(str);
+		    pub_to_brain.publish(to_brain);
+		    pub_to_abh.publish(to_abh);
 		    document.getElementById('state').innerHTML = "Sending";
 		}
 	    }

@@ -15,32 +15,102 @@
   </head>
 <script>
 
-   function link(){
-       var mode = "debug";
-       var target = "crop";
-       var radios_mode = document.getElementsByName('mode');
-       var radios_target = document.getElementsByName('target');
-       for(var i =0, length = radios_mode.length; i < length; i++){
-           if(radios_mode[i].checked) mode = radios_mode[i].value;
-       }
-       for(var i =0, length = radios_target.length; i < length; i++){
-           if(radios_target[i].checked) target = radios_target[i].value;
-       }
-　     //if( target.value == "grass" ){
-            if(mode == "debug"){
-		if(target == "crop"){
-                  location.href = "debug_crop.html";
-		}
-		if(target == "sprout"){
-                  location.href = "debug_sprout.html";
-		}
-		if(target == "grass"){
-                  location.href = "debug_grass.html";
-		}
-            }
-　      //}
-        //confirm("debug");
+    var Talker = {
+	ros : null,
+	name : "",
+	init : function(){
+	    this.ros = new ROSLIB.Ros();
+	    this.ros.on('error', function(error) {
+		document.getElementById('state').innerHTML = "Error";
+	    });
+	    this.ros.on('connection', function(error) {
+		document.getElementById('state').innerHTML = "Connect";
+	    });
+	    this.ros.on('close', function(error) {
+		document.getElementById('state').innerHTML = "Close";
+	    });
+	    this.ros.connect('ws://' + location.hostname + ':9090');
+	},
+	send : function(){
+	    document.getElementById('state').innerHTML = "bf1 Send";
+	    var pub = new ROSLIB.Topic({
+		ros : this.ros,
+		name :'/arc2019_2/client2',
+		//messageType : 'arc2019/brain'
+		messageType : 'arc2019/client'
+	    });
+
+	    document.getElementById('state').innerHTML = "bf3 Send";
+		
+		var str = new ROSLIB.Message({
+			      mode                  :0,// init:1
+			      target                :-1// unknown:-1
+		});
+	    document.getElementById('state').innerHTML = "bf4 Send";
+	    pub.publish(str);
+	    document.getElementById('state').innerHTML = "Sending";
+	}
     }
+    Talker.init();
+
+    window.onload = function(){
+    };
+    window.onunload = function(){
+	Talker.ros.close();
+    };
+
+    // 周期送信タイマー
+    var setTimerEvent = setInterval(myTimer,500);
+    function myTimer(){
+	Talker.send();
+    };
+
+    function link(){
+	var mode = "debug";
+	var target = "crop";
+	var radios_mode = document.getElementsByName('mode');
+	var radios_target = document.getElementsByName('target');
+	for(var i =0, length = radios_mode.length; i < length; i++){
+	   if(radios_mode[i].checked) mode = radios_mode[i].value;
+	}
+	for(var i =0, length = radios_target.length; i < length; i++){
+	   if(radios_target[i].checked) target = radios_target[i].value;
+	}
+	if(mode == "debug"){
+	    if(target == "crop"){
+	      location.href = "debug_crop.html";
+	    }
+	    if(target == "sprout"){
+	      location.href = "debug_sprout.html";
+	    }
+	    if(target == "grass"){
+	      location.href = "debug_grass.html";
+	    };
+	}
+        else if(mode == "auto"){
+	    if(target == "crop"){
+	      location.href = "auto_crop.html";
+	    }
+	    if(target == "sprout"){
+	      location.href = "auto_sprout.html";
+	    }
+	    if(target == "grass"){
+	      location.href = "auto_grass.html";
+	    };
+	}
+        else if(mode == "manual"){
+	    if(target == "crop"){
+	      location.href = "manual_crop.html";
+	    }
+	    if(target == "sprout"){
+	      location.href = "manual_sprout.html";
+	    }
+	    if(target == "grass"){
+	      location.href = "manual_grass.html";
+	    };
+	};
+        //confirm("debug");
+    };
 
 </script>
   <body>
