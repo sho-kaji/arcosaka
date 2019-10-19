@@ -117,7 +117,7 @@ def main_step():
 
             val = input('  step:')
             int_tmp = int(val)
-            if int_tmp < 0:
+            if int_tmp == 0:
                 break
 
             if mortornum == 1:

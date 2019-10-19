@@ -317,6 +317,12 @@ class StepMortorClass(object):
         """
         終了処理
         """
+        if self.stepcnt < self.limit_min:
+            self.stepcnt = self.limit_min
+        elif self.limit_max < self.stepcnt:
+            self.stepcnt = self.limit_max
+        else:
+            pass
         if self.is_notdebug:
             self.pic.write(self.port_en, pigpio.LOW)
             self.pic.write(self.port_a, pigpio.LOW)
@@ -350,15 +356,8 @@ class StepMortorClass(object):
         if freq < 0:
             freq = STEP_FREQ
 
-        #print("step      = %d" % step)
         wait_hl = (1.0 / freq * (STEP_DUTY / 100.0))
         wait_lh = (1.0 / freq * (1 - (STEP_DUTY / 100.0)))
-
-        #print("freq      = %d" % freq)
-        #print("STEP_DUTY = %d" % STEP_DUTY)
-        #print("wait_hl   = %f" % wait_hl)
-        #print("wait_lh   = %f" % wait_lh)
-        #print("wait      = %f" % (wait_hl + wait_lh))
 
         if self.is_notdebug:
             self.pic.set_mode(self.port_en, pigpio.OUTPUT)
@@ -392,10 +391,7 @@ class StepMortorClass(object):
                     self.pic.write(self.port_a, pigpio.LOW)
                     time.sleep(wait_lh/2)
                     self.stepcnt -= 1
-            elif (self.limit_max < self.stepcnt) \
-                or (self.stepcnt < self.limit_min):
-                break
-            else:
+            elif not(self.is_notdebug):
                 if step > 0:
                     print("port_a ON  %f" % wait_hl)
                     time.sleep(wait_hl)
@@ -417,15 +413,16 @@ class StepMortorClass(object):
                     print("port_a OFF %f" % wait_lh)
                     time.sleep(wait_lh)
                     self.stepcnt -= 1
+            else:
+                break
             #end if self.is_notdebug
-
-            print("pulse     = %d/%d" % (i+1, step))
+            print("pulse     = %d/%d" % (self.stepcnt, step))
+            if (self.stepcnt <= self.limit_min) or (self.limit_max <= self.stepcnt):
+                break
+            #print("pulse     = %d/%d" % (i+1, step))
         #end for i in range(abs(step))
-
-        self.stepcnt += step
 
         self.endfnc()
 
-        print("move_step_step end")
     #end move_step_step
 #end StepMortorClass
