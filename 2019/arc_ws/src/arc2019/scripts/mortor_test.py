@@ -45,6 +45,7 @@ def main_dc():
         except TypeError as ex:
             print(ex)
     dmc.endfnc()
+#end main_dc
 
 def main_dccut():
     """
@@ -67,6 +68,7 @@ def main_dccut():
         except TypeError as ex:
             print(ex)
     mcc.endfnc()
+#end main_dccut
 
 def main_servo():
     """
@@ -96,7 +98,7 @@ def main_servo():
             print(ex)
 
     smc.endfnc()
-
+#end main_servo
 
 def main_step():
     """
@@ -143,7 +145,7 @@ def main_step():
             break
         except TypeError as ex:
             print(ex)
-
+#end main_step
 
 if __name__ == '__main__':
     main_servo()

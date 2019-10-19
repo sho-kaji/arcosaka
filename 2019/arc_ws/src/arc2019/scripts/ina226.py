@@ -8,6 +8,7 @@
 from subprocess import call
 import time
 import smbus
+import mortor
 
 from ina226_consts import *
 
@@ -18,6 +19,7 @@ class Ina226Class(object):
     def __init__(self):
         self.is_enable = False
         try:
+            self.smc = mortor.ServoMortorClass(False)
             self.i2c = smbus.SMBus(1)
             #ICの設定
             setdata = (SET_RST << 12) + (SET_AVG << 9) + \
@@ -102,14 +104,23 @@ class Ina226Class(object):
                 self.cnt_battlow = 0
 
             if self.cnt_battlow > BATT_ERR:
-                print "1分後にシャットダウンします"
-                call('sudo shutdown -h 1', shell=True)
-                self.is_enable = False
+                self.endfnc()
+
             else:
                 pass
 
             time.sleep(1)
     #end read_vi_loop
+
+    def endfnc(self):
+        """
+        終了処理
+        """
+        self.smc.endfnc()
+        print "1分後にシャットダウンします"
+        call('sudo shutdown -h 1', shell=True)
+        self.is_enable = False
+    #end endfnc
 
 if __name__ == '__main__':
     inac = Ina226Class()
