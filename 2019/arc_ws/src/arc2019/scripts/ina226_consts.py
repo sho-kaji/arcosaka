@@ -20,7 +20,7 @@ SET_MODE = 0b111
 
 BATT_R = 0.0015 #シャント抵抗値
 
-BATT_VMAX = 8.2 #電圧最大値
+BATT_VMAX = 8.4 #電圧最大値
 BATT_VLOW = 6.7 #電圧低下アラーム設定値
 BATT_IHI = 15.0 #電流異常アラーム設定値
 BATT_ERR = 10 #バッテリ情報エラー回数上限

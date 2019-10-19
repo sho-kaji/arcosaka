@@ -75,8 +75,11 @@ def main_servo():
     smc = mortor.ServoMortorClass()
     while True:
         try:
-            port = input('  port:')
-            int_port = int(port)
+
+            print("[15号]\n(0)ハンド\t(1)手首  \n(2)枝掴み\t(3)枝ねじり\n(4)添え手右\t(5)添え手左")
+            print("[刈りん]\n(0)ハンド\t(1)手首  \n(2)引抜  \t(3)肘    \n(4)肩    \t(5)土台\n(6)蓋")
+            mortornum = input('mortor:')
+            int_port = int(mortornum)
             if int_port < 0:
                 break
 
@@ -143,4 +146,4 @@ def main_step():
 
 
 if __name__ == '__main__':
-    main_step()
+    main_servo()

@@ -77,16 +77,16 @@ class Ina226Class(object):
         while self.is_enable:
             v_now = self.read_v()
             v_aves.append(v_now)
-            if v_aves.count() > 100:
+            if len(v_aves) > 100:
                 del v_aves[0]
-            self.v_ave = sum(v_aves) / v_aves.count()
+            self.v_ave = sum(v_aves) / len(v_aves)
 
             i_now = self.read_i() / 1000.0
             self.i_sgm += i_now
             i_aves.append(i_now)
-            if i_aves.count() > 100:
+            if len(i_aves) > 100:
                 del i_aves[0]
-            self.i_ave = sum(i_aves) / i_aves.count()
+            self.i_ave = sum(i_aves) / len(i_aves)
 
             print "NOW={:.2f}[V]\t".format(v_now) + "AVE={:.2f}[V]\t".format(self.v_ave) + \
                 "NOW={:.4f}[A]\t".format(i_now) + "AVE={:.4f}[A]\t".format(self.i_ave) + \

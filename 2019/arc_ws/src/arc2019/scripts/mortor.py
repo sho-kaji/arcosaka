@@ -262,10 +262,10 @@ class ServoMortorClass(object):
         サーボモーターパルス
         """
 
-        if pulse > 500:
-            pulse = 500
-        elif pulse < 300:
-            pulse = 300
+        if pulse > 650:
+            pulse = 650
+        elif pulse < 110:
+            pulse = 110
         else:
             pass
 
