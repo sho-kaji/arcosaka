@@ -2,6 +2,7 @@
   <group ns="arc2019_2">
     <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
     <node pkg="arc2019" name="server" type="server.py" output="screen"/>
+    <node pkg="arc2019" name="dummy_brain" type="dummy_brain.py" output="screen"/>
     <include file="$(find roswww)/launch/roswww.launch" />
   </group>
 </launch>

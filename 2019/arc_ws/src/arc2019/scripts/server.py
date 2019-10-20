@@ -45,7 +45,7 @@ def server_py():
     server = Server()
     rospy.init_node('server_py_node', anonymous=True)
     #server.protocol.Subscriber('client', brain, server.callback, queue_size=1)
-    rospy.Subscriber('client2', client_abh_debug, server.callback, queue_size=1)
+    rospy.Subscriber('client_to_abh', client_abh_debug, server.callback, queue_size=1)
     print("start")
     rospy.spin()
 
