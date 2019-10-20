@@ -1,0 +1,6 @@
+<launch>
+  <group ns="test1">
+    <node pkg="arc2019" name="brain" type="brain.py" output="screen"/>
+    <node pkg="arc2019" name="foot" type="foot.py" output="screen"/>
+  </group>
+</launch>
