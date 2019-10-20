@@ -6,18 +6,15 @@
 """
 
 import time
+import atexit
 import os
 
 from mortor_consts import \
     ADDR_PWM, \
     DCROTATE, \
-    DC_FREQ, \
-    DC_DUTY, \
-    DC_PLUS, \
-    STEPROTATE, \
-    STEP_1PULSE, \
-    STEP_FREQ, \
-    STEP_DUTY
+    DC_FREQ, DC_DUTY, DC_PLUS, \
+    SERVO_FREQ, SERVO_MIN, SERVO_MAX, \
+    STEPROTATE, STEP_1PULSE, STEP_FREQ, STEP_DUTY
 
 if os.name == 'posix':
     import pigpio
@@ -61,9 +58,9 @@ class DcMortorClass(object):
             pass
 
         if self.is_notdebug:
-            print("mortor is move")
+            print("DC mortor is move")
         else:
-            print("mortor is debug")
+            print("DC mortor is debug")
     #end __init__
 
     def endfnc(self):
@@ -208,6 +205,15 @@ class ServoMortorClass(object):
     """
     サーボモータークラス
     """
+
+    def endfnc(self):
+        """
+        終了処理
+        """
+        if self.is_notdebug:
+            self.pwm.set_all_pwm(4096, 0) # 全モーターPWM解除
+    #end endfnc
+
     def __init__(self, is_debug=False):
         self.is_notdebug = not((os.name != 'posix') or is_debug)
 
@@ -215,7 +221,7 @@ class ServoMortorClass(object):
             try:
                 # initialize move_servo
                 self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
-                self.pwm.set_pwm_freq(60)
+                self.pwm.set_pwm_freq(SERVO_FREQ)
             except TypeError as ex:
                 print(ex)
                 self.is_notdebug = False
@@ -223,19 +229,13 @@ class ServoMortorClass(object):
         else:
             pass
 
-        if self.is_notdebug:
-            print("mortor is move")
-        else:
-            print("mortor is debug")
-    #end __init__
+        atexit.register(self.endfnc)
 
-    def endfnc(self):
-        """
-        終了処理
-        """
         if self.is_notdebug:
-            self.pwm.set_all_pwm(0, 0) # 全モーターPWM解除
-    #end endfnc
+            print("servo mortor is move")
+        else:
+            print("servo mortor is debug")
+    #end __init__
 
     def move_servo(self, channel, power, lim_min, lim_max):
         """
@@ -252,7 +252,7 @@ class ServoMortorClass(object):
         if power > 100:
             power = 100
 
-        # 割合から
+        # 割合からパルスを計算
         pulse = ((lim_max - lim_min) * (power / 100.0)) + lim_min
         self.move_servo_pulse(channel, pulse)
     #end move_servo
@@ -262,10 +262,10 @@ class ServoMortorClass(object):
         サーボモーターパルス
         """
 
-        if pulse > 650:
-            pulse = 650
-        elif pulse < 110:
-            pulse = 110
+        if pulse > SERVO_MAX:
+            pulse = SERVO_MAX
+        elif pulse < SERVO_MIN:
+            pulse = SERVO_MIN
         else:
             pass
 
@@ -308,9 +308,9 @@ class StepMortorClass(object):
             pass
 
         if self.is_notdebug:
-            print("mortor is move")
+            print("step mortor is move")
         else:
-            print("mortor is debug")
+            print("step mortor is debug")
     #end __init__
 
     def endfnc(self):
