@@ -18,14 +18,15 @@ PIN_L1    = 27# GPIO.27 Left
 PIN_L2    = 28# GPIO.28 
 PIN = [PIN_R1,PIN_R2,PIN_L1,PIN_L2]
 
-FREQ = 100   # PWM周波数　調整願います。
-RANGE = 255  # PWM最大値　調整願います。
+FREQ = 10*1000  # PWM周波数　調整願います。
+DUTY = 50       # DUTY比 (%)
+RANGE = 255     # PWM最大値　調整願います。
 
-DUTY        = 1     # DUTY比　調整願います。
+HIGH        = 1     # HIGH比　調整願います。
 LOW         = 0     # 定数
 
-RATE_LINEAR = 0.1     # 1mmあたりのモーター駆動時間（sec) 調整願います。
-RATE_DEGREE = 1/180   # 1度あたりのモーター駆動時間（sec) 調整願います。
+RATE_LINEAR = 0.1*1000     # 1mmあたりのモーター駆動時間（msec) 調整願います。
+RATE_DEGREE = (1/180)*1000   # 1度あたりのモーター駆動時間（msec) 調整願います。
 
 class FootClass(object):
     """
@@ -39,8 +40,8 @@ class FootClass(object):
         self.pi = pigpio.pi()
         for i in range(4):
             self.pi.set_mode(PIN[i], pigpio.OUTPUT)
-            self.pi.set_PWM_frequency(PIN[i],FREQ)
-            self.pi.set_PWM_range(PIN[i],RANGE) 
+          #  self.pi.set_PWM_frequency(PIN[i],FREQ)
+          #  self.pi.set_PWM_range(PIN[i],RANGE) 
 
     def callback(self,foot):
 
@@ -52,22 +53,22 @@ class FootClass(object):
         #前進
         if foot.foot_dirreq == DIRECTION.AHEAD:
             time = foot.foot_movreq * RATE_LINEAR 
-            self.outputDIRECTION(DUTY, LOW, DUTY, LOW, time)# RIGHT: CW, LEFT: CW
+            self.outputDIRECTION(HIGH, LOW, HIGH, LOW, time)# RIGHT: CW, LEFT: CW
 
         #後進
         elif foot.foot_dirreq == DIRECTION.BACK:
             time = foot.foot_movreq * RATE_LINEAR 
-            self.outputDIRECTION(LOW, DUTY, LOW, DUTY, time)# RIGHT: CCW, LEFT : CCW
+            self.outputDIRECTION(LOW, HIGH, LOW, HIGH, time)# RIGHT: CCW, LEFT : CCW
 
         #右旋回
         elif foot.foot_dirreq == DIRECTION.RIGHT:
             time = foot.foot_movreq * RATE_DEGREE
-            self.outputDIRECTION(LOW, DUTY, DUTY, LOW, time)# RIGHT: CCW, LEFT: CW
+            self.outputDIRECTION(LOW, HIGH, HIGH, LOW, time)# RIGHT: CCW, LEFT: CW
 
         #左旋回
         elif foot.foot_dirreq == DIRECTION.LEFT:
             time = foot.foot_movreq * RATE_DEGREE
-            self.outputDIRECTION(DUTY, LOW, LOW, DUTY, time)# RIGHT  CW, LEFT: CCW
+            self.outputDIRECTION(HIGH, LOW, LOW, HIGH, time)# RIGHT  CW, LEFT: CCW
 
         #停止
         else:
@@ -83,15 +84,25 @@ class FootClass(object):
         """
         各PINへの出力
         """
-        self.pi.set_PWM_dutycycle(PIN_R1,R1)
-        self.pi.set_PWM_dutycycle(PIN_R2,R2)
-        self.pi.set_PWM_dutycycle(PIN_L1,L1)
-        self.pi.set_PWM_dutycycle(PIN_L2,L2)
-        #設定時間sleep
-        rospy.sleep(time)
-        #sleep後停止
-        for j in range(4):
-            self.pi.set_PWM_dutycycle(PIN[j],LOW)
+        duration = 0
+        start = rospy.Time.now()
+        print ("now %f sec, %f nsec" % (start.secs,start.nsecs))
+        while duration <  time:
+            self.pi.write(PIN_R1,R1)
+            self.pi.write(PIN_R2,R2)
+            self.pi.write(PIN_L1,L1)
+            self.pi.write(PIN_L2,L2)
+            #設定時間sleep
+            rospy.sleep((1/FREQ)*DUTY/100)
+            #sleep後停止
+            for j in range(4):
+                self.pi.write(PIN[j],LOW)
+            rospy.sleep((1/FREQ)*(1-DUTY/100))
+            now = rospy.Time.now()
+            
+            sec = (now.secs - start.secs)*1000
+            duration = sec + (now.nsecs - start.nsecs)/(1000*1000)
+            #print ("duraiton %f" % duration)
         #停止後、停止完了を送信
         msg_foot.is_foot_move = False
         self.pub.publish(msg_foot)
