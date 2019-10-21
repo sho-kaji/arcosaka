@@ -9,10 +9,13 @@ import time
 import atexit
 import os
 
+from params import TARGET
 from mortor_consts import \
     ADDR_PWM, \
     DCROTATE, \
     DC_FREQ, DC_DUTY, DC_PLUS, \
+    SERVO_MIN_K, SERVO_MAX_K, \
+    SERVO_MIN_M, SERVO_MAX_M, \
     SERVO_FREQ, SERVO_MIN, SERVO_MAX, \
     STEPROTATE, STEP_1PULSE, STEP_FREQ, STEP_DUTY
 
@@ -211,10 +214,10 @@ class ServoMortorClass(object):
         終了処理
         """
         if self.is_notdebug:
-            self.pwm.set_all_pwm(4096, 0) # 全モーターPWM解除
+            self.pwm.set_all_pwm(0, 4096) # 全モーターPWM解除
     #end endfnc
 
-    def __init__(self, is_debug=False):
+    def __init__(self, is_debug=False, target=TARGET.UNKNOWN):
         self.is_notdebug = not((os.name != 'posix') or is_debug)
 
         if self.is_notdebug:
@@ -222,6 +225,8 @@ class ServoMortorClass(object):
                 # initialize move_servo
                 self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
                 self.pwm.set_pwm_freq(SERVO_FREQ)
+                self.target = target
+
             except TypeError as ex:
                 print(ex)
                 self.is_notdebug = False
@@ -261,6 +266,8 @@ class ServoMortorClass(object):
         """
         サーボモーターパルス
         """
+
+        
 
         if pulse > SERVO_MAX:
             pulse = SERVO_MAX

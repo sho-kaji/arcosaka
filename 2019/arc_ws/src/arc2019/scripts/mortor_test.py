@@ -7,6 +7,7 @@
 
 import mortor
 
+from params import TARGET
 from abh_consts import *
 
 from mortor_consts import \
@@ -74,12 +75,24 @@ def main_servo():
     """
     サーボモーターテスト
     """
-    smc = mortor.ServoMortorClass()
+    print("15号(%d) 刈りん(%d)"% (TARGET.SIDE_SPROUT, TARGET.GRASS))
+    tgt = input('target:')
+    int_tgt = TARGET(tgt)
+
+    if (int_tgt == TARGET.SIDE_SPROUT) or (int_tgt == TARGET.TOMATO) or (int_tgt == TARGET.GRASS):
+        smc = mortor.ServoMortorClass()
+    else:
+        return
+
     while True:
         try:
+            if (int_tgt == TARGET.SIDE_SPROUT) or (int_tgt == TARGET.TOMATO):
+                print("[15号]\n(0)ハンド\t(1)手首  \n(2)枝掴み\t(3)枝ねじり\n(4)添え手右\t(5)添え手左")
+            elif int_tgt == TARGET.GRASS:
+                print("[刈りん]\n(0)ハンド\t(1)手首  \n(2)引抜  \t(3)肘    \n(4)肩    \t(5)土台\n(6)蓋")
+            else:
+                break
 
-            print("[15号]\n(0)ハンド\t(1)手首  \n(2)枝掴み\t(3)枝ねじり\n(4)添え手右\t(5)添え手左")
-            print("[刈りん]\n(0)ハンド\t(1)手首  \n(2)引抜  \t(3)肘    \n(4)肩    \t(5)土台\n(6)蓋")
             mortornum = input('mortor:')
             int_port = int(mortornum)
             if int_port < 0:
