@@ -31,6 +31,7 @@ from mortor_consts import \
 from ina226_consts import \
     BATT_VMAX, BATT_VLOW
 
+
 class AbhClass(object):
     """
     アクチュエータを動かすためのクラス
@@ -57,22 +58,23 @@ class AbhClass(object):
 
         self.is_abh_call = False
 
-        #arm用
-        self.elbow_req_o = 0 # 肘モーター要求値
-        self.should_req_o = 0 # 肩モーター要求値
-        self.handx_req_o = 0 # ハンド指定位置X
-        self.handy_req_o = 0 # ハンド指定位置Y
-        self.handz_req_o = 0 # ハンド指定位置Z
-        self.twistx_req_o = 0 # ねじ切りハンド指定位置X
-        self.twistz_req_o = 0 # ねじ切りハンド指定位置Z
+        # arm用
+        self.elbow_req_o = 0  # 肘モーター要求値
+        self.should_req_o = 0  # 肩モーター要求値
+        self.handx_req_o = 0  # ハンド指定位置X
+        self.handy_req_o = 0  # ハンド指定位置Y
+        self.handz_req_o = 0  # ハンド指定位置Z
+        self.twistx_req_o = 0  # ねじ切りハンド指定位置X
+        self.twistz_req_o = 0  # ねじ切りハンド指定位置Z
 
-        #body用
+        # body用
         self.is_pwoffsw = False
 
-        #hand用
+        # hand用
 
         # MortorClass
-        self.dmc = mortor.DcMortorClass(DEBUG_BODY, (PORT_BLADE_A, PORT_BLADE_B))
+        self.dmc = mortor.DcMortorClass(
+            DEBUG_BODY, (PORT_BLADE_A, PORT_BLADE_B))
 
         self.stmc_handh = mortor.StepMortorClass(
             DEBUG_ARM, (PORT_HANDH_A, PORT_HANDH_B), (LIM_HANDH_MIN, LIM_HANDH_MAX))
@@ -85,7 +87,7 @@ class AbhClass(object):
 
         self.svmc = mortor.ServoMortorClass(DEBUG_ARM or DEBUG_HAND)
 
-        #ina226Class
+        # ina226Class
         self.inac = ina226.Ina226Class()
 
         # initialize port
@@ -97,25 +99,25 @@ class AbhClass(object):
         self.mode_now = MODE.UNKNOWN
         self.target_now = TARGET.UNKNOWN
 
-        self.elbow_req_o = 0 # 肘モーター要求値前回値
-        self.should_req_o = 0 # 肩モーター要求値前回値
-        self.handx_req_o = 0 # ハンド指定位置X前回値
-        self.handy_req_o = 0 # ハンド指定位置Y前回値
-        self.handz_req_o = 0 # ハンド指定位置Z前回値
-        self.twistx_req_o = 0 # ねじ切りハンド指定位置X前回値
-        self.twistz_req_o = 0 # ねじ切りハンド指定位置Z前回値
+        self.elbow_req_o = 0  # 肘モーター要求値前回値
+        self.should_req_o = 0  # 肩モーター要求値前回値
+        self.handx_req_o = 0  # ハンド指定位置X前回値
+        self.handy_req_o = 0  # ハンド指定位置Y前回値
+        self.handz_req_o = 0  # ハンド指定位置Z前回値
+        self.twistx_req_o = 0  # ねじ切りハンド指定位置X前回値
+        self.twistz_req_o = 0  # ねじ切りハンド指定位置Z前回値
 
-        self.elbow_o = 0 # 肘モーター
-        self.should_o = 0 # 肩モーター
-        self.base_o = 0 # 土台モーター
-        self.twistv_o = 0 # ねじ切り垂直モーター
-        self.twisth_o = 0 # ねじ切り水平モーター
-        self.handv_o = 0 # ハンド垂直モーター
-        self.handh_o = 0 # ハンド水平モーター
+        self.elbow_o = 0  # 肘モーター
+        self.should_o = 0  # 肩モーター
+        self.base_o = 0  # 土台モーター
+        self.twistv_o = 0  # ねじ切り垂直モーター
+        self.twisth_o = 0  # ねじ切り水平モーター
+        self.handv_o = 0  # ハンド垂直モーター
+        self.handh_o = 0  # ハンド水平モーター
 
-        self.elbow_req_o = 0 # 肘モーター要求値前回値
+        self.elbow_req_o = 0  # 肘モーター要求値前回値
 
-    #end __init__
+    # end __init__
 
     def posinit(self):
         """
@@ -130,14 +132,14 @@ class AbhClass(object):
         if self.mode_now != mode:
             self.mode_now = mode
             self.mmc.endfnc()
-            #何か処理
+            # 何か処理
 
         if self.target_now != target:
             self.target_now = target
             self.mmc.endfnc()
-            #何か処理
+            # 何か処理
 
-    #end modechange
+    # end modechange
 
     def clear_msg(self):
         """
@@ -164,8 +166,7 @@ class AbhClass(object):
         self.mes_hand.frame_id = -1
         self.mes_hand.is_hand_move = False
 
-    #end clear_msg
-
+    # end clear_msg
 
     def publish_data(self):
         """
@@ -193,9 +194,10 @@ class AbhClass(object):
         self.mes_body.is_pwoffsw = self.is_pwoffsw
         batt_i = self.inac.read_i()
         batt_v = self.inac.read_v()
+        batt_b = self.inac.read_b()
         self.mes_body.batt_i = batt_i
         self.mes_body.batt_v = batt_v
-        self.mes_body.batt = (batt_v - BATT_VLOW) / (BATT_VMAX - BATT_VLOW)
+        self.mes_body.batt = batt_b
 
         self.mes_hand.frame_id = self.frame_id
         self.mes_hand.is_hand_move = self.is_hand_move
@@ -207,7 +209,7 @@ class AbhClass(object):
         self.pub_body.publish(self.mes_body)
         self.pub_hand.publish(self.mes_hand)
         self.frame_id += 1
-    #end publish_data
+    # end publish_data
 
     def calc_saturation(self, num_val, num_min, num_max):
         """
@@ -223,7 +225,7 @@ class AbhClass(object):
             num_val = num_max
 
         return num_val
-    #end calc_saturation
+    # end calc_saturation
 
     def move_elbow(self, elbow):
         """
@@ -233,17 +235,18 @@ class AbhClass(object):
         self.svmc.move_servo(CHANNEL_ELBOW, elbow, LIM_ELBOW_B, LIM_ELBOW_F)
         self.is_arm_move = False
 
-    #end move_elbow
+    # end move_elbow
 
     def move_should(self, should):
         """
         肩
         """
         self.is_arm_move = True
-        self.svmc.move_servo(CHANNEL_SHOULD, should, LIM_SHOULD_B, LIM_SHOULD_F)
+        self.svmc.move_servo(CHANNEL_SHOULD, should,
+                             LIM_SHOULD_B, LIM_SHOULD_F)
         self.is_arm_move = False
 
-    #end move_should
+    # end move_should
 
     def move_base(self, base):
         """
@@ -253,7 +256,7 @@ class AbhClass(object):
         self.svmc.move_servo(CHANNEL_BASE, base, LIM_BASE_L, LIM_BASE_R)
         self.is_arm_move = False
 
-    #end move_base
+    # end move_base
 
     def move_twistv(self, twistv):
         """
@@ -264,7 +267,7 @@ class AbhClass(object):
         self.stmc_twistv.move_step(twistv)
         self.is_arm_move = False
 
-    #end move_twistv
+    # end move_twistv
 
     def move_twisth(self, twisth):
         """
@@ -275,7 +278,7 @@ class AbhClass(object):
         self.stmc_twisth.move_step(twisth)
         self.is_arm_move = False
 
-    #end move_twisth
+    # end move_twisth
 
     def move_handv(self, handv):
         """
@@ -286,7 +289,7 @@ class AbhClass(object):
         self.stmc_handv.move_step(handv)
         self.is_arm_move = False
 
-    #end move_handv
+    # end move_handv
 
     def move_handh(self, handh):
         """
@@ -297,7 +300,7 @@ class AbhClass(object):
         self.stmc_handh.move_step(handh)
         self.is_arm_move = False
 
-    #end move_handh
+    # end move_handh
 
     def move_lid(self, lid):
         """
@@ -307,7 +310,7 @@ class AbhClass(object):
         self.svmc.move_servo(CHANNEL_LID, lid, LIM_LID_MIN, LIM_LID_MAX)
         self.is_body_move = False
 
-    #end move_lid
+    # end move_lid
 
     def move_spray(self, spray):
         """
@@ -318,7 +321,7 @@ class AbhClass(object):
         self.dmc.move_dc_duty(PORT_SPRAY, -1, spray, 0)
         self.is_body_move = False
 
-    #end move_spray
+    # end move_spray
 
     def move_blade(self, blade):
         """
@@ -337,7 +340,7 @@ class AbhClass(object):
         self.dmc.move_dc_duty(PORT_BLADE_A, PORT_BLADE_B, blade_p, blade_m)
         self.is_body_move = False
 
-    #end move_blade
+    # end move_blade
 
     def move_hand(self, handm):
         """
@@ -347,7 +350,7 @@ class AbhClass(object):
         self.svmc.move_servo(CHANNEL_HAND, handm, RELEASE_HAND, CATCH_HAND)
         self.is_hand_move = False
 
-    #end move_hand
+    # end move_hand
 
     def move_wrist(self, wrist):
         """
@@ -357,7 +360,7 @@ class AbhClass(object):
         self.svmc.move_servo(CHANNEL_WRIST, wrist, LIM_WRIST_F, LIM_WRIST_B)
         self.is_hand_move = False
 
-    #end move_wrist
+    # end move_wrist
 
     def move_pluck(self, pluck):
         """
@@ -367,7 +370,7 @@ class AbhClass(object):
         self.svmc.move_servo(CHANNEL_PLUCK, pluck, OFF_PLUCK, ON_PLUCK)
         self.is_hand_move = False
 
-    #end move_pluck
+    # end move_pluck
 
     def move_grab(self, grab):
         """
@@ -377,7 +380,7 @@ class AbhClass(object):
         self.svmc.move_servo(CHANNEL_GRAB, grab, RELEASE_GRAB, CATCH_GRAB)
         self.is_hand_move = False
 
-    #end move_grab
+    # end move_grab
 
     def move_twist(self, twist):
         """
@@ -387,27 +390,29 @@ class AbhClass(object):
         self.svmc.move_servo(CHANNEL_TWIST, twist, OFF_TWIST, ON_TWIST)
         self.is_hand_move = False
 
-    #end move_twist
+    # end move_twist
 
     def move_attach_r(self, attach_r):
         """
         添え手右
         """
         self.is_hand_move = True
-        self.svmc.move_servo(CHANNEL_ATTACH_RR, attach_r, LIM_ATTACH_RL, LIM_ATTACH_RR)
+        self.svmc.move_servo(CHANNEL_ATTACH_RR, attach_r,
+                             LIM_ATTACH_RL, LIM_ATTACH_RR)
         self.is_hand_move = False
 
-    #end move_attach_r
+    # end move_attach_r
 
     def move_attach_l(self, attach_l):
         """
         添え手左
         """
         self.is_hand_move = True
-        self.svmc.move_servo(CHANNEL_ATTACH_LR, attach_l, LIM_ATTACH_LL, LIM_ATTACH_LR)
+        self.svmc.move_servo(CHANNEL_ATTACH_LR, attach_l,
+                             LIM_ATTACH_LL, LIM_ATTACH_LR)
         self.is_hand_move = False
 
-    #end move_attach_l
+    # end move_attach_l
 
     def callback(self, mes_brain):
         """
@@ -417,17 +422,17 @@ class AbhClass(object):
         self.is_abh_call = True
         self.mes_brain = mes_brain
 
-        #モード変更確認
+        # モード変更確認
         self.modechange(mes_brain.mode_id, mes_brain.target_id)
         if self.mode_now == MODE.AUTO:
-            #関数コール
-            if self.target_now == TARGET.GRASS: #草刈りモード時
+            # 関数コール
+            if self.target_now == TARGET.GRASS:  # 草刈りモード時
                 self.mode_grass()
 
-            elif self.target_now == TARGET.SIDE_SPROUT: #芽かきモード時
+            elif self.target_now == TARGET.SIDE_SPROUT:  # 芽かきモード時
                 self.mode_sprout()
 
-            elif self.target_now == TARGET.TOMATO: #収穫モード時
+            elif self.target_now == TARGET.TOMATO:  # 収穫モード時
                 self.mode_tomato()
 
             else:
@@ -437,17 +442,17 @@ class AbhClass(object):
         else:
             pass
 
-        #今回値保存ここから
-        self.elbow_req_o = mes_brain.elbow_req # 肘モーター要求値
-        self.should_req_o = mes_brain.should_req # 肩モーター要求値
-        self.handx_req_o = mes_brain.handx_req # ハンド指定位置X
-        self.handy_req_o = mes_brain.handy_req # ハンド指定位置Y
-        self.handz_req_o = mes_brain.handz_req # ハンド指定位置Z
-        self.twistx_req_o = mes_brain.twistx_req # ねじ切りハンド指定位置X
-        self.twistz_req_o = mes_brain.twistz_req # ねじ切りハンド指定位置Z
+        # 今回値保存ここから
+        self.elbow_req_o = mes_brain.elbow_req  # 肘モーター要求値
+        self.should_req_o = mes_brain.should_req  # 肩モーター要求値
+        self.handx_req_o = mes_brain.handx_req  # ハンド指定位置X
+        self.handy_req_o = mes_brain.handy_req  # ハンド指定位置Y
+        self.handz_req_o = mes_brain.handz_req  # ハンド指定位置Z
+        self.twistx_req_o = mes_brain.twistx_req  # ねじ切りハンド指定位置X
+        self.twistz_req_o = mes_brain.twistz_req  # ねじ切りハンド指定位置Z
         # 今回値保存ここまで
 
-        #区切り
+        # 区切り
         self.is_abh_call = False
         print("==============================")
     # end callback
@@ -462,23 +467,23 @@ class AbhClass(object):
         tmp_handy = self.mes_brain.handy_req
         tmp_handz = self.mes_brain.handz_req
 
-        #土台モーターの角度計算
-        #X座標とY座標で算出
+        # 土台モーターの角度計算
+        # X座標とY座標で算出
         tmp_base = (math.atan2(tmp_handy, tmp_handx) / 90.0) * 100.0
 
-        #肩モーターの角度計算
-        #Y座標とZ座標で算出
+        # 肩モーターの角度計算
+        # Y座標とZ座標で算出
         tmp_should = (math.atan2(tmp_handz, tmp_handy) / 90.0) * 100.0
 
-        #手首モーターの角度計算
+        # 手首モーターの角度計算
         tmp_wrist = 90.0 - tmp_should
 
-        #モーター動作
+        # モーター動作
         self.move_base(tmp_base)
         self.move_should(tmp_should)
         self.move_hand(RELEASE_HAND)
         self.move_pluck(ON_PLUCK)
-        #self.move_elbow()
+        # self.move_elbow()
         self.move_wrist(tmp_wrist)
         self.move_spray(ON_SPRAY)
         self.move_spray(OFF_SPRAY)
@@ -493,7 +498,7 @@ class AbhClass(object):
         self.move_lid(0)
         self.move_blade(BLADE_PLUS)
         self.move_blade(BLADE_NONE)
-    #end mode_grass
+    # end mode_grass
 
     def mode_sprout(self):
         """
@@ -517,7 +522,7 @@ class AbhClass(object):
         self.move_attach_l(LIM_ATTACH_LL)
         self.move_attach_r(LIM_ATTACH_RR)
         self.move_twisth(LIM_TWISTH_MIN)
-    #end mode_sprout
+    # end mode_sprout
 
     def mode_tomato(self):
         """
@@ -531,15 +536,16 @@ class AbhClass(object):
         handv = handz / STEP_1PULSE
         handh = handx / STEP_1PULSE
 
-        self.move_handv(handv) # ハンド垂直
-        self.move_handh(handh) # ハンド水平
-        self.move_hand(CATCH_HAND) # ハンド
-        self.move_wrist(LIM_WRIST_F) #手首
-        self.move_hand(RELEASE_HAND) # ハンド
-        self.move_handh(handh) # ハンド水平
-        self.move_wrist(LIM_WRIST_B) #手首
-        self.move_handh(LIM_HANDH_MIN) # ハンド水平
-    #end mode_tomato
+        self.move_handv(handv)  # ハンド垂直
+        self.move_handh(handh)  # ハンド水平
+        self.move_hand(CATCH_HAND)  # ハンド
+        self.move_wrist(LIM_WRIST_F)  # 手首
+        self.move_hand(RELEASE_HAND)  # ハンド
+        self.move_handh(handh)  # ハンド水平
+        self.move_wrist(LIM_WRIST_B)  # 手首
+        self.move_handh(LIM_HANDH_MIN)  # ハンド水平
+    # end mode_tomato
+
 
 def abh_py():
     """
@@ -555,6 +561,8 @@ def abh_py():
     while not rospy.is_shutdown():
         abhc.publish_data()
         rrate.sleep()
-#end abh_py
+
+
+# end abh_py
 if __name__ == '__main__':
     abh_py()

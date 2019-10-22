@@ -12,27 +12,29 @@ import mortor
 
 from ina226_consts import *
 
+
 class Ina226Class(object):
     """
     電流電圧測定IC値取得クラス
     """
+
     def __init__(self):
         self.is_enable = False
         try:
             self.smc = mortor.ServoMortorClass(False)
             self.i2c = smbus.SMBus(1)
-            #ICの設定
+            # ICの設定
             setdata = (SET_RST << 12) + (SET_AVG << 9) + \
                 (SET_VBUSCT << 6) + (SET_VSHCT << 3) + SET_MODE
             setdata = ((setdata << 8) & 0xFF00) + (setdata >> 8)
             self.i2c.write_word_data(I2C_INA226, ADDR_S, setdata)
-            #キャリブレーションレジスタの設定
+            # キャリブレーションレジスタの設定
             # 0.00512/((0.0015[mΩ])*0.001)
             setdata = int(0.00512/((BATT_R)*0.001))
             setdata = ((setdata << 8) & 0xFF00) + (setdata >> 8)
             self.i2c.write_word_data(I2C_INA226, ADDR_R, setdata)
             self.is_enable = True
-            #1回目は変な値をとるときが多いので...
+            # 1回目は変な値をとるときが多いので...
             self.read_v()
             self.read_i()
         except IOError:
@@ -44,7 +46,7 @@ class Ina226Class(object):
             self.v_ave = 0
             self.i_ave = 0
             self.i_sgm = 0
-    #end __init__
+    # end __init__
 
     def read_v(self):
         """
@@ -57,7 +59,7 @@ class Ina226Class(object):
             volt = result * 1.25 / 1000
 
         return volt
-    #end read_v
+    # end read_v
 
     def read_i(self):
         """
@@ -68,7 +70,17 @@ class Ina226Class(object):
             word = self.i2c.read_word_data(I2C_INA226, ADDR_I) & 0xFFFF
             curr = ((word << 8) & 0xFF00) + (word >> 8)
         return curr
-    #end read_i
+    # end read_i
+
+    def read_b(self):
+        """
+        バッテリー残量読み取り
+        """
+        batt = 0.0
+        if self.is_enable:
+            batt_v = self.read_i()
+            batt = ((batt_v - BATT_VLOW) / (BATT_VMAX - BATT_VLOW)) * 100
+        return batt
 
     def read_vi_loop(self):
         """
@@ -98,7 +110,7 @@ class Ina226Class(object):
                 self.cnt_battlow += 1
                 print "電圧低下(" + str(self.cnt_battlow) + ")"
             elif self.i_ave > BATT_IHI:
-                #self.cnt_battlow += 1
+                # self.cnt_battlow += 1
                 print "電流異常(" + str(self.cnt_battlow) + ")"
             else:
                 self.cnt_battlow = 0
@@ -110,7 +122,7 @@ class Ina226Class(object):
                 pass
 
             time.sleep(1)
-    #end read_vi_loop
+    # end read_vi_loop
 
     def endfnc(self):
         """
@@ -120,7 +132,8 @@ class Ina226Class(object):
         print "1分後にシャットダウンします"
         call('sudo shutdown -h 1', shell=True)
         self.is_enable = False
-    #end endfnc
+    # end endfnc
+
 
 if __name__ == '__main__':
     inac = Ina226Class()

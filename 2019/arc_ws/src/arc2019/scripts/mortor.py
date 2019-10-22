@@ -29,6 +29,7 @@ class DcMortorClass(object):
     """
     DCモータークラス
     """
+
     def __init__(self, is_debug=False, ports=(16, 20, 19, 26), limit=DC_DUTY):
         self.is_notdebug = not((os.name != 'posix') or is_debug)
 
@@ -64,7 +65,7 @@ class DcMortorClass(object):
             print("DC mortor is move")
         else:
             print("DC mortor is debug")
-    #end __init__
+    # end __init__
 
     def endfnc(self):
         """
@@ -73,26 +74,26 @@ class DcMortorClass(object):
         if self.is_notdebug:
             self.move_dc_duty(self.port_a_cw, self.port_a_ccw, 0, 0)
             self.move_dc_duty(self.port_b_cw, self.port_b_ccw, 0, 0)
-    #end endfnc
+    # end endfnc
 
     def set_debug(self, val):
         """
         デバッグモード設定
         """
         self.is_notdebug = not(val)
-    #end set_debug
+    # end set_debug
 
     def move_dc(self, rotate_a, rotate_b, limit=True):
         """
         DCモーター(なまし付き)
         """
 
-        #とりあえず初期化
+        # とりあえず初期化
         dcduty_a = 0
         dcduty_b = 0
 
         while True:
-            #Duty計算
+            # Duty計算
             if rotate_a != DCROTATE.STOP:
                 dcduty_a = self.dcduty_a_o + (DC_PLUS * rotate_a)
             elif self.dcduty_a_o > 0:
@@ -107,7 +108,7 @@ class DcMortorClass(object):
             elif self.dcduty_b_o < 0:
                 dcduty_b = self.dcduty_b_o + DC_PLUS
 
-            #上下限ガード
+            # 上下限ガード
             if limit:
                 if dcduty_a > self.limit_max:
                     dcduty_a = self.limit_max
@@ -150,20 +151,22 @@ class DcMortorClass(object):
             #print("ccw A = %d" % dcduty_a_ccw)
 
             if self.port_a_cw >= 0 and self.port_a_ccw >= 0:
-                self.move_dc_duty(self.port_a_cw, self.port_a_ccw, dcduty_a_cw, dcduty_a_ccw)
+                self.move_dc_duty(
+                    self.port_a_cw, self.port_a_ccw, dcduty_a_cw, dcduty_a_ccw)
 
             #print("cw  B = %d" % dcduty_b_cw)
             #print("ccw B = %d" % dcduty_b_ccw)
 
             if self.port_b_cw >= 0 and self.port_b_ccw >= 0:
-                self.move_dc_duty(self.port_b_cw, self.port_b_ccw, dcduty_b_cw, dcduty_b_ccw)
+                self.move_dc_duty(
+                    self.port_b_cw, self.port_b_ccw, dcduty_b_cw, dcduty_b_ccw)
 
-            #今回値を保存
+            # 今回値を保存
             self.dcduty_a_o = dcduty_a
             self.dcduty_b_o = dcduty_b
 
             time.sleep(0.05)
-    #end move_dc
+    # end move_dc
 
     def move_dc_duty(self, port_cw, port_ccw, dcduty_cw, dcduty_ccw):
         """
@@ -171,11 +174,11 @@ class DcMortorClass(object):
         """
         if (port_cw < 0) or (port_ccw < 0):
             return
-        #絶対値に変換
+        # 絶対値に変換
         dcduty_cw = abs(dcduty_cw)
         dcduty_ccw = abs(dcduty_ccw)
 
-        #上下限ガード
+        # 上下限ガード
         if dcduty_cw > 100:
             dcduty_cw = 100
         if dcduty_cw < 0:
@@ -190,7 +193,7 @@ class DcMortorClass(object):
             dcduty_ccw = 0
 
         if self.is_notdebug:
-            #新しい値で出力
+            # 新しい値で出力
             self.pic.set_PWM_frequency(port_cw, DC_FREQ)
             self.pic.set_PWM_frequency(port_ccw, DC_FREQ)
 
@@ -200,9 +203,10 @@ class DcMortorClass(object):
             self.pic.set_PWM_dutycycle(port_cw, dcduty_cw)
             self.pic.set_PWM_dutycycle(port_ccw, dcduty_ccw)
         else:
-            print ("dcduty_cw=%3d\tcduty_ccw=%3d" %(dcduty_cw, dcduty_ccw))
-    #end move_dc_duty
-#end DcMortorClass
+            print ("dcduty_cw=%3d\tcduty_ccw=%3d" % (dcduty_cw, dcduty_ccw))
+    # end move_dc_duty
+# end DcMortorClass
+
 
 class ServoMortorClass(object):
     """
@@ -214,8 +218,8 @@ class ServoMortorClass(object):
         終了処理
         """
         if self.is_notdebug:
-            self.pwm.set_all_pwm(0, 4096) # 全モーターPWM解除
-    #end endfnc
+            self.pwm.set_all_pwm(0, 4096)  # 全モーターPWM解除
+    # end endfnc
 
     def __init__(self, is_debug=False, target=TARGET.UNKNOWN):
         self.is_notdebug = not((os.name != 'posix') or is_debug)
@@ -240,12 +244,13 @@ class ServoMortorClass(object):
             print("servo mortor is move")
         else:
             print("servo mortor is debug")
-    #end __init__
+    # end __init__
 
     def move_servo(self, channel, power, lim_min, lim_max):
         """
         サーボモーター
         """
+
         if lim_min > lim_max:
             num_tmp = lim_max
             lim_max = lim_min
@@ -260,14 +265,12 @@ class ServoMortorClass(object):
         # 割合からパルスを計算
         pulse = ((lim_max - lim_min) * (power / 100.0)) + lim_min
         self.move_servo_pulse(channel, pulse)
-    #end move_servo
+    # end move_servo
 
     def move_servo_pulse(self, channel, pulse):
         """
         サーボモーターパルス
         """
-
-        
 
         if pulse > SERVO_MAX:
             pulse = SERVO_MAX
@@ -280,13 +283,15 @@ class ServoMortorClass(object):
 
         if self.is_notdebug:
             self.pwm.set_pwm(channel, 0, int(pulse))
-    #end move_servo_pulse
-#end ServoMortorClass
+    # end move_servo_pulse
+# end ServoMortorClass
+
 
 class StepMortorClass(object):
     """
     ステップモータークラス
     """
+
     def __init__(self, is_debug=False, ports=(16, 20), limit=(0, 3500), port_en=18):
         self.is_notdebug = not((os.name != 'posix') or is_debug)
 
@@ -318,7 +323,7 @@ class StepMortorClass(object):
             print("step mortor is move")
         else:
             print("step mortor is debug")
-    #end __init__
+    # end __init__
 
     def endfnc(self):
         """
@@ -334,7 +339,7 @@ class StepMortorClass(object):
             self.pic.write(self.port_en, pigpio.LOW)
             self.pic.write(self.port_a, pigpio.LOW)
             self.pic.write(self.port_b, pigpio.LOW)
-    #end endfnc
+    # end endfnc
 
     def resetpos(self, steplotate):
         """
@@ -345,16 +350,16 @@ class StepMortorClass(object):
         else:
             pass
         self.stepcnt = 0
-    #end resetpos
+    # end resetpos
 
     def move_step(self, distance):
         """
         ステッピングモーター
         """
-        #要求値を1ステップ当たりの距離で割る
+        # 要求値を1ステップ当たりの距離で割る
         step = int(distance / STEP_1PULSE)
         self.move_step_step(step)
-    #end move_step
+    # end move_step
 
     def move_step_step(self, step, freq=-1):
         """
@@ -375,8 +380,8 @@ class StepMortorClass(object):
 
         for i in range(abs(step)):
             if self.is_notdebug \
-                and (self.limit_min <= self.stepcnt) \
-                and (self.stepcnt <= self.limit_max):
+                    and (self.limit_min <= self.stepcnt) \
+                    and (self.stepcnt <= self.limit_max):
                 if step > 0:
                     self.pic.write(self.port_a, pigpio.HIGH)
                     time.sleep(wait_hl/2)
@@ -422,14 +427,14 @@ class StepMortorClass(object):
                     self.stepcnt -= 1
             else:
                 break
-            #end if self.is_notdebug
+            # end if self.is_notdebug
             print("pulse     = %d/%d" % (self.stepcnt, step))
             if (self.stepcnt <= self.limit_min) or (self.limit_max <= self.stepcnt):
                 break
             #print("pulse     = %d/%d" % (i+1, step))
-        #end for i in range(abs(step))
+        # end for i in range(abs(step))
 
         self.endfnc()
 
-    #end move_step_step
-#end StepMortorClass
+    # end move_step_step
+# end StepMortorClass

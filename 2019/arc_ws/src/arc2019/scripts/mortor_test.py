@@ -18,6 +18,7 @@ AIN2 = 20
 BIN1 = 19
 BIN2 = 26
 
+
 def main_dc():
     """
     DCモーターテスト
@@ -46,7 +47,8 @@ def main_dc():
         except TypeError as ex:
             print(ex)
     dmc.endfnc()
-#end main_dc
+# end main_dc
+
 
 def main_dccut():
     """
@@ -69,13 +71,14 @@ def main_dccut():
         except TypeError as ex:
             print(ex)
     mcc.endfnc()
-#end main_dccut
+# end main_dccut
+
 
 def main_servo():
     """
     サーボモーターテスト
     """
-    print("15号(%d) 刈りん(%d)"% (TARGET.SIDE_SPROUT, TARGET.GRASS))
+    print("15号(%d) 刈りん(%d)" % (TARGET.SIDE_SPROUT, TARGET.GRASS))
     tgt = input('target:')
     int_tgt = TARGET(tgt)
 
@@ -89,7 +92,8 @@ def main_servo():
             if (int_tgt == TARGET.SIDE_SPROUT) or (int_tgt == TARGET.TOMATO):
                 print("[15号]\n(0)ハンド\t(1)手首  \n(2)枝掴み\t(3)枝ねじり\n(4)添え手右\t(5)添え手左")
             elif int_tgt == TARGET.GRASS:
-                print("[刈りん]\n(0)ハンド\t(1)手首  \n(2)引抜  \t(3)肘    \n(4)肩    \t(5)土台\n(6)蓋")
+                print(
+                    "[刈りん]\n(0)ハンド\t(1)手首  \n(2)引抜  \t(3)肘    \n(4)肩    \t(5)土台\n(6)蓋")
             else:
                 break
 
@@ -111,7 +115,8 @@ def main_servo():
             print(ex)
 
     smc.endfnc()
-#end main_servo
+# end main_servo
+
 
 def main_step():
     """
@@ -158,7 +163,8 @@ def main_step():
             break
         except TypeError as ex:
             print(ex)
-#end main_step
+# end main_step
+
 
 if __name__ == '__main__':
     main_servo()
