@@ -76,23 +76,6 @@ BLADE_MIMUS = -1  # シュレッダー刃_負回転
 BLADE_NONE = 0  # シュレッダー刃_無回転
 BLADE_PLUS = 1  # シュレッダー刃_正回転
 
-
-PORTS_ABH = {
-    PORT_HANDH_A: pigpio.OUTPUT,
-    PORT_HANDH_B: pigpio.OUTPUT,
-    PORT_HANDV_A: pigpio.OUTPUT,
-    PORT_HANDV_B: pigpio.OUTPUT,
-    PORT_TWISTH_A: pigpio.OUTPUT,
-    PORT_TWISTH_B: pigpio.OUTPUT,
-    PORT_TWISTV_A: pigpio.OUTPUT,
-    PORT_TWISTV_B: pigpio.OUTPUT,
-    PORT_SPRAY: pigpio.OUTPUT,
-    PORT_BLADE_A: pigpio.OUTPUT,
-    PORT_BLADE_B: pigpio.OUTPUT,
-    PORT_PWOFFSW: pigpio.INPUT
-}
-
-
 class MOTORA(Enum):
     """
     アームモーター

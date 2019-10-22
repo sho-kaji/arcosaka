@@ -92,8 +92,18 @@ class AbhClass(object):
 
         # initialize port
         self.pic = pigpio.pi()
-        for key, val in PORTS_ABH.items():
-            self.mmc.pic.set_mode(key, val)
+        self.stmc_handh.pic.set_mode(PORT_HANDH_A, pigpio.OUTPUT)
+        self.stmc_handh.pic.set_mode(PORT_HANDH_B, pigpio.OUTPUT)
+        self.stmc_handv.pic.set_mode(PORT_HANDV_A, pigpio.OUTPUT)
+        self.stmc_handv.pic.set_mode(PORT_HANDV_B, pigpio.OUTPUT)
+        self.stmc_twisth.pic.set_mode(PORT_TWISTH_A, pigpio.OUTPUT)
+        self.stmc_twisth.pic.set_mode(PORT_TWISTH_B, pigpio.OUTPUT)
+        self.stmc_twistv.pic.set_mode(PORT_TWISTV_A, pigpio.OUTPUT)
+        self.stmc_twistv.pic.set_mode(PORT_TWISTV_B, pigpio.OUTPUT)
+        self.dmc.pic.set_mode(PORT_SPRAY, pigpio.OUTPUT)
+        self.dmc.pic.set_mode(PORT_BLADE_A, pigpio.OUTPUT)
+        self.dmc.pic.set_mode(PORT_BLADE_B, pigpio.OUTPUT)
+        self.pic.set_mode(PORT_PWOFFSW, pigpio.INPUT)
 
         # モード今回値
         self.mode_now = MODE.UNKNOWN
