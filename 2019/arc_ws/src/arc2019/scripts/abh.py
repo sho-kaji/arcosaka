@@ -85,7 +85,7 @@ class AbhClass(object):
         self.stmc_twistv = mortor.StepMortorClass(
             DEBUG_ARM, (PORT_TWISTV_A, PORT_TWISTV_B), (LIM_TWISTV_MIN, LIM_TWISTV_MAX))
 
-        self.svmc = mortor.ServoMortorClass(DEBUG_ARM or DEBUG_HAND)
+        self.svmc = mortor.ServoMortorClass((DEBUG_ARM or DEBUG_HAND), TARGET.UNKNOWN)
 
         # ina226Class
         self.inac = ina226.Ina226Class()
@@ -232,7 +232,7 @@ class AbhClass(object):
         肘
         """
         self.is_arm_move = True
-        self.svmc.move_servo(CHANNEL_ELBOW, elbow, LIM_ELBOW_B, LIM_ELBOW_F)
+        self.svmc.move_servo(CHANNEL_ELBOW, elbow)
         self.is_arm_move = False
 
     # end move_elbow
@@ -242,8 +242,7 @@ class AbhClass(object):
         肩
         """
         self.is_arm_move = True
-        self.svmc.move_servo(CHANNEL_SHOULD, should,
-                             LIM_SHOULD_B, LIM_SHOULD_F)
+        self.svmc.move_servo(CHANNEL_SHOULD, should)
         self.is_arm_move = False
 
     # end move_should
@@ -253,7 +252,7 @@ class AbhClass(object):
         土台
         """
         self.is_arm_move = True
-        self.svmc.move_servo(CHANNEL_BASE, base, LIM_BASE_L, LIM_BASE_R)
+        self.svmc.move_servo(CHANNEL_BASE, base)
         self.is_arm_move = False
 
     # end move_base
@@ -307,7 +306,7 @@ class AbhClass(object):
         蓋
         """
         self.is_body_move = True
-        self.svmc.move_servo(CHANNEL_LID, lid, LIM_LID_MIN, LIM_LID_MAX)
+        self.svmc.move_servo(CHANNEL_LID, lid)
         self.is_body_move = False
 
     # end move_lid
@@ -347,7 +346,7 @@ class AbhClass(object):
         ハンド
         """
         self.is_hand_move = True
-        self.svmc.move_servo(CHANNEL_HAND, handm, RELEASE_HAND, CATCH_HAND)
+        self.svmc.move_servo(CHANNEL_HAND, handm)
         self.is_hand_move = False
 
     # end move_hand
@@ -357,7 +356,7 @@ class AbhClass(object):
         手首
         """
         self.is_hand_move = True
-        self.svmc.move_servo(CHANNEL_WRIST, wrist, LIM_WRIST_F, LIM_WRIST_B)
+        self.svmc.move_servo(CHANNEL_WRIST, wrist)
         self.is_hand_move = False
 
     # end move_wrist
@@ -367,7 +366,7 @@ class AbhClass(object):
         引抜
         """
         self.is_hand_move = True
-        self.svmc.move_servo(CHANNEL_PLUCK, pluck, OFF_PLUCK, ON_PLUCK)
+        self.svmc.move_servo(CHANNEL_PLUCK, pluck)
         self.is_hand_move = False
 
     # end move_pluck
@@ -377,7 +376,7 @@ class AbhClass(object):
         枝掴み
         """
         self.is_hand_move = True
-        self.svmc.move_servo(CHANNEL_GRAB, grab, RELEASE_GRAB, CATCH_GRAB)
+        self.svmc.move_servo(CHANNEL_GRAB, grab)
         self.is_hand_move = False
 
     # end move_grab
@@ -387,7 +386,7 @@ class AbhClass(object):
         枝ねじり
         """
         self.is_hand_move = True
-        self.svmc.move_servo(CHANNEL_TWIST, twist, OFF_TWIST, ON_TWIST)
+        self.svmc.move_servo(CHANNEL_TWIST, twist)
         self.is_hand_move = False
 
     # end move_twist
@@ -397,8 +396,7 @@ class AbhClass(object):
         添え手右
         """
         self.is_hand_move = True
-        self.svmc.move_servo(CHANNEL_ATTACH_RR, attach_r,
-                             LIM_ATTACH_RL, LIM_ATTACH_RR)
+        self.svmc.move_servo(CHANNEL_ATTACH_RR, attach_r)
         self.is_hand_move = False
 
     # end move_attach_r
@@ -408,8 +406,7 @@ class AbhClass(object):
         添え手左
         """
         self.is_hand_move = True
-        self.svmc.move_servo(CHANNEL_ATTACH_LR, attach_l,
-                             LIM_ATTACH_LL, LIM_ATTACH_LR)
+        self.svmc.move_servo(CHANNEL_ATTACH_LR, attach_l)
         self.is_hand_move = False
 
     # end move_attach_l

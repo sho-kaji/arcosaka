@@ -39,21 +39,24 @@ SERVO_FREQ = 60
 SERVO_MIN = 100
 SERVO_MAX = 650
 
-SRV0MIN_M = 300  # 芽かきサーボ0最小値
-SRV1MIN_M = 300  # 芽かきサーボ1最小値
-SRV2MIN_M = 300  # 芽かきサーボ2最小値
-SRV3MIN_M = 300  # 芽かきサーボ3最小値
-SRV4MIN_M = 300  # 芽かきサーボ4最小値
-SRV5MIN_M = 300  # 芽かきサーボ5最小値
-SRV6MIN_M = 300  # 芽かきサーボ6最小値
-
-SRV0MAX_M = 450  # 芽かきサーボ0最大値
-SRV1MAX_M = 450  # 芽かきサーボ1最大値
-SRV2MAX_M = 450  # 芽かきサーボ2最大値
-SRV3MAX_M = 450  # 芽かきサーボ3最大値
-SRV4MAX_M = 450  # 芽かきサーボ4最大値
-SRV5MAX_M = 450  # 芽かきサーボ5最大値
-SRV6MAX_M = 450  # 芽かきサーボ6最大値
+SRV0MAX_M = 400 # 芽かきサーボ0最大値
+SRV0SRT_M = 400 # 芽かきサーボ0初期値
+SRV0MIN_M = 110 # 芽かきサーボ0最小値
+SRV1MAX_M = 500 # 芽かきサーボ1最大値
+SRV1SRT_M = 450 # 芽かきサーボ1初期値
+SRV1MIN_M = 350 # 芽かきサーボ1最小値
+SRV2MAX_M = 420 # 芽かきサーボ2最大値
+SRV2SRT_M = 420 # 芽かきサーボ2初期値
+SRV2MIN_M = 400 # 芽かきサーボ2最小値
+SRV3MAX_M = 450 # 芽かきサーボ3最大値
+SRV3SRT_M = 450 # 芽かきサーボ3初期値
+SRV3MIN_M = 150 # 芽かきサーボ3最小値
+SRV4MAX_M = 510 # 芽かきサーボ4最大値
+SRV4SRT_M = 423 # 芽かきサーボ4初期値
+SRV4MIN_M = 150 # 芽かきサーボ4最小値
+SRV5MAX_M = 640 # 芽かきサーボ5最大値
+SRV5SRT_M = 390 # 芽かきサーボ5初期値
+SRV5MIN_M = 310 # 芽かきサーボ5最小値
 
 SRV0MIN_K = 170  # 草刈りサーボ0最小値
 SRV1MIN_K = 200  # 草刈りサーボ1最小値
@@ -80,8 +83,15 @@ SERVO_MIN_M = (
     SRV2MIN_M,
     SRV3MIN_M,
     SRV4MIN_M,
-    SRV5MIN_M,
-    SRV6MIN_M,
+    SRV5MIN_M
+)
+SERVO_SRT_M = (
+    SRV0SRT_M,
+    SRV1SRT_M,
+    SRV2SRT_M,
+    SRV3SRT_M,
+    SRV4SRT_M,
+    SRV5SRT_M
 )
 SERVO_MAX_M = (
     SRV0MAX_M,
@@ -89,8 +99,7 @@ SERVO_MAX_M = (
     SRV2MAX_M,
     SRV3MAX_M,
     SRV4MAX_M,
-    SRV5MAX_M,
-    SRV6MAX_M,
+    SRV5MAX_M
 )
 SERVO_MIN_K = (
     SRV0MIN_K,
@@ -99,8 +108,7 @@ SERVO_MIN_K = (
     SRV3MIN_K,
     SRV4MIN_K,
     SRV5MIN_K,
-    SRV6MIN_K,
-    SRV7MIN_K,
+    SRV6MIN_K
 )
 SERVO_MAX_K = (
     SRV0MAX_K,
@@ -109,8 +117,7 @@ SERVO_MAX_K = (
     SRV3MAX_K,
     SRV4MAX_K,
     SRV5MAX_K,
-    SRV6MAX_K,
-    SRV7MAX_K,
+    SRV6MAX_K
 )
 # 書き換え不可ここまで
 

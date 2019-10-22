@@ -21,8 +21,9 @@ from mortor_consts import \
 
 if os.name == 'posix':
     import pigpio
+    import pca9685
     # Import the PCA9685 module.
-    import Adafruit_PCA9685
+    #import Adafruit_PCA9685
 
 
 class DcMortorClass(object):
@@ -213,21 +214,13 @@ class ServoMortorClass(object):
     サーボモータークラス
     """
 
-    def endfnc(self):
-        """
-        終了処理
-        """
-        if self.is_notdebug:
-            self.pwm.set_all_pwm(0, 4096)  # 全モーターPWM解除
-    # end endfnc
-
     def __init__(self, is_debug=False, target=TARGET.UNKNOWN):
         self.is_notdebug = not((os.name != 'posix') or is_debug)
 
         if self.is_notdebug:
             try:
                 # initialize move_servo
-                self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
+                self.pwm = pca9685.Pca9685Class(ADDR_PWM)
                 self.pwm.set_pwm_freq(SERVO_FREQ)
                 self.target = target
 
@@ -246,15 +239,19 @@ class ServoMortorClass(object):
             print("servo mortor is debug")
     # end __init__
 
-    def move_servo(self, channel, power, lim_min, lim_max):
+    def move_servo(self, channel, power):
         """
         サーボモーター
         """
 
-        if lim_min > lim_max:
-            num_tmp = lim_max
-            lim_max = lim_min
-            lim_min = num_tmp
+        if self.target == TARGET.GRASS:
+            lim_max = SERVO_MAX_K[channel]
+            lim_min = SERVO_MIN_K[channel]
+        elif (self.target == TARGET.SIDE_SPROUT) or (self.target == TARGET.TOMATO):
+            lim_max = SERVO_MAX_M[channel]
+            lim_min = SERVO_MIN_M[channel]
+        else:
+            return
 
         # 上下限ガード
         if power < 0:
@@ -284,6 +281,15 @@ class ServoMortorClass(object):
         if self.is_notdebug:
             self.pwm.set_pwm(channel, 0, int(pulse))
     # end move_servo_pulse
+
+    def endfnc(self):
+        """
+        終了処理
+        """
+        if self.is_notdebug:
+            self.pwm.set_all_pwm(0, 4096)  # 全モーターPWM解除
+    # end endfnc
+
 # end ServoMortorClass
 
 
