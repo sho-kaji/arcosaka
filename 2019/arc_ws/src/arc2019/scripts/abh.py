@@ -141,12 +141,22 @@ class AbhClass(object):
         """
         if self.mode_now != mode:
             self.mode_now = mode
-            self.mmc.endfnc()
+            self.dmc.endfnc()
+            self.stmc_handh.endfnc()
+            self.stmc_handv.endfnc()
+            self.stmc_twisth.endfnc()
+            self.stmc_twistv.endfnc()
+            self.svmc.endfnc()
             # 何か処理
 
         if self.target_now != target:
             self.target_now = target
-            self.mmc.endfnc()
+            self.dmc.endfnc()
+            self.stmc_handh.endfnc()
+            self.stmc_handv.endfnc()
+            self.stmc_twisth.endfnc()
+            self.stmc_twistv.endfnc()
+            self.svmc.endfnc()
             # 何か処理
 
     # end modechange
