@@ -58,23 +58,30 @@ SRV5MAX_M = 640 # 芽かきサーボ5最大値
 SRV5SRT_M = 390 # 芽かきサーボ5初期値
 SRV5MIN_M = 310 # 芽かきサーボ5最小値
 
-SRV0MIN_K = 170  # 草刈りサーボ0最小値
-SRV1MIN_K = 200  # 草刈りサーボ1最小値
-SRV2MIN_K = 90  # 草刈りサーボ2最小値
-SRV3MIN_K = 200  # 草刈りサーボ3最小値
-SRV4MIN_K = 410  # 草刈りサーボ4最小値
-SRV5MIN_K = 305  # 草刈りサーボ5最小値
-SRV6MIN_K = 90  # 草刈りサーボ6最小値
-SRV7MIN_K = 90  # 草刈りサーボ7最小値
-
-SRV0MAX_K = 500  # 草刈りサーボ0最大値
-SRV1MAX_K = 460  # 草刈りサーボ1最大値
-SRV2MAX_K = 700  # 草刈りサーボ2最大値
-SRV3MAX_K = 530  # 草刈りサーボ3最大値
-SRV4MAX_K = 510  # 草刈りサーボ4最大値
-SRV5MAX_K = 480  # 草刈りサーボ5最大値
-SRV6MAX_K = 700  # 草刈りサーボ6最大値
-SRV7MAX_K = 700  # 草刈りサーボ7最大値
+SRV0MAX_K = 500 # 草刈りサーボ0最大値
+SRV0SRT_K = 500 # 草刈りサーボ0初期値
+SRV0MIN_K = 170 # 草刈りサーボ0最小値
+SRV1MAX_K = 460 # 草刈りサーボ1最大値
+SRV1SRT_K = 460 # 草刈りサーボ1初期値
+SRV1MIN_K = 200 # 草刈りサーボ1最小値
+SRV2MAX_K = 700 # 草刈りサーボ2最大値
+SRV2SRT_K = 700 # 草刈りサーボ2初期値
+SRV2MIN_K = 90 # 草刈りサーボ2最小値
+SRV3MAX_K = 530 # 草刈りサーボ3最大値
+SRV3SRT_K = 530 # 草刈りサーボ3初期値
+SRV3MIN_K = 200 # 草刈りサーボ3最小値
+SRV4MAX_K = 500 # 草刈りサーボ4最大値
+SRV4SRT_K = 500 # 草刈りサーボ4初期値
+SRV4MIN_K = 210 # 草刈りサーボ4最小値
+SRV5MAX_K = 480 # 草刈りサーボ5最大値
+SRV5SRT_K = 480 # 草刈りサーボ5初期値
+SRV5MIN_K = 305 # 草刈りサーボ5最小値
+SRV6MAX_K = 700 # 草刈りサーボ6最大値
+SRV6SRT_K = 700 # 草刈りサーボ6初期値
+SRV6MIN_K = 90 # 草刈りサーボ6最小値
+SRV7MAX_K = 700 # 草刈りサーボ7最大値
+SRV7SRT_K = 700 # 草刈りサーボ7初期値
+SRV7MIN_K = 90 # 草刈りサーボ7最小値
 
 # 書き換え不可ここから
 SERVO_MIN_M = (
@@ -108,7 +115,18 @@ SERVO_MIN_K = (
     SRV3MIN_K,
     SRV4MIN_K,
     SRV5MIN_K,
-    SRV6MIN_K
+    SRV6MIN_K,
+    SRV7MIN_K
+)
+SERVO_SRT_K = (
+    SRV0SRT_K,
+    SRV1SRT_K,
+    SRV2SRT_K,
+    SRV3SRT_K,
+    SRV4SRT_K,
+    SRV5SRT_K,
+    SRV6SRT_K,
+    SRV7SRT_K
 )
 SERVO_MAX_K = (
     SRV0MAX_K,
@@ -117,7 +135,8 @@ SERVO_MAX_K = (
     SRV3MAX_K,
     SRV4MAX_K,
     SRV5MAX_K,
-    SRV6MAX_K
+    SRV6MAX_K,
+    SRV7MAX_K
 )
 # 書き換え不可ここまで
 

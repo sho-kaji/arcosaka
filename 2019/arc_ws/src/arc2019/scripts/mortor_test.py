@@ -6,6 +6,7 @@
 """
 
 import mortor
+import abh
 
 from params import TARGET
 from abh_consts import *
@@ -78,7 +79,7 @@ def main_servo():
     """
     サーボモーターテスト
     """
-    print("15号(%d) 刈りん(%d)" % (TARGET.SIDE_SPROUT, TARGET.GRASS))
+    print("15号(%d) 刈りん(%d)" % (TARGET.TOMATO, TARGET.GRASS))
     tgt = input('target:')
     int_tgt = TARGET(tgt)
 
@@ -86,6 +87,16 @@ def main_servo():
         smc = mortor.ServoMortorClass()
     else:
         return
+    if (int_tgt == TARGET.SIDE_SPROUT) or (int_tgt == TARGET.TOMATO):
+        for channel in CHANNEL_M:
+            pass
+            #smc.posinit(channel)
+    elif int_tgt == TARGET.GRASS:
+        for channel in CHANNEL_K:
+            pass
+            #smc.posinit(channel)
+    else:
+        pass
 
     while True:
         try:
@@ -163,8 +174,12 @@ def main_step():
             break
         except TypeError as ex:
             print(ex)
-# end main_step
 
+    smc_handh.endfnc()
+    smc_handv.endfnc()
+    smc_twisth.endfnc()
+    smc_twistv.endfnc()
+# end main_step
 
 if __name__ == '__main__':
     main_servo()

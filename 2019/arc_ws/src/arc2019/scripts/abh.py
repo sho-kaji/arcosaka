@@ -26,6 +26,7 @@ from brain_consts import \
     CYCLES
 
 from mortor_consts import \
+    STEPROTATE, \
     STEP_1PULSE, DC_DUTY
 
 from ina226_consts import \
@@ -92,17 +93,6 @@ class AbhClass(object):
 
         # initialize port
         self.pic = pigpio.pi()
-        self.stmc_handh.pic.set_mode(PORT_HANDH_A, pigpio.OUTPUT)
-        self.stmc_handh.pic.set_mode(PORT_HANDH_B, pigpio.OUTPUT)
-        self.stmc_handv.pic.set_mode(PORT_HANDV_A, pigpio.OUTPUT)
-        self.stmc_handv.pic.set_mode(PORT_HANDV_B, pigpio.OUTPUT)
-        self.stmc_twisth.pic.set_mode(PORT_TWISTH_A, pigpio.OUTPUT)
-        self.stmc_twisth.pic.set_mode(PORT_TWISTH_B, pigpio.OUTPUT)
-        self.stmc_twistv.pic.set_mode(PORT_TWISTV_A, pigpio.OUTPUT)
-        self.stmc_twistv.pic.set_mode(PORT_TWISTV_B, pigpio.OUTPUT)
-        self.dmc.pic.set_mode(PORT_SPRAY, pigpio.OUTPUT)
-        self.dmc.pic.set_mode(PORT_BLADE_A, pigpio.OUTPUT)
-        self.dmc.pic.set_mode(PORT_BLADE_B, pigpio.OUTPUT)
         self.pic.set_mode(PORT_PWOFFSW, pigpio.INPUT)
 
         # モード今回値
@@ -133,31 +123,41 @@ class AbhClass(object):
         """
         位置初期化
         """
-        pass
+        if self.target_now == TARGET.GRASS:
+            #DCモーター
+            self.dmc.posinit()
+            #サーボモーター
+            for channel in enumerate(CHANNEL_K):
+                self.svmc.posinit(channel)
+
+        elif (self.target_now == TARGET.SIDE_SPROUT) or (self.target_now == TARGET.SIDE_SPROUT):
+            #ステッピングモーター
+            self.stmc_twistv.posinit(STEPROTATE.PLUS)
+            self.stmc_twisth.posinit(STEPROTATE.PLUS)
+            self.stmc_handv.posinit(STEPROTATE.PLUS)
+            self.stmc_handh.posinit(STEPROTATE.PLUS)
+            #サーボモーター
+            for channel in enumerate(CHANNEL_M):
+                self.svmc.posinit(channel)
+    #end posinit
 
     def modechange(self, mode, target):
         """
         モード変更確認
         """
+        is_change = False
         if self.mode_now != mode:
             self.mode_now = mode
-            self.dmc.endfnc()
-            self.stmc_handh.endfnc()
-            self.stmc_handv.endfnc()
-            self.stmc_twisth.endfnc()
-            self.stmc_twistv.endfnc()
-            self.svmc.endfnc()
+            is_change = True
             # 何か処理
 
         if self.target_now != target:
             self.target_now = target
-            self.dmc.endfnc()
-            self.stmc_handh.endfnc()
-            self.stmc_handv.endfnc()
-            self.stmc_twisth.endfnc()
-            self.stmc_twistv.endfnc()
-            self.svmc.endfnc()
+            is_change = True
             # 何か処理
+
+        if is_change:
+            self.posinit()
 
     # end modechange
 
@@ -252,6 +252,7 @@ class AbhClass(object):
         肘
         """
         self.is_arm_move = True
+        print("         = %d" % elbow)
         self.svmc.move_servo(CHANNEL_ELBOW, elbow)
         self.is_arm_move = False
 
@@ -262,6 +263,7 @@ class AbhClass(object):
         肩
         """
         self.is_arm_move = True
+        print("should   = %d" % should)
         self.svmc.move_servo(CHANNEL_SHOULD, should)
         self.is_arm_move = False
 
@@ -272,6 +274,7 @@ class AbhClass(object):
         土台
         """
         self.is_arm_move = True
+        print("base     = %d" % base)
         self.svmc.move_servo(CHANNEL_BASE, base)
         self.is_arm_move = False
 
@@ -283,6 +286,7 @@ class AbhClass(object):
         """
         self.is_arm_move = True
         twistv = self.calc_saturation(twistv, LIM_TWISTV_MIN, LIM_TWISTV_MAX)
+        print("twistv   = %d" % twistv)
         self.stmc_twistv.move_step(twistv)
         self.is_arm_move = False
 
@@ -294,6 +298,7 @@ class AbhClass(object):
         """
         self.is_arm_move = True
         twisth = self.calc_saturation(twisth, LIM_TWISTH_MIN, LIM_TWISTH_MAX)
+        print("twisth   = %d" % twisth)
         self.stmc_twisth.move_step(twisth)
         self.is_arm_move = False
 
@@ -305,6 +310,7 @@ class AbhClass(object):
         """
         self.is_arm_move = True
         handv = self.calc_saturation(handv, LIM_HANDV_MIN, LIM_HANDV_MAX)
+        print("handv    = %d" % handv)
         self.stmc_handv.move_step(handv)
         self.is_arm_move = False
 
@@ -316,6 +322,7 @@ class AbhClass(object):
         """
         self.is_arm_move = True
         handh = self.calc_saturation(handh, LIM_HANDH_MIN, LIM_HANDH_MAX)
+        print("handh    = %d" % handh)
         self.stmc_handh.move_step(handh)
         self.is_arm_move = False
 
@@ -326,6 +333,7 @@ class AbhClass(object):
         蓋
         """
         self.is_body_move = True
+        print("lid      = %d" % lid)
         self.svmc.move_servo(CHANNEL_LID, lid)
         self.is_body_move = False
 
@@ -337,6 +345,7 @@ class AbhClass(object):
         """
         self.is_body_move = True
         spray = self.calc_saturation(spray, OFF_SPRAY, ON_SPRAY)
+        print("spray    = %d" % spray)
         self.dmc.move_dc_duty(PORT_SPRAY, -1, spray, 0)
         self.is_body_move = False
 
@@ -356,6 +365,7 @@ class AbhClass(object):
             blade_m = 0
 
         self.is_body_move = True
+        print("blade    = %d,%d" % (blade_p, blade_m))
         self.dmc.move_dc_duty(PORT_BLADE_A, PORT_BLADE_B, blade_p, blade_m)
         self.is_body_move = False
 
@@ -366,6 +376,7 @@ class AbhClass(object):
         ハンド
         """
         self.is_hand_move = True
+        print("handm    = %d" % handm)
         self.svmc.move_servo(CHANNEL_HAND, handm)
         self.is_hand_move = False
 
@@ -376,6 +387,7 @@ class AbhClass(object):
         手首
         """
         self.is_hand_move = True
+        print("wrist    = %d" % wrist)
         self.svmc.move_servo(CHANNEL_WRIST, wrist)
         self.is_hand_move = False
 
@@ -386,6 +398,7 @@ class AbhClass(object):
         引抜
         """
         self.is_hand_move = True
+        print("pluck    = %d" % elbow)
         self.svmc.move_servo(CHANNEL_PLUCK, pluck)
         self.is_hand_move = False
 
@@ -396,6 +409,7 @@ class AbhClass(object):
         枝掴み
         """
         self.is_hand_move = True
+        print("grab     = %d" % grab)
         self.svmc.move_servo(CHANNEL_GRAB, grab)
         self.is_hand_move = False
 
@@ -406,6 +420,7 @@ class AbhClass(object):
         枝ねじり
         """
         self.is_hand_move = True
+        print("twist    = %d" % twist)
         self.svmc.move_servo(CHANNEL_TWIST, twist)
         self.is_hand_move = False
 
@@ -416,6 +431,7 @@ class AbhClass(object):
         添え手右
         """
         self.is_hand_move = True
+        print("attach_r = %d" % attach_r)
         self.svmc.move_servo(CHANNEL_ATTACH_RR, attach_r)
         self.is_hand_move = False
 
@@ -426,11 +442,12 @@ class AbhClass(object):
         添え手左
         """
         self.is_hand_move = True
+        print("attach_l = %d" % attach_l)
         self.svmc.move_servo(CHANNEL_ATTACH_LR, attach_l)
         self.is_hand_move = False
 
     # end move_attach_l
-
+    
     def callback(self, mes_brain):
         """
         メッセージを受信したときに呼び出し
@@ -441,7 +458,9 @@ class AbhClass(object):
 
         # モード変更確認
         self.modechange(mes_brain.mode_id, mes_brain.target_id)
-        if self.mode_now == MODE.AUTO:
+        print("  MODE=%s" % MODE(mes_brain.mode_id).name)
+        print("TARGET=%s" % TARGET(mes_brain.target_id).name)
+        if (self.mode_now == MODE.AUTO) or (self.mode_now == MODE.DEBUG):
             # 関数コール
             if self.target_now == TARGET.GRASS:  # 草刈りモード時
                 self.mode_grass()
@@ -460,6 +479,7 @@ class AbhClass(object):
             pass
 
         # 今回値保存ここから
+        
         self.elbow_req_o = mes_brain.elbow_req  # 肘モーター要求値
         self.should_req_o = mes_brain.should_req  # 肩モーター要求値
         self.handx_req_o = mes_brain.handx_req  # ハンド指定位置X
@@ -471,7 +491,53 @@ class AbhClass(object):
 
         # 区切り
         self.is_abh_call = False
-        print("==============================")
+        print("brain2abh==============================")
+    # end callback
+
+    def callback_debug(self, mes_brain):
+        """
+        メッセージを受信したときに呼び出し
+        """
+
+        self.is_abh_call = True
+        self.mes_brain = mes_brain
+
+        # モード変更確認
+        self.modechange(mes_brain.mode_id, mes_brain.target_id)
+        print("  MODE=%s" % MODE(mes_brain.mode_id).name)
+        print("TARGET=%s" % TARGET(mes_brain.target_id).name)
+        if (self.mode_now == MODE.AUTO) or (self.mode_now == MODE.DEBUG):
+            # 関数コール
+            if self.target_now == TARGET.GRASS:  # 草刈りモード時
+                self.mode_grass()
+
+            elif self.target_now == TARGET.SIDE_SPROUT:  # 芽かきモード時
+                self.mode_sprout()
+
+            elif self.target_now == TARGET.TOMATO:  # 収穫モード時
+                self.mode_tomato()
+
+            else:
+                pass
+        elif self.mode_now == MODE.MANUAL:
+            pass
+        else:
+            pass
+
+        # 今回値保存ここから
+        
+        self.elbow_req_o = mes_brain.elbow_req  # 肘モーター要求値
+        self.should_req_o = mes_brain.should_req  # 肩モーター要求値
+        self.handx_req_o = mes_brain.handx_req  # ハンド指定位置X
+        self.handy_req_o = mes_brain.handy_req  # ハンド指定位置Y
+        self.handz_req_o = mes_brain.handz_req  # ハンド指定位置Z
+        self.twistx_req_o = mes_brain.twistx_req  # ねじ切りハンド指定位置X
+        self.twistz_req_o = mes_brain.twistz_req  # ねじ切りハンド指定位置Z
+        # 今回値保存ここまで
+
+        # 区切り
+        self.is_abh_call = False
+        print("brain2abh==============================")
     # end callback
 
     def mode_grass(self):

@@ -4,7 +4,8 @@
 abh.py 定数ファイル
 """
 
-from enum import Enum
+from enum import Enum,IntEnum
+
 import pigpio
 
 # defined const
@@ -109,5 +110,29 @@ class MOTORH(Enum):
     ATTACHR = 4  # 添え手右モーター
     ATTACHL = 5  # 添え手左モーター
     WRIST = 6  # 手首モーター
+    
+class CHANNEL_K(IntEnum):
+    """
+    草刈りサーボ
+    """
+    HAND = CHANNEL_HAND = 0  # ハンドモーターポート番号
+    WRIST = CHANNEL_WRIST = 1  # 手首モーターポート番号
+    PLUCK = CHANNEL_PLUCK = 2  # 引抜モーターポート番号
+    ELBOW = CHANNEL_ELBOW = 3  # 肘モーターポート番号
+    SHOULD = CHANNEL_SHOULD = 4  # 肩モーターポート番号
+    BASE = CHANNEL_BASE = 5  # 土台モーターポート番号
+    LID = CHANNEL_LID = 6  # 蓋モーターポート番号
+
+class CHANNEL_M(IntEnum):
+    """
+    芽かきサーボ
+    """
+    HAND = CHANNEL_HAND = 0  # ハンドモーターポート番号
+    WRIST = CHANNEL_WRIST = 1  # 手首モーターポート番号
+    GRAB = CHANNEL_GRAB = 2  # 枝掴みモーターポート番号
+    TWIST = CHANNEL_TWIST = 3  # 枝ねじりモーターポート番号
+    ATTACH_R = CHANNEL_ATTACH_RR = 4  # 添え手右モーターポート番号
+    CHANNEL_ATTACH_L = CHANNEL_ATTACH_LR = 5  # 添え手左モーターポート番号
+
 
 # (.+)\t(.+)\t(.+) $1 = $2 # $3

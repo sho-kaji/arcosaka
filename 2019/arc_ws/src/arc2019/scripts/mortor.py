@@ -14,16 +14,16 @@ from mortor_consts import \
     ADDR_PWM, \
     DCROTATE, \
     DC_FREQ, DC_DUTY, DC_PLUS, \
-    SERVO_MIN_K, SERVO_MAX_K, \
-    SERVO_MIN_M, SERVO_MAX_M, \
+    SERVO_MIN_K, SERVO_SRT_K, SERVO_MAX_K, \
+    SERVO_MIN_M, SERVO_SRT_M, SERVO_MAX_M, \
     SERVO_FREQ, SERVO_MIN, SERVO_MAX, \
     STEPROTATE, STEP_1PULSE, STEP_FREQ, STEP_DUTY
 
 if os.name == 'posix':
     import pigpio
-    import pca9685
+    #import pca9685
     # Import the PCA9685 module.
-    #import Adafruit_PCA9685
+    import Adafruit_PCA9685
 
 
 class DcMortorClass(object):
@@ -41,9 +41,16 @@ class DcMortorClass(object):
 
                 self.port_a_cw = ports[0]
                 self.port_a_ccw = ports[1]
+                print("DC mortor portA = %d,%d" % (self.port_a_cw,self.port_a_ccw))
+                self.pic.set_mode(self.port_a_cw, pigpio.OUTPUT)
+                self.pic.set_mode(self.port_a_ccw, pigpio.OUTPUT)
+
                 if len(ports) > 2:
                     self.port_b_cw = ports[2]
                     self.port_b_ccw = ports[3]
+                    print("DC mortor portB = %d,%d" % (self.port_b_cw,self.port_b_ccw))
+                    self.pic.set_mode(self.port_b_cw, pigpio.OUTPUT)
+                    self.pic.set_mode(self.port_b_ccw, pigpio.OUTPUT)
                 else:
                     self.port_b_cw = -1
                     self.port_b_ccw = -1
@@ -67,6 +74,15 @@ class DcMortorClass(object):
         else:
             print("DC mortor is debug")
     # end __init__
+
+    def posinit(self):
+        """
+        位置初期化
+        """
+        self.move_dc_duty(self.port_a_cw, self.port_a_ccw, 0, 0)
+        if (self.port_b_cw > -1) and (self.port_b_ccw > -1):
+            self.move_dc_duty(self.port_b_cw, self.port_b_ccw, 0, 0)
+    #end posinit
 
     def endfnc(self):
         """
@@ -148,9 +164,6 @@ class DcMortorClass(object):
             elif dcduty_b < 0:
                 dcduty_b_ccw = dcduty_b
 
-            #print("cw  A = %d" % dcduty_a_cw)
-            #print("ccw A = %d" % dcduty_a_ccw)
-
             if self.port_a_cw >= 0 and self.port_a_ccw >= 0:
                 self.move_dc_duty(
                     self.port_a_cw, self.port_a_ccw, dcduty_a_cw, dcduty_a_ccw)
@@ -220,7 +233,8 @@ class ServoMortorClass(object):
         if self.is_notdebug:
             try:
                 # initialize move_servo
-                self.pwm = pca9685.Pca9685Class(ADDR_PWM)
+                self.pwm = Adafruit_PCA9685.PCA9685(ADDR_PWM)
+                #self.pwm = pca9685.Pca9685Class(ADDR_PWM)
                 self.pwm.set_pwm_freq(SERVO_FREQ)
                 self.target = target
 
@@ -238,6 +252,20 @@ class ServoMortorClass(object):
         else:
             print("servo mortor is debug")
     # end __init__
+
+    def posinit(self, channel):
+        """
+        位置初期化
+        """
+        if self.target == TARGET.GRASS:
+            lim_srt = SERVO_SRT_K[channel]
+        elif (self.target == TARGET.SIDE_SPROUT) or (self.target == TARGET.TOMATO):
+            lim_srt = SERVO_SRT_M[channel]
+        else:
+            return
+        print("servo mortor init c=%d\tsrt=%d" % (channel, lim_srt))
+        self.move_servo_pulse(channel, lim_srt)
+    #end posinit
 
     def move_servo(self, channel, power):
         """
@@ -308,7 +336,11 @@ class StepMortorClass(object):
 
                 self.port_a = ports[0]
                 self.port_b = ports[1]
+                print("step mortor port = %d,%d" % (self.port_a,self.port_b))
                 self.port_en = port_en
+                self.pic.set_mode(self.port_a, pigpio.OUTPUT)
+                self.pic.set_mode(self.port_b, pigpio.OUTPUT)
+                self.pic.set_mode(self.port_en, pigpio.OUTPUT)
 
                 if limit[0] < limit[1]:
                     self.limit_min = limit[0]
@@ -316,6 +348,8 @@ class StepMortorClass(object):
                 else:
                     self.limit_min = limit[1]
                     self.limit_max = limit[0]
+
+                print("step mortor limit = %d,%d" % (self.limit_min,self.limit_max))
                 self.stepcnt = 0
 
             except TypeError as ex:
@@ -330,6 +364,19 @@ class StepMortorClass(object):
         else:
             print("step mortor is debug")
     # end __init__
+    
+    def posinit(self, steplotate):
+        """
+        モーター位置初期化
+        """
+        setpos = self.limit_max * steplotate
+        print("step mortor setpos = %d" % (setpos))
+        if steplotate != STEPROTATE.STOP:
+            self.move_step_step(setpos)
+        else:
+            pass
+        self.stepcnt = 0
+    # end posinit
 
     def endfnc(self):
         """
@@ -347,17 +394,6 @@ class StepMortorClass(object):
             self.pic.write(self.port_b, pigpio.LOW)
     # end endfnc
 
-    def resetpos(self, steplotate):
-        """
-        モーター位置初期化
-        """
-        if steplotate != STEPROTATE.STOP:
-            self.move_step_step(self.limit_max * steplotate)
-        else:
-            pass
-        self.stepcnt = 0
-    # end resetpos
-
     def move_step(self, distance):
         """
         ステッピングモーター
@@ -371,8 +407,16 @@ class StepMortorClass(object):
         """
         ステッピングモーターステップ数入力
         """
+
         if freq < 0:
             freq = STEP_FREQ
+
+        if abs(step) < self.limit_min:
+            step = self.limit_min
+        elif self.limit_max < abs(step):
+            step = self.limit_max
+        else:
+            pass
 
         wait_hl = (1.0 / freq * (STEP_DUTY / 100.0))
         wait_lh = (1.0 / freq * (1 - (STEP_DUTY / 100.0)))
