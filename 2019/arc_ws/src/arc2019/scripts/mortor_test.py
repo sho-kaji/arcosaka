@@ -6,7 +6,6 @@
 """
 
 import mortor
-import abh
 
 from params import TARGET
 from abh_consts import *
@@ -88,13 +87,13 @@ def main_servo():
     else:
         return
     if (int_tgt == TARGET.SIDE_SPROUT) or (int_tgt == TARGET.TOMATO):
-        for channel in CHANNEL_M:
+        for channel in enumerate(CHANNEL_M):
             pass
-            #smc.posinit(channel)
+            # smc.posinit(channel)
     elif int_tgt == TARGET.GRASS:
-        for channel in CHANNEL_K:
+        for channel in enumerate(CHANNEL_K):
             pass
-            #smc.posinit(channel)
+            # smc.posinit(channel)
     else:
         pass
 
@@ -180,6 +179,115 @@ def main_step():
     smc_twisth.endfnc()
     smc_twistv.endfnc()
 # end main_step
+
+
+def main_test():
+    """
+    モーターテスト
+    """
+    print("芽かき(%d) 収穫(%d) 刈りん(%d)" %
+          (TARGET.SIDE_SPROUT, TARGET.TOMATO, TARGET.GRASS))
+    tgt = input('target:')
+    int_tgt = TARGET(tgt)
+
+    is_loop = True
+
+    if (int_tgt == TARGET.SIDE_SPROUT) or (int_tgt == TARGET.TOMATO):
+
+        stmc_handh = mortor.StepMortorClass(
+            DEBUG_ARM, (PORT_HANDH_A, PORT_HANDH_B), (LIM_HANDH_MIN, LIM_HANDH_MAX))
+        stmc_handv = mortor.StepMortorClass(
+            DEBUG_ARM, (PORT_HANDV_A, PORT_HANDV_B), (LIM_HANDV_MIN, LIM_HANDV_MAX))
+        stmc_twisth = mortor.StepMortorClass(
+            DEBUG_ARM, (PORT_TWISTH_A, PORT_TWISTH_B), (LIM_TWISTH_MIN, LIM_TWISTH_MAX))
+        stmc_twistv = mortor.StepMortorClass(
+            DEBUG_ARM, (PORT_TWISTV_A, PORT_TWISTV_B), (LIM_TWISTV_MIN, LIM_TWISTV_MAX))
+
+        smc = mortor.ServoMortorClass()
+        for channel in enumerate(CHANNEL_M):
+            smc.posinit(channel)
+    elif int_tgt == TARGET.GRASS:
+
+        dmc = mortor.DcMortorClass(
+            DEBUG_BODY, (PORT_BLADE_A, PORT_BLADE_B))
+
+        smc = mortor.ServoMortorClass()
+        for channel in enumerate(CHANNEL_K):
+            smc.posinit(channel)
+    else:
+        is_loop = False
+
+    while is_loop:
+        try:
+            if int_tgt == TARGET.SIDE_SPROUT:
+                print(
+                    "[芽かき]\n(0)\tねじ切り垂直\t(1)\tねじ切り水平\n(2)\t添え手右・添え手左\n(3)\t枝掴み\t(4)\t枝ねじり")
+                val = input('mode:')
+                int_tmp = int(val)
+                if int_tmp == 0:
+                    pass
+                elif int_tmp == 1:
+                    pass
+                elif int_tmp == 2:
+                    pass
+                elif int_tmp == 3:
+                    pass
+                elif int_tmp == 4:
+                    pass
+                else:
+                    break
+
+            elif int_tgt == TARGET.TOMATO:
+                print("[収穫]\n(0)\tハンド垂直\t(1)\tハンド水平\n(2)\tハンド\t(3)\t手首")
+                if int_tmp == 0:
+                    pass
+                elif int_tmp == 1:
+                    pass
+                elif int_tmp == 2:
+                    pass
+                elif int_tmp == 3:
+                    pass
+                else:
+                    break
+            elif int_tgt == TARGET.GRASS:
+                print("[草刈り]\n(0)\t土台\t(1)\t肩\n(2)\tハンド\t(3)\t引抜")
+                print("(4)\t手首\t(5)\t散布ファン\n(6)\t蓋\t(7)\t肘\n(8)\t刃")
+                if int_tmp == 0:
+                    pass
+                elif int_tmp == 1:
+                    pass
+                elif int_tmp == 2:
+                    pass
+                elif int_tmp == 3:
+                    pass
+                elif int_tmp == 4:
+                    pass
+                elif int_tmp == 5:
+                    pass
+                elif int_tmp == 6:
+                    pass
+                elif int_tmp == 7:
+                    pass
+                elif int_tmp == 8:
+                    pass
+                else:
+                    break
+            else:
+                break
+
+            val = input('mode:')
+            int_tmp = int(val)
+            if int_tmp < 0:
+                break
+
+        except KeyboardInterrupt:
+            print("Ctrl+Cで停止しました")
+            break
+        except TypeError as ex:
+            print(ex)
+
+# end main_test
+
 
 if __name__ == '__main__':
     main_servo()
