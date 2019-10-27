@@ -13,6 +13,7 @@ import mortor
 import ina226
 
 from arc2019.msg import brain
+from arc2019.msg import client_abh_debug
 
 from arc2019.msg import arm
 from arc2019.msg import body
@@ -86,7 +87,8 @@ class AbhClass(object):
         self.stmc_twistv = mortor.StepMortorClass(
             DEBUG_ARM, (PORT_TWISTV_A, PORT_TWISTV_B), (LIM_TWISTV_MIN, LIM_TWISTV_MAX))
 
-        self.svmc = mortor.ServoMortorClass((DEBUG_ARM or DEBUG_HAND), TARGET.UNKNOWN)
+        self.svmc = mortor.ServoMortorClass(
+            (DEBUG_ARM or DEBUG_HAND), TARGET.UNKNOWN)
 
         # ina226Class
         self.inac = ina226.Ina226Class()
@@ -117,6 +119,27 @@ class AbhClass(object):
 
         self.elbow_req_o = 0  # 肘モーター要求値前回値
 
+        # debug用
+        self.arm_grass_hand = 0
+        self.arm_grass_pluck = 0
+        self.arm_grass_wrist = 0
+        self.arm_grass_elbow = 0
+        self.arm_grass_sholder = 0
+        self.arm_grass_base = 0
+        self.arm_grass_lid = 0
+        self.arm_grass_splay = 0
+        self.arm_grass_blade = 0
+        self.arm_crop_hand = 0
+        self.arm_crop_wrist = 0
+        self.arm_crop_vertical = 0
+        self.arm_crop_horizontal = 0
+        self.arm_sprout_grub = 0
+        self.arm_sprout_twist = 0
+        self.arm_sprout_attach_r = 0
+        self.arm_sprout_attatch_l = 0
+        self.arm_sprout_vertical = 0
+        self.arm_sprout_horizontal = 0
+
     # end __init__
 
     def posinit(self):
@@ -124,22 +147,22 @@ class AbhClass(object):
         位置初期化
         """
         if self.target_now == TARGET.GRASS:
-            #DCモーター
+            # DCモーター
             self.dmc.posinit()
-            #サーボモーター
+            # サーボモーター
             for channel in enumerate(CHANNEL_K):
                 self.svmc.posinit(channel)
 
         elif (self.target_now == TARGET.SIDE_SPROUT) or (self.target_now == TARGET.SIDE_SPROUT):
-            #ステッピングモーター
+            # ステッピングモーター
             self.stmc_twistv.posinit(STEPROTATE.PLUS)
             self.stmc_twisth.posinit(STEPROTATE.PLUS)
             self.stmc_handv.posinit(STEPROTATE.PLUS)
             self.stmc_handh.posinit(STEPROTATE.PLUS)
-            #サーボモーター
+            # サーボモーター
             for channel in enumerate(CHANNEL_M):
                 self.svmc.posinit(channel)
-    #end posinit
+    # end posinit
 
     def modechange(self, mode, target):
         """
@@ -398,7 +421,7 @@ class AbhClass(object):
         引抜
         """
         self.is_hand_move = True
-        print("pluck    = %d" % elbow)
+        print("pluck    = %d" % pluck)
         self.svmc.move_servo(CHANNEL_PLUCK, pluck)
         self.is_hand_move = False
 
@@ -447,7 +470,7 @@ class AbhClass(object):
         self.is_hand_move = False
 
     # end move_attach_l
-    
+
     def callback(self, mes_brain):
         """
         メッセージを受信したときに呼び出し
@@ -458,9 +481,7 @@ class AbhClass(object):
 
         # モード変更確認
         self.modechange(mes_brain.mode_id, mes_brain.target_id)
-        print("  MODE=%s" % MODE(mes_brain.mode_id).name)
-        print("TARGET=%s" % TARGET(mes_brain.target_id).name)
-        if (self.mode_now == MODE.AUTO) or (self.mode_now == MODE.DEBUG):
+        if self.mode_now == MODE.AUTO:
             # 関数コール
             if self.target_now == TARGET.GRASS:  # 草刈りモード時
                 self.mode_grass()
@@ -479,7 +500,7 @@ class AbhClass(object):
             pass
 
         # 今回値保存ここから
-        
+
         self.elbow_req_o = mes_brain.elbow_req  # 肘モーター要求値
         self.should_req_o = mes_brain.should_req  # 肩モーター要求値
         self.handx_req_o = mes_brain.handx_req  # ハンド指定位置X
@@ -494,28 +515,100 @@ class AbhClass(object):
         print("brain2abh==============================")
     # end callback
 
-    def callback_debug(self, mes_brain):
+    def callback_debug(self, mes_cad):
         """
         メッセージを受信したときに呼び出し
         """
 
         self.is_abh_call = True
-        self.mes_brain = mes_brain
+        #self.mes_cad = mes_cad
 
         # モード変更確認
-        self.modechange(mes_brain.mode_id, mes_brain.target_id)
-        print("  MODE=%s" % MODE(mes_brain.mode_id).name)
-        print("TARGET=%s" % TARGET(mes_brain.target_id).name)
-        if (self.mode_now == MODE.AUTO) or (self.mode_now == MODE.DEBUG):
+        self.modechange(mes_cad.mode, mes_cad.target)
+        print("brain2abh_debug=============================")
+        print("  MODE=%s" % MODE(self.mode_now).name)
+        print("TARGET=%s" % TARGET(self.target_now).name)
+        if self.mode_now == MODE.DEBUG:
             # 関数コール
             if self.target_now == TARGET.GRASS:  # 草刈りモード時
-                self.mode_grass()
+                if self.arm_grass_hand != mes_cad.arm_grass_hand:
+                    self.arm_grass_hand = mes_cad.arm_grass_hand
+                    self.move_hand(self.arm_grass_hand)
+
+                if self.arm_grass_pluck != mes_cad.arm_grass_pluck:
+                    self.arm_grass_pluck = mes_cad.arm_grass_pluck
+                    self.move_pluck(self.arm_grass_pluck)
+
+                if self.arm_grass_wrist != mes_cad.arm_grass_wrist:
+                    self.arm_grass_wrist = mes_cad.arm_grass_wrist
+                    self.move_wrist(self.arm_grass_wrist)
+
+                if self.arm_grass_elbow != mes_cad.arm_grass_elbow:
+                    self.arm_grass_elbow = mes_cad.arm_grass_elbow
+                    self.move_elbow(self.arm_grass_elbow)
+
+                if self.arm_grass_sholder != mes_cad.arm_grass_sholder:
+                    self.arm_grass_sholder = mes_cad.arm_grass_sholder
+                    self.move_sholder(self.arm_grass_sholder)
+
+                if self.arm_grass_base != mes_cad.arm_grass_base:
+                    self.arm_grass_base = mes_cad.arm_grass_base
+                    self.move_base(self.arm_grass_base)
+
+                if self.arm_grass_lid != mes_cad.arm_grass_lid:
+                    self.arm_grass_lid = mes_cad.arm_grass_lid
+                    self.move_lid(self.arm_grass_lid)
+
+                if self.arm_grass_splay != mes_cad.arm_grass_splay:
+                    self.arm_grass_splay = mes_cad.arm_grass_splay
+                    self.move_splay(self.arm_grass_splay)
+
+                if self.arm_grass_blade != mes_cad.arm_grass_blade:
+                    self.arm_grass_blade = mes_cad.arm_grass_blade
+                    self.move_blade(self.arm_grass_blade)
 
             elif self.target_now == TARGET.SIDE_SPROUT:  # 芽かきモード時
-                self.mode_sprout()
+                if self.arm_sprout_grub != mes_cad.arm_sprout_grub:
+                    self.arm_sprout_grub = mes_cad.arm_sprout_grub
+                    self.move_grub(self.arm_sprout_grub)
+
+                if self.arm_sprout_twist != mes_cad.arm_sprout_twist:
+                    self.arm_sprout_twist = mes_cad.arm_sprout_twist
+                    self.move_twist(self.arm_sprout_twist)
+
+                if self.arm_sprout_attach_r != mes_cad.arm_sprout_attach_r:
+                    self.arm_sprout_attach_r = mes_cad.arm_sprout_attach_r
+                    self.attach_r(self.arm_sprout_attach_r)
+
+                if self.arm_sprout_attatch_l != mes_cad.arm_sprout_attatch_l:
+                    self.arm_sprout_attatch_l = mes_cad.arm_sprout_attatch_l
+                    self.attatch_l(self.arm_sprout_attatch_l)
+
+                if self.arm_sprout_vertical != mes_cad.arm_sprout_vertical:
+                    self.arm_sprout_vertical = mes_cad.arm_sprout_vertical
+                    self.move_twistv(self.arm_sprout_vertical)
+
+                if self.arm_sprout_horizontal != mes_cad.arm_sprout_horizontal:
+                    self.arm_sprout_horizontal = mes_cad.arm_sprout_horizontal
+                    self.move_twisth(self.arm_sprout_horizontal)
 
             elif self.target_now == TARGET.TOMATO:  # 収穫モード時
-                self.mode_tomato()
+
+                if self.arm_crop_hand != mes_cad.arm_crop_hand:
+                    self.arm_crop_hand = mes_cad.arm_crop_hand
+                    self.move_hand(self.arm_crop_hand)
+
+                if self.arm_crop_wrist != mes_cad.arm_crop_wrist:
+                    self.arm_crop_wrist = mes_cad.arm_crop_wrist
+                    self.move_wrist(self.arm_crop_wrist)
+
+                if self.arm_crop_vertical != mes_cad.arm_crop_vertical:
+                    self.arm_crop_vertical = mes_cad.arm_crop_vertical
+                    self.move_handv(self.arm_crop_vertical)
+
+                if self.arm_crop_horizontal != mes_cad.arm_crop_horizontal:
+                    self.arm_crop_horizontal = mes_cad.arm_crop_horizontal
+                    self.move_handh(self.arm_crop_horizontal)
 
             else:
                 pass
@@ -525,19 +618,18 @@ class AbhClass(object):
             pass
 
         # 今回値保存ここから
-        
-        self.elbow_req_o = mes_brain.elbow_req  # 肘モーター要求値
-        self.should_req_o = mes_brain.should_req  # 肩モーター要求値
-        self.handx_req_o = mes_brain.handx_req  # ハンド指定位置X
-        self.handy_req_o = mes_brain.handy_req  # ハンド指定位置Y
-        self.handz_req_o = mes_brain.handz_req  # ハンド指定位置Z
-        self.twistx_req_o = mes_brain.twistx_req  # ねじ切りハンド指定位置X
-        self.twistz_req_o = mes_brain.twistz_req  # ねじ切りハンド指定位置Z
+
+        self.elbow_req_o = mes_cad.elbow_req  # 肘モーター要求値
+        self.should_req_o = mes_cad.should_req  # 肩モーター要求値
+        self.handx_req_o = mes_cad.handx_req  # ハンド指定位置X
+        self.handy_req_o = mes_cad.handy_req  # ハンド指定位置Y
+        self.handz_req_o = mes_cad.handz_req  # ハンド指定位置Z
+        self.twistx_req_o = mes_cad.twistx_req  # ねじ切りハンド指定位置X
+        self.twistz_req_o = mes_cad.twistz_req  # ねじ切りハンド指定位置Z
         # 今回値保存ここまで
 
         # 区切り
         self.is_abh_call = False
-        print("brain2abh==============================")
     # end callback
 
     def mode_grass(self):
@@ -639,6 +731,8 @@ def abh_py():
     rospy.init_node('abh_py_node', anonymous=True)
     rrate = rospy.Rate(CYCLES)
     rospy.Subscriber('brain', brain, abhc.callback, queue_size=1)
+    rospy.Subscriber('client_abh_debug', client_abh_debug,
+                     abhc.callback_debug, queue_size=1)
     print("start_abh")
     # ctl + Cで終了しない限りwhileループでpublishし続ける
     while not rospy.is_shutdown():

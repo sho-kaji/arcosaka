@@ -41,14 +41,16 @@ class DcMortorClass(object):
 
                 self.port_a_cw = ports[0]
                 self.port_a_ccw = ports[1]
-                print("DC mortor portA = %d,%d" % (self.port_a_cw,self.port_a_ccw))
+                print("DC mortor portA = %d,%d" %
+                      (self.port_a_cw, self.port_a_ccw))
                 self.pic.set_mode(self.port_a_cw, pigpio.OUTPUT)
                 self.pic.set_mode(self.port_a_ccw, pigpio.OUTPUT)
 
                 if len(ports) > 2:
                     self.port_b_cw = ports[2]
                     self.port_b_ccw = ports[3]
-                    print("DC mortor portB = %d,%d" % (self.port_b_cw,self.port_b_ccw))
+                    print("DC mortor portB = %d,%d" %
+                          (self.port_b_cw, self.port_b_ccw))
                     self.pic.set_mode(self.port_b_cw, pigpio.OUTPUT)
                     self.pic.set_mode(self.port_b_ccw, pigpio.OUTPUT)
                 else:
@@ -82,7 +84,7 @@ class DcMortorClass(object):
         self.move_dc_duty(self.port_a_cw, self.port_a_ccw, 0, 0)
         if (self.port_b_cw > -1) and (self.port_b_ccw > -1):
             self.move_dc_duty(self.port_b_cw, self.port_b_ccw, 0, 0)
-    #end posinit
+    # end posinit
 
     def endfnc(self):
         """
@@ -265,7 +267,7 @@ class ServoMortorClass(object):
             return
         print("servo mortor init c=%d\tsrt=%d" % (channel, lim_srt))
         self.move_servo_pulse(channel, lim_srt)
-    #end posinit
+    # end posinit
 
     def move_servo(self, channel, power):
         """
@@ -336,7 +338,7 @@ class StepMortorClass(object):
 
                 self.port_a = ports[0]
                 self.port_b = ports[1]
-                print("step mortor port = %d,%d" % (self.port_a,self.port_b))
+                print("step mortor port = %d,%d" % (self.port_a, self.port_b))
                 self.port_en = port_en
                 self.pic.set_mode(self.port_a, pigpio.OUTPUT)
                 self.pic.set_mode(self.port_b, pigpio.OUTPUT)
@@ -349,7 +351,8 @@ class StepMortorClass(object):
                     self.limit_min = limit[1]
                     self.limit_max = limit[0]
 
-                print("step mortor limit = %d,%d" % (self.limit_min,self.limit_max))
+                print("step mortor limit = %d,%d" %
+                      (self.limit_min, self.limit_max))
                 self.stepcnt = 0
 
             except TypeError as ex:
@@ -364,7 +367,7 @@ class StepMortorClass(object):
         else:
             print("step mortor is debug")
     # end __init__
-    
+
     def posinit(self, steplotate):
         """
         モーター位置初期化
@@ -418,6 +421,8 @@ class StepMortorClass(object):
         else:
             pass
 
+        stepping = self.stepcnt + step
+
         wait_hl = (1.0 / freq * (STEP_DUTY / 100.0))
         wait_lh = (1.0 / freq * (1 - (STEP_DUTY / 100.0)))
 
@@ -428,11 +433,11 @@ class StepMortorClass(object):
             # ENABLE端子
             self.pic.write(self.port_en, pigpio.HIGH)
 
-        for i in range(abs(step)):
+        for i in range(abs(stepping)):
             if self.is_notdebug \
                     and (self.limit_min <= self.stepcnt) \
                     and (self.stepcnt <= self.limit_max):
-                if step > 0:
+                if stepping > 0:
                     self.pic.write(self.port_a, pigpio.HIGH)
                     time.sleep(wait_hl/2)
                     self.pic.write(self.port_b, pigpio.HIGH)
@@ -443,7 +448,7 @@ class StepMortorClass(object):
                     time.sleep(wait_lh/2)
                     self.stepcnt += 1
 
-                elif step < 0:
+                elif stepping < 0:
                     self.pic.write(self.port_b, pigpio.HIGH)
                     time.sleep(wait_hl/2)
                     self.pic.write(self.port_a, pigpio.HIGH)
@@ -454,7 +459,7 @@ class StepMortorClass(object):
                     time.sleep(wait_lh/2)
                     self.stepcnt -= 1
             elif not(self.is_notdebug):
-                if step > 0:
+                if stepping > 0:
                     print("port_a ON  %f" % wait_hl)
                     time.sleep(wait_hl)
                     print("port_b ON  %f" % wait_hl)
@@ -465,7 +470,7 @@ class StepMortorClass(object):
                     time.sleep(wait_lh)
                     self.stepcnt += 1
 
-                elif step < 0:
+                elif stepping < 0:
                     print("port_b ON  %f" % wait_hl)
                     time.sleep(wait_hl)
                     print("port_a ON  %f" % wait_hl)
@@ -478,7 +483,8 @@ class StepMortorClass(object):
             else:
                 break
             # end if self.is_notdebug
-            print("pulse     = %d/%d" % (self.stepcnt, step))
+            print("pulse  now = %d\tpulse goto = %d" %
+                  (self.stepcnt, step))
             if (self.stepcnt <= self.limit_min) or (self.limit_max <= self.stepcnt):
                 break
             #print("pulse     = %d/%d" % (i+1, step))
