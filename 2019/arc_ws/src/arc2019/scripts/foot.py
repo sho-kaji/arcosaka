@@ -9,7 +9,7 @@ import rospy
 
 from arc2019.msg import brain
 from arc2019.msg import foot
-from arc2019.msg import client_foot_debug
+from arc2019.msg import client_f_debug
 
 # defined const
 from params import DIRECTION
@@ -153,7 +153,7 @@ def foot_py():
     rospy.init_node('foot_py_node', anonymous=True)
     rrate = rospy.Rate(CYCLES)
     rospy.Subscriber('brain', brain, foot.callback, queue_size=1)
-    rospy.Subscriber('client_foot_debug', client_foot_debug, foot.callback_debug, queue_size=1)
+    rospy.Subscriber('client_f_debug', client_f_debug, foot.callback_debug, queue_size=1)
     print("start_foot")
     # ctl + Cで終了しない限りwhileループでpublishし続ける
     while not rospy.is_shutdown():
