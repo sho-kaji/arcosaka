@@ -59,6 +59,7 @@ find_package(catkin REQUIRED COMPONENTS
     eye.msg
     client.msg
     client_abh_debug.msg
+    client_foot_debug.msg
  )
 
 ## Generate services in the 'srv' folder

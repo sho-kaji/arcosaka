@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+# pylint: disable=E1101,C0325
+"""
+Foot
+"""
 import pigpio
 import rospy
 
 from arc2019.msg import brain
 from arc2019.msg import foot
+from arc2019.msg import client_foot_debug
 
 # defined const
 from params import DIRECTION
@@ -75,6 +79,37 @@ class FootClass(object):
             time = 0
             self.outputDIRECTION(LOW, LOW, LOW, LOW, time)# RIGHT: ShortBreak, LEFT: ShortBreak
 
+    def callback_debug(self,client):
+
+        print"==============="
+        print("dirreq = %d" % client.foot_dirreq)
+        print("movereq = %d" % client.foot_movreq)
+        print"==============="
+
+        #前進
+        if client.foot_dirreq == DIRECTION.AHEAD:
+            time = client.foot_movreq * RATE_LINEAR 
+            self.outputDIRECTION(HIGH, LOW, HIGH, LOW, time)# RIGHT: CW, LEFT: CW
+
+        #後進
+        elif client.foot_dirreq == DIRECTION.BACK:
+            time = client.foot_movreq * RATE_LINEAR 
+            self.outputDIRECTION(LOW, HIGH, LOW, HIGH, time)# RIGHT: CCW, LEFT : CCW
+
+        #右旋回
+        elif client.foot_dirreq == DIRECTION.RIGHT:
+            time = client.foot_movreq * RATE_DEGREE
+            self.outputDIRECTION(LOW, HIGH, HIGH, LOW, time)# RIGHT: CCW, LEFT: CW
+
+        #左旋回
+        elif client.foot_dirreq == DIRECTION.LEFT:
+            time = client.foot_movreq * RATE_DEGREE
+            self.outputDIRECTION(HIGH, LOW, LOW, HIGH, time)# RIGHT  CW, LEFT: CCW
+
+        #停止
+        else:
+            time = 0
+            self.outputDIRECTION(LOW, LOW, LOW, LOW, time)# RIGHT: ShortBreak, LEFT: ShortBreak
 
     def outputDIRECTION(self,R1, R2, L1, L2,time):     # 
         msg_foot = foot()
@@ -107,6 +142,8 @@ class FootClass(object):
         msg_foot.is_foot_move = False
         self.pub.publish(msg_foot)
 
+
+
 def foot_py():
     """
     Footのメイン
@@ -116,6 +153,7 @@ def foot_py():
     rospy.init_node('foot_py_node', anonymous=True)
     rrate = rospy.Rate(CYCLES)
     rospy.Subscriber('brain', brain, foot.callback, queue_size=1)
+    rospy.Subscriber('client_foot_debug', client_foot_debug, foot.callback_debug, queue_size=1)
     print("start_foot")
     # ctl + Cで終了しない限りwhileループでpublishし続ける
     while not rospy.is_shutdown():

@@ -12,6 +12,31 @@
       <div class="status">
           Grass  status： <label id="state">Disconnect</label>
       </div>
+      <div class="button_AHEAD">
+          <form action="javascript:AHEAD_index();" id="ui">
+              <input type="submit" value="AHEAD" id="btn" />
+          </form>
+      </div>
+      <div class="button_BACK">
+          <form action="javascript:BACK_index();" id="ui">
+              <input type="submit" value="BACK" id="btn" />
+          </form>
+      </div>
+      <div class="button_RIGHT">
+          <form action="javascript:RIGHT_index();" id="ui">
+              <input type="submit" value="RIGHT" id="btn" />
+          </form>
+      </div>
+      <div class="button_LEFT">
+          <form action="javascript:LEFT_index();" id="ui">
+              <input type="submit" value="LEFT" id="btn" />
+          </form>
+      </div>
+      <div class="button_STOP">
+          <form action="javascript:STOP_index();" id="ui">
+              <input type="submit" value="STOP" id="btn" />
+          </form>
+      </div>
       <div class="button_back">
           <form action="javascript:back_index();" id="ui">
               <input type="submit" value="back" id="btn" />
@@ -122,14 +147,109 @@
 				      arm_sprout_vertical   :0,
 				      arm_sprout_horizontal :0
 			});
-			
 
 			//var str = new ROSLIB.Message({data        :"a"});
 		    document.getElementById('state').innerHTML = "bf4 Send";
 		    pub_to_brain.publish(to_brain);
 		    pub_to_abh.publish(to_abh);
 		    document.getElementById('state').innerHTML = "Sending";
+		},
+		ahead : function(){
+			document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub_to_foot = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_foot_debug',
+			messageType : 'arc2019/client_foot_debug'
+		    });
+
+		    document.getElementById('state').innerHTML = "bf3 Send";
+
+			var to_foot = new ROSLIB.Message({
+				      foot_dirreq           :1,
+				      foot_movreq           :300
+			});
+
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub_to_foot.publish(to_foot);
+		    document.getElementById('state').innerHTML = "Sending";
+		},
+		back : function(){
+			document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub_to_foot = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_foot_debug',
+			messageType : 'arc2019/client_foot_debug'
+		    });
+
+		    document.getElementById('state').innerHTML = "bf3 Send";
+
+			var to_foot = new ROSLIB.Message({
+				      foot_dirreq           :2,
+				      foot_movreq           :300
+			});
+
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub_to_foot.publish(to_foot);
+		    document.getElementById('state').innerHTML = "Sending";
+		},
+		right : function(){
+			document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub_to_foot = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_foot_debug',
+			messageType : 'arc2019/client_foot_debug'
+		    });
+
+		    document.getElementById('state').innerHTML = "bf3 Send";
+
+			var to_foot = new ROSLIB.Message({
+				      foot_dirreq           :3,
+				      foot_movreq           :90
+			});
+
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub_to_foot.publish(to_foot);
+		    document.getElementById('state').innerHTML = "Sending";
+		},
+		left : function(){
+			document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub_to_foot = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_foot_debug',
+			messageType : 'arc2019/client_foot_debug'
+		    });
+
+		    document.getElementById('state').innerHTML = "bf3 Send";
+
+			var to_foot = new ROSLIB.Message({
+				      foot_dirreq           :4,
+				      foot_movreq           :90
+			});
+
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub_to_foot.publish(to_foot);
+		    document.getElementById('state').innerHTML = "Sending";
+		},
+		stop : function(){
+			document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub_to_foot = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_foot_debug',
+			messageType : 'arc2019/client_foot_debug'
+			});
+			
+		    document.getElementById('state').innerHTML = "bf3 Send";
+
+			var to_foot = new ROSLIB.Message({
+				      foot_dirreq           :0,
+				      foot_movreq           :0
+			});
+
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub_to_foot.publish(to_foot);
+		    document.getElementById('state').innerHTML = "Sending";
 		}
+
 	    }
 
 	    Talker.init();
@@ -142,14 +262,14 @@
         };
 
         // 周期送信タイマー
-	var setTimerEvent = setInterval(myTimer,500);
+	var setTimerEvent = setInterval(myTimer,1000);
         function myTimer(){
             Talker.send();
 	};
 
         //スライダーバーの設定
           //初期値：適宜編集してください。ファイルから読み込む方法は検索中
-	var init_value = [50,50,50,50,50,50,50,50,50];
+	var init_value = [50,50,50,50,50,50,50,50,0];
         var slider = ["slider_hand","slider_pluck","slider_wrist","slider_elbow",
 	              "slider_sholder","slider_base","slider_lid","slider_splay",
                       "slider_blade"];
@@ -180,6 +300,24 @@
 	    clearInterval(setTimerEvent);
             location.href = "index.html";
 	};
+
+
+	function AHEAD_index(){
+		Talker.ahead();
+	};
+	function BACK_index(){
+		Talker.back();
+	};
+	function RIGHT_index(){
+		Talker.right();
+	};
+	function LEFT_index(){
+		Talker.left();
+	};
+	function STOP_index(){
+		Talker.stop();
+	};
+
     </script>
   </body>
 </html>
