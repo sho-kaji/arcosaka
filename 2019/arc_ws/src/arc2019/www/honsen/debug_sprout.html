@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="debug.css">
+    <title>Debug Sprout</title>
+    <script src="eventemitter2.min.js"></script>
+    <script src="roslib.min.js"></script>
+  </head>
+
+  <body>
+    <div class="status">
+          Sprout  status： <label id="state">Disconnect</label>
+    </div>
+    <div class="button_back">
+          <form action="javascript:back_index();" id="ui">
+              <input type="submit" value="back" id="btn" />
+          </form>
+    </div>
+    <div class="box1">
+        <script src="camera.js"></script>
+	<div class="slider"> 
+            <div><span class="slider_title">掴むモータ</span>
+		<input id="slider_grub" type="number" min="0" max="100" step="1" />
+                <span id="value_grub">5</span>
+	    </div>
+	    <div><span class="slider_title">ねじりモータ</span>
+		<input class="col-1" id="slider_twist" type="number" min="0" max="100" step="1" />
+		<span id="value_twist">5</span>
+	    </div>
+	    <div><span class="slider_title">添えて右モータ</span>
+		<input class="col-1" id="slider_attach_r" type="number" min="0" max="100" step="1" />
+		<span id="value_attach_r">5</span>
+	    </div>
+	    <div><span class="slider_title">添えて左モータ</span>
+		<input class="col-1" id="slider_attach_l" type="number" min="0" max="100" step="1" />
+		<span id="value_attach_l">5</span>
+	    </div>
+	    <div><span class="slider_title">垂直モータ</span>
+		<input id="slider_vertical" type="number" min="0" max="100" step="1" />
+		<span id="value_vertical">5</span>
+	    </div>
+	    <div><span class="slider_title">水平モータ</span>
+		<input id="slider_horizontal" type="number" min="0" max="100" step="1" />
+		<span id="value_horizontal">5</span>
+	    </div>
+	</div>
+    </div>
+    <script type="text/javascript">
+	if(!Talker){
+	    var Talker = {
+		ros : null,
+		name : "",
+		init : function(){
+		    this.ros = new ROSLIB.Ros();
+		    this.ros.on('error', function(error) {
+			document.getElementById('state').innerHTML = "Error";
+		    });
+		    this.ros.on('connection', function(error) {
+			document.getElementById('state').innerHTML = "Connect";
+		    });
+		    this.ros.on('close', function(error) {
+			document.getElementById('state').innerHTML = "Close";
+		    });
+		    this.ros.connect('ws://' + location.hostname + ':9090');
+		},
+		send : function(){
+		    document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub_to_brain = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client2',
+			//messageType : 'arc2019/brain'
+			messageType : 'arc2019/client'
+		    });
+		    var pub_to_abh = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_abh_debug',
+			//messageType : 'arc2019/brain'
+			messageType : 'arc2019/client_abh_debug'
+		    });
+
+		    document.getElementById('state').innerHTML = "bf3 Send";
+		        var to_brain = new ROSLIB.Message({
+					    mode:3,  //debug:3
+					    target:2 //side_sprout:2
+					  });
+			
+			var to_abh = new ROSLIB.Message({
+				      mode                  :3,
+				      target                :2,
+				      arm_grass_hand        :0,
+				      arm_grass_pluck       :0,
+				      arm_grass_wrist       :0,
+				      arm_grass_elbow       :0,
+				      arm_grass_sholder     :0,
+				      arm_grass_base        :0,
+				      arm_grass_lid         :0,
+				      arm_grass_splay       :0,
+				      arm_grass_blade       :0,
+				      arm_crop_hand         :0,
+				      arm_crop_wrist        :0,
+				      arm_crop_vertical     :0,
+				      arm_crop_horizontal   :0,
+				      arm_sprout_grub       :Number(slider_elem[0].value),
+				      arm_sprout_twist      :Number(slider_elem[1].value),
+				      arm_sprout_attach_r   :Number(slider_elem[2].value),
+				      arm_sprout_attatch_l  :Number(slider_elem[3].value),
+				      arm_sprout_vertical   :Number(slider_elem[4].value),
+				      arm_sprout_horizontal :Number(slider_elem[5].value)
+			});
+			
+
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub_to_brain.publish(to_brain);
+		    pub_to_abh.publish(to_abh);
+		    document.getElementById('state').innerHTML = "Sending";
+		}
+	    }
+
+	    Talker.init();
+
+	    window.onload = function(){
+	    };
+	    window.onunload = function(){
+		Talker.ros.close();
+	        clearInterval(setTimerEvent);
+	    };
+        };
+
+        // 周期送信タイマー
+	var setTimerEvent = setInterval(myTimer,500);
+        function myTimer(){
+            Talker.send();
+	};
+
+        //スライダーバーの設定
+          //初期値：適宜編集してください。ファイルから読み込む方法は検索中
+	var init_value = [50,50,50,50,50,50];
+        var slider = ["slider_grub","slider_twist","slider_attach_r","slider_attach_l",
+	              "slider_vertical","slider_horizontal"];
+	var value = ["value_grub","value_twist","value_attach_r","value_attach_l",
+		     "value_vertical","value_horizontal"];
+	var slider_elem = [1,2,3,4,5,6];
+	var value_elem  = [1,2,3,4,5,6];
+	var rangeValue = function (slider,value) {
+	      return function(evt){
+	        value.innerHTML = slider.value;
+	      }
+	    };
+
+        for(var i = 0;i < slider.length; i++){
+	    slider_elem[i] = document.getElementById(slider[i]);
+	    value_elem[i]  = document.getElementById(value[i]);
+            slider_elem[i].value = init_value[i];
+            value_elem[i].innerHTML = init_value[i];
+	    slider_elem[i].addEventListener('input', 
+	                                    rangeValue(slider_elem[i], 
+	      		              value_elem[i]
+	      			      )
+	    );
+	};
+
+	function back_index(){
+	    clearInterval(setTimerEvent);
+            location.href = "../index.html";
+	};
+    </script>
+  </body>
+</html>

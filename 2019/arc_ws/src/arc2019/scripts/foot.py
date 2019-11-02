@@ -137,7 +137,7 @@ class FootClass(object):
             
             sec = (now.secs - start.secs)*1000
             duration = sec + (now.nsecs - start.nsecs)/(1000*1000)
-            #print ("duraiton %f" % duration)
+            print ("duraiton %f" % duration)
         #停止後、停止完了を送信
         msg_foot.is_foot_move = False
         self.pub.publish(msg_foot)

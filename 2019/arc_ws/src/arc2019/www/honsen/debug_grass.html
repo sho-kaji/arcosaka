@@ -1,0 +1,323 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="debug.css">
+    <title>Debug Grass</title>
+    <script src="eventemitter2.min.js"></script>
+    <script src="roslib.min.js"></script>
+  </head>
+
+  <body>
+      <div class="status">
+          Grass  status： <label id="state">Disconnect</label>
+      </div>
+      <div class="button_AHEAD">
+          <form action="javascript:AHEAD_index();" id="ui">
+              <input type="submit" value="AHEAD" id="btn" />
+          </form>
+      </div>
+      <div class="button_BACK">
+          <form action="javascript:BACK_index();" id="ui">
+              <input type="submit" value="BACK" id="btn" />
+          </form>
+      </div>
+      <div class="button_RIGHT">
+          <form action="javascript:RIGHT_index();" id="ui">
+              <input type="submit" value="RIGHT" id="btn" />
+          </form>
+      </div>
+      <div class="button_LEFT">
+          <form action="javascript:LEFT_index();" id="ui">
+              <input type="submit" value="LEFT" id="btn" />
+          </form>
+      </div>
+      <div class="button_STOP">
+          <form action="javascript:STOP_index();" id="ui">
+              <input type="submit" value="STOP" id="btn" />
+          </form>
+      </div>
+      <div class="button_back">
+          <form action="javascript:back_index();" id="ui">
+              <input type="submit" value="back" id="btn" />
+          <!-- <form action="javascript:Talker.send();" id="ui">-->
+          </form>
+      </div>
+     <div class="box1">
+        <script src="camera.js"></script>
+	<div class="slider">
+	    <div><span class="slider_title">ハンドモータ</span>
+		<input id="slider_hand" type="number" min="0" max="100" step="1" />
+		<span id="value_hand">5</span>
+	    </div>
+	    <div><span class="slider_title">引き抜きモータ</span>
+		<input class="col-1" id="slider_pluck" type="number" min="0" max="100" step="1" />
+		<span id="value_pluck">5</span>
+	    </div>
+	    <div><span class="slider_title">手首モータ</span>
+		<input id="slider_wrist" type="number" min="0" max="100" step="1" />
+		<span id="value_wrist">5</span>
+	    </div>
+	    <div><span class="slider_title">肘モータ</span>
+		<input id="slider_elbow" type="number" min="0" max="100" step="1" />
+		<span id="value_elbow">5</span>
+	    </div>
+	    <div><span class="slider_title">肩モータ</span>
+		<input id="slider_sholder" type="number" min="0" max="100" step="1" />
+		<span id="value_sholder">5</span>
+	    </div>
+	    <div><span class="slider_title">土台モータ</span>
+		<input id="slider_base" type="number" min="0" max="100" step="1" />
+		<span id="value_base">5</span>
+	    </div>
+	    <div><span class="slider_title">蓋モータ</span>
+		<input id="slider_lid" type="number" min="0" max="100" step="1" />
+		<span id="value_lid">5</span>
+	    </div>
+	    <div><span class="slider_title">散水モータ</span>
+		<input id="slider_splay" type="number" min="0" max="100" step="1" />
+		<span id="value_splay">5</span>
+	    </div>
+	    <div><span class="slider_title">刃モータ</span>
+		<input id="slider_blade" type="number" min="0" max="100" step="1" />
+		<span id="value_blade">5</span>
+	    </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+	if(!Talker){
+	    var Talker = {
+		ros : null,
+		name : "",
+		init : function(){
+		    this.ros = new ROSLIB.Ros();
+		    this.ros.on('error', function(error) {
+			document.getElementById('state').innerHTML = "Error";
+		    });
+		    this.ros.on('connection', function(error) {
+			document.getElementById('state').innerHTML = "Connect";
+		    });
+		    this.ros.on('close', function(error) {
+			document.getElementById('state').innerHTML = "Close";
+		    });
+		    this.ros.connect('ws://' + location.hostname + ':9090');
+		},
+		send : function(){
+		    document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub_to_brain = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client2',
+			//messageType : 'arc2019/brain'
+			messageType : 'arc2019/client'
+		    });
+		    var pub_to_abh = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_abh_debug',
+			//messageType : 'arc2019/brain'
+			messageType : 'arc2019/client_abh_debug'
+		    });
+
+		    document.getElementById('state').innerHTML = "bf3 Send";
+		        var to_brain= new ROSLIB.Message({
+					    mode:3,  // debug:3
+					    target:0 // grass:0
+					  });
+					  
+			
+			var to_abh = new ROSLIB.Message({
+				      mode                  :3,
+				      target                :0,
+				      arm_grass_hand        :Number(slider_elem[0].value),
+				      arm_grass_pluck       :Number(slider_elem[1].value),
+				      arm_grass_wrist       :Number(slider_elem[2].value),
+				      arm_grass_elbow       :Number(slider_elem[3].value),
+				      arm_grass_sholder     :Number(slider_elem[4].value),
+				      arm_grass_base        :Number(slider_elem[5].value),
+				      arm_grass_lid         :Number(slider_elem[6].value),
+				      arm_grass_splay       :Number(slider_elem[7].value),
+				      arm_grass_blade       :Number(slider_elem[8].value),
+				      arm_crop_hand         :0,
+				      arm_crop_wrist        :0,
+				      arm_crop_vertical     :0,
+				      arm_crop_horizontal   :0,
+				      arm_sprout_grub       :0,
+				      arm_sprout_twist      :0,
+				      arm_sprout_attach_r   :0,
+				      arm_sprout_attatch_l  :0,
+				      arm_sprout_vertical   :0,
+				      arm_sprout_horizontal :0
+			});
+
+			//var str = new ROSLIB.Message({data        :"a"});
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub_to_brain.publish(to_brain);
+		    pub_to_abh.publish(to_abh);
+		    document.getElementById('state').innerHTML = "Sending";
+		},
+		ahead : function(){
+			document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub_to_foot = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_f_debug',
+			messageType : 'arc2019/client_f_debug'
+		    });
+
+		    document.getElementById('state').innerHTML = "bf3 Send";
+
+			var to_foot = new ROSLIB.Message({
+				      foot_dirreq           :1,
+				      foot_movreq           :300
+			});
+
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub_to_foot.publish(to_foot);
+		    document.getElementById('state').innerHTML = "Sending";
+		},
+		back : function(){
+			document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub_to_foot = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_f_debug',
+			messageType : 'arc2019/client_f_debug'
+		    });
+
+		    document.getElementById('state').innerHTML = "bf3 Send";
+
+			var to_foot = new ROSLIB.Message({
+				      foot_dirreq           :2,
+				      foot_movreq           :300
+			});
+
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub_to_foot.publish(to_foot);
+		    document.getElementById('state').innerHTML = "Sending";
+		},
+		right : function(){
+			document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub_to_foot = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_f_debug',
+			messageType : 'arc2019/client_f_debug'
+		    });
+
+		    document.getElementById('state').innerHTML = "bf3 Send";
+
+			var to_foot = new ROSLIB.Message({
+				      foot_dirreq           :3,
+				      foot_movreq           :90
+			});
+
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub_to_foot.publish(to_foot);
+		    document.getElementById('state').innerHTML = "Sending";
+		},
+		left : function(){
+			document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub_to_foot = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_f_debug',
+			messageType : 'arc2019/client_f_debug'
+		    });
+
+		    document.getElementById('state').innerHTML = "bf3 Send";
+
+			var to_foot = new ROSLIB.Message({
+				      foot_dirreq           :4,
+				      foot_movreq           :90
+			});
+
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub_to_foot.publish(to_foot);
+		    document.getElementById('state').innerHTML = "Sending";
+		},
+		stop : function(){
+			document.getElementById('state').innerHTML = "bf1 Send";
+		    var pub_to_foot = new ROSLIB.Topic({
+			ros : this.ros,
+			name :'/arc2019_2/client_f_debug',
+			messageType : 'arc2019/client_f_debug'
+			});
+			
+		    document.getElementById('state').innerHTML = "bf3 Send";
+
+			var to_foot = new ROSLIB.Message({
+				      foot_dirreq           :0,
+				      foot_movreq           :0
+			});
+
+		    document.getElementById('state').innerHTML = "bf4 Send";
+		    pub_to_foot.publish(to_foot);
+		    document.getElementById('state').innerHTML = "Sending";
+		}
+
+	    }
+
+	    Talker.init();
+
+	    window.onload = function(){
+	    };
+	    window.onunload = function(){
+		Talker.ros.close();
+	    };
+        };
+
+        // 周期送信タイマー
+	var setTimerEvent = setInterval(myTimer,1000);
+        function myTimer(){
+            Talker.send();
+	};
+
+        //スライダーバーの設定
+          //初期値：適宜編集してください。ファイルから読み込む方法は検索中
+	var init_value = [50,50,50,50,50,50,50,50,0];
+        var slider = ["slider_hand","slider_pluck","slider_wrist","slider_elbow",
+	              "slider_sholder","slider_base","slider_lid","slider_splay",
+                      "slider_blade"];
+	var value = ["value_hand","value_pluck","value_wrist","value_elbow",
+	              "value_sholder","value_base","value_lid","value_splay",
+                      "value_blade"];
+	var slider_elem = [1,2,3,4,5,6,7,8,9];
+	var value_elem  = [1,2,3,4,5,6,7,8,9];
+	var rangeValue = function (slider,value) {
+	      return function(evt){
+	        value.innerHTML = slider.value;
+	      }
+	    };
+
+        for(var i = 0;i < slider.length; i++){
+	    slider_elem[i] = document.getElementById(slider[i]);
+	    value_elem[i]  = document.getElementById(value[i]);
+            slider_elem[i].value = init_value[i];
+            value_elem[i].innerHTML = init_value[i];
+	    slider_elem[i].addEventListener('input', 
+	                                    rangeValue(slider_elem[i], 
+	      		              value_elem[i]
+	      			      )
+	    );
+	};
+
+	function back_index(){
+	    clearInterval(setTimerEvent);
+            location.href = "../index.html";
+	};
+
+
+	function AHEAD_index(){
+		Talker.ahead();
+	};
+	function BACK_index(){
+		Talker.back();
+	};
+	function RIGHT_index(){
+		Talker.right();
+	};
+	function LEFT_index(){
+		Talker.left();
+	};
+	function STOP_index(){
+		Talker.stop();
+	};
+
+    </script>
+  </body>
+</html>
