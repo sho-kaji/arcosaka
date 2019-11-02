@@ -39,15 +39,19 @@ class AbhClass(object):
     アクチュエータを動かすためのクラス
     """
 
-    def __init__(self):
+    def __init__(self, noros = False):
 
         # index
         self.frame_id = 0
 
+        self.noros = noros
+
         # パブリッシャーの準備
-        self.pub_arm = rospy.Publisher('arm', arm, queue_size=100)
-        self.pub_body = rospy.Publisher('body', body, queue_size=100)
-        self.pub_hand = rospy.Publisher('hand', hand, queue_size=100)
+        if not(self.noros):
+            self.pub_arm = rospy.Publisher('arm', arm, queue_size=100)
+            self.pub_body = rospy.Publisher('body', body, queue_size=100)
+            self.pub_hand = rospy.Publisher('hand', hand, queue_size=100)
+        #end if not(noros)
 
         self.mes_arm = arm()
         self.mes_body = body()
@@ -155,7 +159,7 @@ class AbhClass(object):
 
         elif (self.target_now == TARGET.SIDE_SPROUT) or (self.target_now == TARGET.SIDE_SPROUT):
             # ステッピングモーター
-            self.stmc_twistv.posinit(STEPROTATE.PLUS)
+            self.stmc_twistv.posinit(STEPROTATE.MINUS)
             self.stmc_twisth.posinit(STEPROTATE.PLUS)
             self.stmc_handv.posinit(STEPROTATE.PLUS)
             self.stmc_handh.posinit(STEPROTATE.PLUS)
@@ -248,10 +252,13 @@ class AbhClass(object):
         # 送信データ追加終了
 
         # publishする関数
-        self.pub_arm.publish(self.mes_arm)
-        self.pub_body.publish(self.mes_body)
-        self.pub_hand.publish(self.mes_hand)
+        if not(self.noros):
+            self.pub_arm.publish(self.mes_arm)
+            self.pub_body.publish(self.mes_body)
+            self.pub_hand.publish(self.mes_hand)
+        #end if not(self.noros)
         self.frame_id += 1
+
     # end publish_data
 
     def calc_saturation(self, num_val, num_min, num_max):
@@ -275,7 +282,7 @@ class AbhClass(object):
         肘
         """
         self.is_arm_move = True
-        print("         = %d" % elbow)
+        print("elbow    = %d" % elbow)
         self.svmc.move_servo(CHANNEL_ELBOW, elbow)
         self.is_arm_move = False
 
@@ -308,7 +315,6 @@ class AbhClass(object):
         ねじ切り垂直
         """
         self.is_arm_move = True
-        twistv = self.calc_saturation(twistv, LIM_TWISTV_MIN, LIM_TWISTV_MAX)
         print("twistv   = %d" % twistv)
         self.stmc_twistv.move_step(twistv)
         self.is_arm_move = False
@@ -320,7 +326,6 @@ class AbhClass(object):
         ねじ切り水平
         """
         self.is_arm_move = True
-        twisth = self.calc_saturation(twisth, LIM_TWISTH_MIN, LIM_TWISTH_MAX)
         print("twisth   = %d" % twisth)
         self.stmc_twisth.move_step(twisth)
         self.is_arm_move = False
@@ -332,7 +337,6 @@ class AbhClass(object):
         ハンド垂直
         """
         self.is_arm_move = True
-        handv = self.calc_saturation(handv, LIM_HANDV_MIN, LIM_HANDV_MAX)
         print("handv    = %d" % handv)
         self.stmc_handv.move_step(handv)
         self.is_arm_move = False
@@ -344,7 +348,6 @@ class AbhClass(object):
         ハンド水平
         """
         self.is_arm_move = True
-        handh = self.calc_saturation(handh, LIM_HANDH_MIN, LIM_HANDH_MAX)
         print("handh    = %d" % handh)
         self.stmc_handh.move_step(handh)
         self.is_arm_move = False
@@ -519,13 +522,12 @@ class AbhClass(object):
         """
         メッセージを受信したときに呼び出し
         """
-
+        print("brain2abh_debug=============================")
         self.is_abh_call = True
         #self.mes_cad = mes_cad
 
         # モード変更確認
         self.modechange(mes_cad.mode, mes_cad.target)
-        print("brain2abh_debug=============================")
         print("  MODE=%s" % MODE(self.mode_now).name)
         print("TARGET=%s" % TARGET(self.target_now).name)
         if self.mode_now == MODE.DEBUG:

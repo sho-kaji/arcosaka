@@ -6,6 +6,7 @@
 """
 
 import mortor
+import abh
 
 from params import TARGET
 from abh_consts import *
@@ -57,7 +58,7 @@ def main_dccut():
     mcc = mortor.DcMortorClass()
     while True:
         try:
-            val = input('number(0 or 1):')
+            val = input('number(0 ~ 100):')
             int_tmp = int(val)
 
             if int_tmp >= 0:
@@ -133,13 +134,13 @@ def main_step():
     ステッピングモーターテスト
     """
     smc_handh = mortor.StepMortorClass(
-        False, (PORT_HANDH_A, PORT_HANDH_B), (LIM_HANDH_MIN, LIM_HANDH_MAX))
+        False, (PORT_HANDH_A, PORT_HANDH_B), (-LIM_HANDH_MAX, LIM_HANDH_MAX))
     smc_handv = mortor.StepMortorClass(
-        False, (PORT_HANDV_A, PORT_HANDV_B), (LIM_HANDV_MIN, LIM_HANDV_MAX))
+        False, (PORT_HANDV_A, PORT_HANDV_B), (-LIM_HANDV_MAX, LIM_HANDV_MAX))
     smc_twisth = mortor.StepMortorClass(
-        False, (PORT_TWISTH_A, PORT_TWISTH_B), (LIM_TWISTH_MIN, LIM_TWISTH_MAX))
+        False, (PORT_TWISTH_A, PORT_TWISTH_B), (-LIM_TWISTH_MAX, LIM_TWISTH_MAX))
     smc_twistv = mortor.StepMortorClass(
-        False, (PORT_TWISTV_A, PORT_TWISTV_B), (LIM_TWISTV_MIN, LIM_TWISTV_MAX))
+        False, (PORT_TWISTV_A, PORT_TWISTV_B), (-LIM_TWISTV_MAX, LIM_TWISTV_MAX))
 
     while True:
         try:
@@ -164,6 +165,12 @@ def main_step():
 
             elif mortornum == 4:
                 smc_twistv.move_step_step(int_tmp)
+
+            elif mortornum == 5:
+                smc_handh.posinit(0)
+                smc_handv.posinit(0)
+                smc_twisth.posinit(0)
+                smc_twistv.posinit(0)
 
             else:
                 break
@@ -192,28 +199,10 @@ def main_test():
 
     is_loop = True
 
-    if (int_tgt == TARGET.SIDE_SPROUT) or (int_tgt == TARGET.TOMATO):
-
-        stmc_handh = mortor.StepMortorClass(
-            DEBUG_ARM, (PORT_HANDH_A, PORT_HANDH_B), (LIM_HANDH_MIN, LIM_HANDH_MAX))
-        stmc_handv = mortor.StepMortorClass(
-            DEBUG_ARM, (PORT_HANDV_A, PORT_HANDV_B), (LIM_HANDV_MIN, LIM_HANDV_MAX))
-        stmc_twisth = mortor.StepMortorClass(
-            DEBUG_ARM, (PORT_TWISTH_A, PORT_TWISTH_B), (LIM_TWISTH_MIN, LIM_TWISTH_MAX))
-        stmc_twistv = mortor.StepMortorClass(
-            DEBUG_ARM, (PORT_TWISTV_A, PORT_TWISTV_B), (LIM_TWISTV_MIN, LIM_TWISTV_MAX))
-
-        smc = mortor.ServoMortorClass()
-        for channel in enumerate(CHANNEL_M):
-            smc.posinit(channel)
-    elif int_tgt == TARGET.GRASS:
-
-        dmc = mortor.DcMortorClass(
-            DEBUG_BODY, (PORT_BLADE_A, PORT_BLADE_B))
-
-        smc = mortor.ServoMortorClass()
-        for channel in enumerate(CHANNEL_K):
-            smc.posinit(channel)
+    if (int_tgt == TARGET.SIDE_SPROUT) or (int_tgt == TARGET.TOMATO) or (int_tgt == TARGET.GRASS):
+        abhc = abh.AbhClass(True)
+        abhc.target_now = int_tgt
+        abhc.posinit()
     else:
         is_loop = False
 
@@ -222,23 +211,30 @@ def main_test():
             if int_tgt == TARGET.SIDE_SPROUT:
                 print(
                     "[芽かき]\n(0)\tねじ切り垂直\t(1)\tねじ切り水平\n(2)\t添え手右・添え手左\n(3)\t枝掴み\t(4)\t枝ねじり")
-                val = input('mode:')
-                int_tmp = int(val)
+                int_tmp = int(input('mode:'))
                 if int_tmp == 0:
-                    pass
+                    int_val = int(input('(0)[mm]:'))
+                    abhc.move_twistv(int_val)
                 elif int_tmp == 1:
-                    pass
+                    int_val = int(input('(1)[mm]:'))
+                    abhc.move_twisth(int_val)
                 elif int_tmp == 2:
-                    pass
+                    int_val = int(input('(2)[%]:'))
+                    abhc.move_attach_r(int_val)
+                    int_val = 100 - int_val
+                    abhc.move_attach_l(int_val)
                 elif int_tmp == 3:
-                    pass
+                    int_val = int(input('(3)0/1:'))
+                    abhc.move_grab(int_val * 100)
                 elif int_tmp == 4:
-                    pass
+                    int_val = int(input('(4)[%]:'))
+                    abhc.move_twist(int_val)
                 else:
                     break
 
             elif int_tgt == TARGET.TOMATO:
                 print("[収穫]\n(0)\tハンド垂直\t(1)\tハンド水平\n(2)\tハンド\t(3)\t手首")
+                int_tmp = int(input('mode:'))
                 if int_tmp == 0:
                     pass
                 elif int_tmp == 1:
@@ -252,6 +248,7 @@ def main_test():
             elif int_tgt == TARGET.GRASS:
                 print("[草刈り]\n(0)\t土台\t(1)\t肩\n(2)\tハンド\t(3)\t引抜")
                 print("(4)\t手首\t(5)\t散布ファン\n(6)\t蓋\t(7)\t肘\n(8)\t刃")
+                int_tmp = int(input('mode:'))
                 if int_tmp == 0:
                     pass
                 elif int_tmp == 1:
@@ -275,11 +272,6 @@ def main_test():
             else:
                 break
 
-            val = input('mode:')
-            int_tmp = int(val)
-            if int_tmp < 0:
-                break
-
         except KeyboardInterrupt:
             print("Ctrl+Cで停止しました")
             break
@@ -290,4 +282,4 @@ def main_test():
 
 
 if __name__ == '__main__':
-    main_servo()
+    main_step()

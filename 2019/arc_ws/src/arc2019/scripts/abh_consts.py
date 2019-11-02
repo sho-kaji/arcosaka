@@ -33,8 +33,8 @@ LIM_TWISTH_MAX = 3500  # ねじ切り水平モーター最大値
 LIM_TWISTH_MIN = 0  # ねじ切り水平モーター最小値
 LIM_TWISTV_MAX = 3500  # ねじ切り垂直モーター最大値
 LIM_TWISTV_MIN = 0  # ねじ切り垂直モーター最小値
-LIM_LID_MAX = 450  # 蓋モーター最大値
-LIM_LID_MIN = 220  # 蓋モーター最小値
+LIM_LID_MAX = 100  # 蓋モーター最大値
+LIM_LID_MIN = 0  # 蓋モーター最小値
 
 
 CHANNEL_HAND = 0  # ハンドモーターポート番号
