@@ -618,17 +618,28 @@ class AbhClass(object):
             pass
         else:
             pass
+        
+        print("TARGET=%s" % TARGET(self.target_now).name)
+        print("arm_grass_hand=%s" % self.arm_grass_hand)
+        print("arm_grass_pluck=%s" % self.arm_grass_pluck)
+        print("arm_grass_wrist=%s" % self.arm_grass_wrist)
+        print("arm_grass_elbow=%s" % self.arm_grass_elbow)
+        print("arm_grass_sholder=%s" % self.arm_grass_sholder)
+        print("arm_grass_lid=%s" % self.arm_grass_lid)
+        print("arm_grass_splay=%s" % self.arm_grass_splay)
+        print("arm_grass_blade=%s" % self.arm_grass_blade)
+        print("arm_crop_hand=%s" % self.arm_crop_hand)
+        print("arm_crop_wrist=%s" % self.arm_crop_wrist)
+        print("arm_crop_vertical=%s" % self.arm_crop_vertical)
+        print("arm_crop_horizontal=%s" % self.arm_crop_horizontal)
+        print("arm_sprout_grub=%s" % self.arm_sprout_grub)
+        print("arm_sprout_twist=%s" % self.arm_sprout_twist)
+        print("arm_sprout_attach_r=%s" % self.arm_sprout_attach_r)
+        print("arm_sprout_attatch_l=%s" % self.arm_sprout_attatch_l)
+        print("arm_sprout_vertical=%s" % self.arm_sprout_vertical)
+        print("arm_sprout_horizontal=%s" % self.arm_sprout_horizontal)
 
-        # 今回値保存ここから
-
-        self.elbow_req_o = mes_cad.elbow_req  # 肘モーター要求値
-        self.should_req_o = mes_cad.should_req  # 肩モーター要求値
-        self.handx_req_o = mes_cad.handx_req  # ハンド指定位置X
-        self.handy_req_o = mes_cad.handy_req  # ハンド指定位置Y
-        self.handz_req_o = mes_cad.handz_req  # ハンド指定位置Z
-        self.twistx_req_o = mes_cad.twistx_req  # ねじ切りハンド指定位置X
-        self.twistz_req_o = mes_cad.twistz_req  # ねじ切りハンド指定位置Z
-        # 今回値保存ここまで
+        print("============================================")
 
         # 区切り
         self.is_abh_call = False

@@ -8,7 +8,7 @@ from params import MODE, TARGET
 
 # defined const
 
-DEBUG_BRAIN = False # Brainデバッグモードフラグ
+DEBUG_BRAIN = True # Brainデバッグモードフラグ
 
 CYCLES = 60 #処理周波数
 

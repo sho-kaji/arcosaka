@@ -489,8 +489,8 @@ class StepMortorClass(object):
             else:
                 break
             # end if self.is_notdebug
-            print("pulse  now = %d\tpulse goto = %d" %
-                  (self.stepcnt, step))
+            #print("pulse  now = %d\tpulse goto = %d" %
+            #      (self.stepcnt, step))
             if ((self.stepcnt <= self.limit_min) \
                 or (self.limit_max <= self.stepcnt)) \
                 and not(self.issetpos):
