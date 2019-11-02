@@ -180,6 +180,7 @@ class AbhClass(object):
 
         if self.target_now != target:
             self.target_now = target
+            self.svmc.target = target
             is_change = True
             # 何か処理
 
