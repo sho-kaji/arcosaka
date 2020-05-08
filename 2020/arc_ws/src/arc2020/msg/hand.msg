@@ -1,0 +1,2 @@
+int32 frame_id
+bool is_hand_move

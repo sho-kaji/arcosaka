@@ -1,0 +1,11 @@
+<launch>
+  <group ns="arc2020_1">
+    <node pkg="arc2020" name="abh" type="abh.py" output="screen"/>
+    <node pkg="arc2020" name="brain" type="brain.py" output="screen"/>
+    <!--<node pkg="arc2020" name="dummyclient" type="client_dummy.py" output="screen"/>-->
+    <node pkg="arc2020" name="foot" type="foot.py" output="screen"/>
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+    <node pkg="arc2020" name="server" type="server.py" output="screen"/>
+    <include file="$(find roswww)/launch/roswww.launch" />
+  </group>
+</launch>
