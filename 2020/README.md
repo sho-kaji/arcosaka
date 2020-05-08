@@ -47,6 +47,7 @@ $ docker run --name arc2020cont --net host --privileged -u root -v /sys:/sys -v 
 ```bash
 $ catkin_make
 $ catkin_make install
+$ source /ros_entrypoint.sh
 $ source devel/setup.sh
 ```
 
@@ -60,7 +61,14 @@ $ roslaunch arc2020 client.launch
 http://(ip-addr):8085/arc2020
 にアクセスすることでGUIを表示できます。
 note: ラズパイの8085ポートを通信可能なようにしておくこと
+      かんたんに実現するにはufwをinstallして下記コマンドを実行
 
+```bash
+$ sudo apt-get install ufw
+$ sudo ufw allow 8085
+$ sudo ufw reload
+$ sudo ufw status
+```
 
 # Author
 
