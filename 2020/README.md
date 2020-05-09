@@ -2,6 +2,13 @@
 
 2020年用のリポジトリ（ディレクトリ）です。
 
+# Rasberry Pi の　OS準備
+適当なサイトで調べてRaspberryPiにOSをインストールしてください  
+例：https://raspida.com/release-raspberry-pi-imager  
+執筆者は  
+Linux raspberrypi 4.19.115-v7l+ #1305 SMP Fri Apr 17 11:59:28 BST 2020 armv7l GNU/Linux  
+をインストールしました。  
+
 # Dockerのinstall
 まずは下記にしたがってDockerをラズパイ環境にinstallしてください
 ```
@@ -11,10 +18,12 @@ $ sudo apt update && sudo apt upgrade -y
 $ sudo apt-get install apt-transport-https ca-certificates curl gnupg2 software-properties-common -y
 $ curl -sSL https://get.docker.com | sh
 $ docker -v
-Docker version 19.03.7, build 7141c19
-$ sudo usermod -aG docker pi
+Docker version 19.03.7, build 7141c19 (Versionは特に気にしなくてよいはず。installできたことの確認)
+$ sudo usermod -aG docker $(whoami)
 
 ```
+ユーザがグループdockerに入ったのを反映するため、一旦ログアウトして、再度ログインします。（再起動でもよい）
+
 # gitのinstallと該当レポジトリのclone
 
 任意のディレクトリにgitレポジトリをcloneしてください
@@ -57,10 +66,10 @@ $ source devel/setup.sh
 ```bash
 $ roslaunch arc2020 client.launch
 ```
-同じネットワーク内にあるデバイスから
-http://(ip-addr):8085/arc2020
-にアクセスすることでGUIを表示できます。
-note: ラズパイの8085ポートを通信可能なようにしておくこと
+同じネットワーク内にあるデバイスから  
+http://(ip-addr):8085/arc2020  
+にアクセスすることでGUIを表示できます。  
+note: ラズパイの8085ポートを通信可能なようにしておくこと  
       かんたんに実現するにはufwをinstallして下記コマンドを実行
 
 ```bash
