@@ -71,7 +71,7 @@ http://(ip-addr):8085/arc2020
 にアクセスすることでGUIを表示できます。  
 note: ラズパイの8085ポートを通信可能なようにしておくこと  
       かんたんに実現するにはufwをinstallして下記コマンドを実行
-
+      *コンテナ側ではなくhost側で実施する
 ```bash
 $ sudo apt-get install ufw
 $ sudo ufw allow 8085
