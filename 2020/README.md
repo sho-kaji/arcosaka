@@ -5,7 +5,7 @@
 # Rasberry Pi の　OS準備
 適当なサイトで調べてRaspberryPiにOSをインストールしてください  
 例：https://raspida.com/release-raspberry-pi-imager  
-執筆者は Raspbianの
+執筆者は Raspbianの  
 Linux raspberrypi 4.19.115-v7l+ #1305 SMP Fri Apr 17 11:59:28 BST 2020 armv7l GNU/Linux  
 をインストールしました。  
 
