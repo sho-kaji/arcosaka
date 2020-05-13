@@ -32,7 +32,7 @@ $ git clone https://github.com/arcosaka/arcosaka
 
 ```
 
-# dockar buildの実行
+# docker buildの実行
 cloneしたリポジトリでdocer_wsに移動して、docker buildを実行します。
 ```
 $ cd arcosaka/2020/docker_ws/
