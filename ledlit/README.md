@@ -54,16 +54,16 @@ $ docker run --name arc_sample --net host --privileged -u root -v /sys:/sys -v /
 コンテナの中のbashに入ったのでmake、make installを実施します。
 
 ```bash
-$ catkin_make
-$ catkin_make install
-$ source devel/setup.sh
+# catkin_make
+# catkin_make install
+# source devel/setup.sh
 ```
 
 # サンプルの実行
 Led点灯のWebGUIをサンプル実行します
 
 ```bash
-$ roslaunch ledlit ledlit.launch
+# roslaunch ledlit ledlit.launch
 ```
 同じネットワーク内にあるデバイスから  
 http://(ip-addr):8085/ledlit  
