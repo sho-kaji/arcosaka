@@ -1,6 +1,6 @@
-# ARC2020（）
+# Led Lit（）
 
-2020年用のリポジトリ（ディレクトリ）です。
+Sample用のリポジトリ（ディレクトリ）です。
 
 # Rasberry Pi の　OS準備
 適当なサイトで調べてRaspberryPiにOSをインストールしてください  
@@ -56,7 +56,6 @@ $ docker run --name arc_sample --net host --privileged -u root -v /sys:/sys -v /
 ```bash
 $ catkin_make
 $ catkin_make install
-$ source /ros_entrypoint.sh
 $ source devel/setup.sh
 ```
 
