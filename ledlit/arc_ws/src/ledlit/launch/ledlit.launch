@@ -1,0 +1,8 @@
+<launch>
+  <group ns="sample2">
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+    <node pkg="ledlit" name="brain" type="brain.py" output="screen"/>
+    <node pkg="ledlit" name="led" type="led.py" output="screen"/>
+    <include file="$(find roswww)/launch/roswww.launch" />
+  </group>
+</launch>
