@@ -49,6 +49,7 @@ class Brain(object):
         #for all
         self.msg_brain.led_a_value  = 0
         self.msg_brain.led_b_value  = 0
+        self.msg_brain.led_c_value  = 0
 #--------------------
 # 受信コールバック
     def clientCallback(self, client_msg):
@@ -59,9 +60,11 @@ class Brain(object):
         if client_msg.mode :
             self.msg_brain.led_a_value = client_msg.led_a_value
             self.msg_brain.led_b_value = client_msg.led_b_value
+            self.msg_brain.led_c_value = client_msg.led_c_value
         else : 
             self.msg_brain.led_a_value = 0 
             self.msg_brain.led_b_value = 0 
+            self.msg_brain.led_c_value = 0
 #--------------------
     def main(self):
         # メッセージを発行する

@@ -28,6 +28,11 @@
 	    <div><span class="slider_title">LED B</span>
 		<input id="slider_b" type="range" min="0" max="100" step="1" />
 		<span id="value_b">5</span>
+	    </div>
+	    </div>
+	    <div><span class="slider_title">LED C</span>
+		<input id="slider_c" type="range" min="0" max="100" step="1" />
+		<span id="value_c">5</span>
             </div>
 	</div>
     </div>
@@ -61,7 +66,8 @@
 			var to_brain = new ROSLIB.Message({
 				mode            :Number (mode_value),
 				led_a_value     :Number(slider_elem[0].value),
-				led_b_value     :Number(slider_elem[1].value)
+				led_b_value     :Number(slider_elem[1].value),
+				led_c_value     :Number(slider_elem[2].value)
 			});
 
 		        document.getElementById('debug').innerHTML = Number(mode_value);
@@ -87,11 +93,11 @@
 
         //スライダーバーの設定
           //初期値：適宜編集してください。ファイルから読み込む方法は検索中
-	var init_value = [50,50];
-        var slider = ["slider_a","slider_b"];
-	var value = ["value_a","value_b"];
-	var slider_elem = [1,2];
-	var value_elem  = [1,2];
+	var init_value = [50,50,50];
+        var slider = ["slider_a","slider_b","slider_c"];
+	var value = ["value_a","value_b","value_c"];
+	var slider_elem = [1,2,3];
+	var value_elem  = [1,2,3];
         var mode = document.getElementById("btn_mode");
         var mode_value = 0;
 	var rangeValue = function (slider,value) {
