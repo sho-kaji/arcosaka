@@ -8,7 +8,9 @@
 from subprocess import call
 import time
 import smbus
-import mortor
+#10.10.8 wata
+#多分このmortorをimportする必要ないと思われる。
+##import mortor
 
 from volcurmeas_consts import *
 
@@ -20,25 +22,40 @@ class volcurmeasClass(object):
 
     def __init__(self):
         self.is_enable = False
+        print('init_g')
         try:
-            self.smc = mortor.ServoMortorClass(False)
+
+            print('try')
+#10.10.8 wata
+#多分ここはいらないはず。
+#            self.smc = mortor.ServoMortorClass(False)
             self.i2c = smbus.SMBus(1)
+            print('SMBus')
             # ICの設定
-            setdata = (SET_RST << 12) + (SET_AVG << 9) + \
-                (SET_VBUSCT << 6) + (SET_VSHCT << 3) + SET_MODE
-            setdata = ((setdata << 8) & 0xFF00) + (setdata >> 8)
-            self.i2c.write_word_data(I2C_INA226, ADDR_S, setdata)
+#10.10.8 wata
+#この設定はデフォルト設定で問題なし。
+#            setdata = (SET_RST << 12) + (SET_AVG << 9) + \
+#                (SET_VBUSCT << 6) + (SET_VSHCT << 3) + SET_MODE
+#            setdata = ((setdata << 8) & 0xFF00) + (setdata >> 8)
+#            self.i2c.write_word_data(I2C_INA226, ADDR_S, setdata)
+
             # キャリブレーションレジスタの設定
             # 0.00512/((0.0015[mΩ])*0.001)
-            setdata = int(0.00512/((BATT_R)*0.001))
-            setdata = ((setdata << 8) & 0xFF00) + (setdata >> 8)
+            #setdata = int(0.00512/((BATT_R)*0.001))
+            #setdata = ((setdata << 8) & 0xFF00) + (setdata >> 8)
+            setdata = 0x0800
             self.i2c.write_word_data(I2C_INA226, ADDR_R, setdata)
+            print('init')
             self.is_enable = True
-            # 1回目は変な値をとるときが多いので...
-            self.read_v()
-            self.read_i()
+
+# 1回目は変な値をとるときが多いので...
+#10.10.8 wata
+# 多分いらないはず。。。。
+#            self.read_v()
+#            self.read_i()
         except IOError:
             self.is_enable = False
+            print('error')
 
         finally:
             self.is_battlow = False
@@ -46,6 +63,8 @@ class volcurmeasClass(object):
             self.v_ave = 0
             self.i_ave = 0
             self.i_sgm = 0
+
+            print('test')
     # end __init__
 
     def read_v(self):
@@ -68,7 +87,9 @@ class volcurmeasClass(object):
         curr = 0.0
         if self.is_enable:
             word = self.i2c.read_word_data(I2C_INA226, ADDR_I) & 0xFFFF
-            curr = ((word << 8) & 0xFF00) + (word >> 8)
+#10.10.8 wata            curr = ((word << 8) & 0xFF00) + (word >> 8)
+            result = ((word << 8) & 0xFF00) + (word >> 8)
+            curr = result * 2.5 / 1000
         return curr
     # end read_i
 
@@ -78,7 +99,8 @@ class volcurmeasClass(object):
         """
         batt = 0.0
         if self.is_enable:
-            batt_v = self.read_i()
+#10.10.8 wata            batt_v = self.read_i()
+            batt_v = self.read_v()
             batt = ((batt_v - BATT_VLOW) / (BATT_VMAX - BATT_VLOW)) * 100
         return batt
 
