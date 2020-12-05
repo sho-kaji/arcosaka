@@ -60,6 +60,8 @@ find_package(catkin REQUIRED COMPONENTS
     client.msg
     client_abh_debug.msg
     client_f_debug.msg
+    armdebug.msg
+    armdebugclient.msg
  )
 
 ## Generate services in the 'srv' folder
