@@ -1,5 +1,5 @@
 # image
-FROM ros:latest
+FROM ros:melodic
 
 WORKDIR /root/catkin_ws 
 # install packages
