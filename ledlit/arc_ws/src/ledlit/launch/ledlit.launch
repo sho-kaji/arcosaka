@@ -4,6 +4,7 @@
     <node pkg="ledlit" name="brain" type="brain.py" output="screen"/>
     <node pkg="ledlit" name="led" type="led.py" output="screen"/>
     <node pkg="ledlit" name="led2" type="led2.py" output="screen"/>
+    <node pkg="ledlit" name="switch" type="switch.py" output="screen"/>
     <include file="$(find roswww)/launch/roswww.launch" />
   </group>
 </launch>

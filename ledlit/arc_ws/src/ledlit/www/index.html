@@ -36,6 +36,7 @@
             </div>
 	</div>
     </div>
+    switch： <label id="switch">---</label>
     <script type="text/javascript">
 	if(!Talker){
 	    var Talker = {
@@ -126,6 +127,48 @@
 	            mode_value = 0;
 		}
 	};
+	
+	
+	if(!Listener){
+    	var Listener = {
+        	ros : null,
+        	name : "",
+        	init : function(){
+            	this.ros = new ROSLIB.Ros();
+            	this.ros.on('error', function(error) {
+                	// document.getElementById('state').innerHTML = "Error";
+            	});
+            	this.ros.on('connection', function(error) {
+                	// document.getElementById('state').innerHTML = "Connect";
+            	});
+            	this.ros.on('close', function(error) {
+                	// document.getElementById('state').innerHTML = "Close";
+            	});
+            	this.ros.connect('ws://' + location.hostname + ':9090');
+
+            	var sub_to_client = new ROSLIB.Topic({
+                	ros : this.ros,
+                	name : '/sample2/brain',
+                	messageType : 'ledlit/brain'
+            	});
+            	sub_to_client.subscribe(function(message) {
+            		if(message.switch_status == 0){
+            			document.getElementById('switch').innerHTML = "OFF";
+            		}
+            		else{
+            			document.getElementById('switch').innerHTML = "ON";
+            		}
+            	});
+        	}
+    	}
+    	Listener.init();
+
+    	window.onload = function(){
+    	};
+    	window.onunload = function(){
+        	Listener.ros.close();
+    	};
+	}
     </script>
 
   </body>
