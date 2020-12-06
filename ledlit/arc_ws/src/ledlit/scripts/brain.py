@@ -15,6 +15,7 @@ import rospy
 # 自分で定義したmessageファイルから生成されたモジュール
 from ledlit.msg import client
 from ledlit.msg import brain
+from ledlit.msg import switch
 
 # 定数などの定義ファイルimport
 #from params import MODE, TARGET, CAMERA, DIRECTION
@@ -34,6 +35,8 @@ class Brain(object):
         self.cyclecount = 0
         # 受信作成
         self.sub_client  = rospy.Subscriber('client2', client, self.clientCallback, queue_size=1)
+        # 受信作成
+        self.sub_switch  = rospy.Subscriber('switch', switch, self.switchCallback, queue_size=1)
         # 送信作成
         self.pub_brain = rospy.Publisher('brain', brain, queue_size=100)
         # messageのインスタンスを作る
@@ -50,13 +53,13 @@ class Brain(object):
         self.msg_brain.led_a_value  = 0
         self.msg_brain.led_b_value  = 0
         self.msg_brain.led_c_value  = 0
+        self.msg_brain.switch_status = 0
 #--------------------
 # 受信コールバック
     def clientCallback(self, client_msg):
         """
         クライアントの受信コールバック
         """
-        #print(client_msg.led_a_value)
         if client_msg.mode :
             self.msg_brain.led_a_value = client_msg.led_a_value
             self.msg_brain.led_b_value = client_msg.led_b_value
@@ -65,6 +68,13 @@ class Brain(object):
             self.msg_brain.led_a_value = 0 
             self.msg_brain.led_b_value = 0 
             self.msg_brain.led_c_value = 0
+#--------------------
+# 受信コールバック
+    def switchCallback(self, switch_msg):
+        """
+        クライアントの受信コールバック
+        """
+        self.msg_brain.switch_status = switch_msg.switch_status
 #--------------------
     def main(self):
         # メッセージを発行する
