@@ -3,21 +3,32 @@
   <head>
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <!--<link rel="stylesheet" type="text/css" href="debug.css"> -->
-    <title>LedLit</title>
+    <title>Multi Sniper</title>
     <script src="eventemitter2.min.js"></script>
     <script src="roslib.min.js"></script>
   </head>
 
   <body>
-    <div class="debuglog">
-          debug： <label id="debug">---</label>
-    </div>
-    <div class="mode">
-	<form action="javascript:onoff();" id="ui">
-	    <input id="btn_mode" type="submit" value="ON"  />
+
+	    <div>
+		<strong>電圧電流測定</strong>
+            </div>
+	    <div>
+		<strong>　</strong>
+            </div>
+
+   <!--  <div class="debuglog">-->
+          <!-- debug： <label id="debug">---</label> -->
+   <!-- </div> -->
+
+    <!-- <div class="mode">-->
+	<!-- <form action="javascript:onoff();" id="ui">-->
+	<!--     <input id="btn_mode" type="submit" value="ON"  />-->
 	<!-- <form action="javascript:Talker.send();" id="ui">-->
-	</form>
-    </div>
+	<!-- </form>-->
+    <!-- </div>-->
+
+<!--
     <div class="box1">
 	<div class="slider">
 	    <div><span class="slider_title">LED A</span>
@@ -36,54 +47,56 @@
             </div>
 	</div>
     </div>
+-->
+
     <script type="text/javascript">
-	if(!Talker){
-	    var Talker = {
-		ros : null,
-		name : "",
-		init : function(){
-		    this.ros = new ROSLIB.Ros();
-                    this.ros.on('error', function(error) {
-                       // document.getElementById('state').innerHTML = "Error";
-                    });
-                    this.ros.on('connection', function(error) {
-                       // document.getElementById('state').innerHTML = "Connect";
-                    });
-                    this.ros.on('close', function(error) {
-                       // document.getElementById('state').innerHTML = "Close";
-                    });
-                    this.ros.connect('ws://' + location.hostname + ':9090');
-		},
-		send : function(){
-			//送信トピック作成
-			var pub_to_main = new ROSLIB.Topic({
-				ros : this.ros,
-				name :'/sample2/client2',
-				messageType : 'arc2020/client'
-			});
-
-			//送信メッセージを作成
-			var to_main = new ROSLIB.Message({
-				mode            :Number (mode_value),
-				led_a_value     :Number(slider_elem[0].value),
-				led_b_value     :Number(slider_elem[1].value),
-				led_c_value     :Number(slider_elem[2].value)
-			});
-
-		        document.getElementById('debug').innerHTML = Number(mode_value);
-
-			pub_to_main.publish(to_main);
-		}
-	    }
-
-	    Talker.init();
-
-	    window.onload = function(){
-	    };
-	    window.onunload = function(){
-		Talker.ros.close();
-	    };
-        };
+//	if(!Talker){
+//	    var Talker = {
+//		ros : null,
+//		name : "",
+//		init : function(){
+//		    this.ros = new ROSLIB.Ros();
+//                    this.ros.on('error', function(error) {
+//                       // document.getElementById('state').innerHTML = "Error";
+//                    });
+//                    this.ros.on('connection', function(error) {
+//                       // document.getElementById('state').innerHTML = "Connect";
+//                    });
+//                    this.ros.on('close', function(error) {
+//                       // document.getElementById('state').innerHTML = "Close";
+//                    });
+//                    this.ros.connect('ws://' + location.hostname + ':9090');
+//		},
+//		send : function(){
+//			//送信トピック作成
+//			var pub_to_main = new ROSLIB.Topic({
+//				ros : this.ros,
+//				name :'/sample2/client2',
+//				messageType : 'arc2020/client'
+//			});
+//
+//			//送信メッセージを作成
+//			var to_main = new ROSLIB.Message({
+//				mode            :Number (mode_value)
+//				//led_a_value     :Number(slider_elem[0].value),
+//				//led_b_value     :Number(slider_elem[1].value),
+//				//led_c_value     :Number(slider_elem[2].value)
+//			});
+//
+//		        document.getElementById('debug').innerHTML = Number(mode_value);
+//
+//			pub_to_main.publish(to_main);
+//		}
+//	    }
+//
+//	    Talker.init();
+//
+//	    window.onload = function(){
+//	    };
+//	    window.onunload = function(){
+//		Talker.ros.close();
+//	    };
+//        };
 
         // 周期送信タイマー
 	var setTimerEvent = setInterval(myTimer,500);
@@ -93,39 +106,39 @@
 
         //スライダーバーの設定
           //初期値：適宜編集してください。ファイルから読み込む方法は検索中
-	var init_value = [50,50,50];
-        var slider = ["slider_a","slider_b","slider_c"];
-	var value = ["value_a","value_b","value_c"];
-	var slider_elem = [1,2,3];
-	var value_elem  = [1,2,3];
-        var mode = document.getElementById("btn_mode");
-        var mode_value = 0;
-	var rangeValue = function (slider,value) {
-	      return function(evt){
-	        value.innerHTML = slider.value;
-	      }
-	    };
+//	var init_value = [50,50,50];
+//        var slider = ["slider_a","slider_b","slider_c"];
+//	var value = ["value_a","value_b","value_c"];
+//	var slider_elem = [1,2,3];
+//	var value_elem  = [1,2,3];
+//        var mode = document.getElementById("btn_mode");
+//        var mode_value = 0;
+//	var rangeValue = function (slider,value) {
+//	      return function(evt){
+//	        value.innerHTML = slider.value;
+//	      }
+//	    };
+//
+//        for(var i = 0;i < slider.length; i++){
+//	    slider_elem[i] = document.getElementById(slider[i]);
+//	    value_elem[i]  = document.getElementById(value[i]);
+//            slider_elem[i].value = init_value[i];
+//            value_elem[i].innerHTML = init_value[i];
+//	    slider_elem[i].addEventListener('input', 
+//	                                    rangeValue(slider_elem[i], value_elem[i])
+//	    );
+//	};
 
-        for(var i = 0;i < slider.length; i++){
-	    slider_elem[i] = document.getElementById(slider[i]);
-	    value_elem[i]  = document.getElementById(value[i]);
-            slider_elem[i].value = init_value[i];
-            value_elem[i].innerHTML = init_value[i];
-	    slider_elem[i].addEventListener('input', 
-	                                    rangeValue(slider_elem[i], value_elem[i])
-	    );
-	};
-
-	function onoff(){
-		if(mode.value == "ON"){
-	            mode.value = "OFF";
-	            mode_value = 1;
-		}
-		else{
-	            mode.value = "ON";
-	            mode_value = 0;
-		}
-	};
+//	function onoff(){
+//		if(mode.value == "ON"){
+//	            mode.value = "OFF";
+//	            mode_value = 1;
+//		}
+//		else{
+//	            mode.value = "ON";
+//	            mode_value = 0;
+//		}
+//	};
 
 	if(!Listener){
 	    var Listener = {
@@ -158,7 +171,9 @@
 	                //var el = document.createElement("");
 	                //el.innerHTML = res
 	                //document.getElementById("voltage").appendChild(el);
-	                document.getElementById('voltage').innerHTML = massage.led_a_value;
+	                document.getElementById('voltage').innerHTML = massage.volt;
+	                document.getElementById('current').innerHTML = massage.cur;
+	                document.getElementById('emg').innerHTML = massage.emg;
 	            });
 	        }
 	    }
@@ -183,6 +198,10 @@
 		<strong>電流値</strong>
     		<label id="current">0</label>
 		<strong>A</strong>
+            </div>
+	    <div>
+		<strong>緊急停止</strong>
+    		<label id="emg">0</label>
             </div>
     <p>status： <label id="state">Disconnect</label></p>
     <div id="talk"><p></p></div>

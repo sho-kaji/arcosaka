@@ -6,7 +6,7 @@ WORKDIR /root/catkin_ws
 RUN set -x &&\
     apt-get update &&\
     apt-get install \
-        ros-"$ROS_DISTRO"-roswww  libffi-dev python-pip \
+        ros-"$ROS_DISTRO"-roswww libffi-dev python-pip \
         libjpeg-dev zlib1g-dev -y
 RUN set -x &&\
     pip install twisted tornado pigpio pyopenssl autobahn image \ 

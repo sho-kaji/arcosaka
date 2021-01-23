@@ -15,6 +15,8 @@ import rospy
 # 自分で定義したmessageファイルから生成されたモジュール
 from arc2020.msg import client
 from arc2020.msg import main
+from arc2020.msg import emg
+from arc2020.msg import volcurmeas
 
 # 定数などの定義ファイルimport
 #from params import MODE, TARGET, CAMERA, DIRECTION
@@ -33,7 +35,9 @@ class Main(object):
         """
         self.cyclecount = 0
         # 受信作成
-        self.sub_client  = rospy.Subscriber('client2', client, self.clientCallback, queue_size=1)
+#        self.sub_client  = rospy.Subscriber('client2', client, self.clientCallback, queue_size=1)
+        self.sub_emg  = rospy.Subscriber('emg', emg, self.emgCallback, queue_size=1)
+        self.sub_volcurmeas  = rospy.Subscriber('volcurmeas', volcurmeas, self.volcurmeasCallback, queue_size=1)
         # 送信作成
         self.pub_main = rospy.Publisher('main', main, queue_size=100)
         # messageのインスタンスを作る
@@ -47,24 +51,35 @@ class Main(object):
         publishするメッセージのクリア
         """
         #for all
-        self.msg_main.led_a_value  = 0
-        self.msg_main.led_b_value  = 0
-        self.msg_main.led_c_value  = 0
+#        self.msg_main.led_a_value  = 0
+#        self.msg_main.led_b_value  = 0
+#        self.msg_main.led_c_value  = 0
 #--------------------
 # 受信コールバック
-    def clientCallback(self, client_msg):
+#    def clientCallback(self, client_msg):
+#        """
+#        クライアントの受信コールバック
+#        """
+#        #print(client_msg.led_a_value)
+#        if client_msg.mode :
+#            self.msg_main.led_a_value = client_msg.led_a_value
+#            self.msg_main.led_b_value = client_msg.led_b_value
+#            self.msg_main.led_c_value = client_msg.led_c_value
+#        else : 
+#            self.msg_main.led_a_value = 0 
+#            self.msg_main.led_b_value = 0 
+#            self.msg_main.led_c_value = 0
+    def emgCallback(self, emg_msg):
         """
         クライアントの受信コールバック
         """
-        #print(client_msg.led_a_value)
-        if client_msg.mode :
-            self.msg_main.led_a_value = client_msg.led_a_value
-            self.msg_main.led_b_value = client_msg.led_b_value
-            self.msg_main.led_c_value = client_msg.led_c_value
-        else : 
-            self.msg_main.led_a_value = 0 
-            self.msg_main.led_b_value = 0 
-            self.msg_main.led_c_value = 0
+        self.msg_main.emg = emg_msg.emg
+    def volcurmeasCallback(self, volcurmeas_msg):
+        """
+        クライアントの受信コールバック
+        """
+        self.msg_main.volt = volcurmeas_msg.volt
+        self.msg_main.cur = volcurmeas_msg.cur
 #--------------------
     def main(self):
         # メッセージを発行する

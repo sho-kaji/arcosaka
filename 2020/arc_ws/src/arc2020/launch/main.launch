@@ -2,7 +2,8 @@
   <group ns="sample2">
     <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
     <node pkg="arc2020" name="main" type="main_dev.py" output="screen"/>
-    <node pkg="arc2020" name="led" type="led.py" output="screen"/>
+    <node pkg="arc2020" name="emg" type="emg.py" output="screen"/>
+    <node pkg="arc2020" name="volcurmeas" type="volcurmeas_dev.py" output="screen"/>
     <include file="$(find roswww)/launch/roswww.launch" />
   </group>
 </launch>
