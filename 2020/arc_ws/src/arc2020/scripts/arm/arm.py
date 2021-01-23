@@ -57,6 +57,7 @@ class Arm(object):
         """
         #for all
         self.msg_arm.armdrillstatus = 0
+        self.msg_arm.armretorgstatus = 0
 #--------------------
 
 
@@ -65,6 +66,7 @@ class Arm(object):
         """
         位置初期化
         """
+        self.svmc.move_servo(CHANNEL_HAND, RELEASE_HAND)
         self.stmc.move_posinit_step()
 #--------------------
 
@@ -78,7 +80,6 @@ class Arm(object):
         # y軸移動
         handy = brain_msg.drill_width_value
         self.stmc.move_step(handy)  # y軸移動
-        
         
         # z軸移動
         self.svmc.move_servo(CHANNEL_HAND, RELEASE_HAND) # z軸上昇
@@ -95,34 +96,17 @@ class Arm(object):
         """
         クライアントの受信コールバック
         """
-        #print(brain_msg.drill_req)
-        #print(brain_msg.retorg_req)
+        if brain_msg.retorg_req == 1 : # アーム原点復帰要求有無
+            if self.msg_arm.armretorgstatus == 0 : # 原点復帰実施状態判定
+                self.msg_arm.armdrillstatus = 1 # アーム動作中
+                self.posinit()
+                self.msg_arm.armdrillstatus = 0 # アーム停止中
+                self.msg_arm.armretorgstatus = 1 # 原点復帰実施済み
         
-        # メッセージ受信
-        
-        
-        if brain_msg.retorg_req :
-            self.msg_arm.armdrillstatus = 2 # アーム原点復帰中
-            self.posinit()
-            self.msg_arm.armdrillstatus = 0 # アーム停止中
-        
-        
-        if brain_msg.drill_req :
-            
-            # 送信用メッセージ更新
+        if brain_msg.drill_req == 1 and self.msg_arm.armretorgstatus == 1 : # アーム動作指示要求有無
             self.msg_arm.armdrillstatus = 1 # アーム動作中
-            
-            #print(brain_msg.drill_width_value)
-            #print(brain_msg.drill_height_value)
-            
-            # アーム作動
-            
-            self.move_arm()
-            
-            # 送信用メッセージ更新
+            self.move_arm() # アーム動作
             self.msg_arm.armdrillstatus = 0 # アーム停止中
-        else :
-            self.svmc.move_servo(CHANNEL_HAND, RELEASE_HAND)
 #--------------------
 
 

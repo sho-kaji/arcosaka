@@ -1,10 +1,2 @@
-int32 frame_id
-bool is_arm_move
-bool is_twistv_ulim
-bool is_twistv_dlim
-bool is_twisth_flim
-bool is_twisth_blim
-bool is_handv_ulim
-bool is_handv_dlim
-bool is_handh_flim
-bool is_handh_blim
+int32 armdrillstatus
+int32 armretorgstatus
