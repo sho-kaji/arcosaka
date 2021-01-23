@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="jp">
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <!--<link rel="stylesheet" type="text/css" href="debug.css"> -->
+    <title>Multi Sniper Setting</title>
+   </head>
+   		<body>
+		    <p><center><font size="5">Multi Sniper</font>
+		    <p>80%<meter value="0.8">%</meter></p>
+		    <p>メイン品種選択</p>
+		    	<select name=”vegetable select”>
+		    		<option value=”none”>--</option>
+					<option value=”tomato”>トマト</option>
+					<option value=”vegetable2”>野菜2</option>
+					<option value=”vegetable3”>野菜3</option>
+					<option value=”vegetable4”>野菜4</option>
+					<option value=”vegetable5”>野菜5</option>
+					<option value=”vegetable other”>その他(暫定)</option>
+				</select>
+						
+				<p>サブ品種選択</p>
+				<select name=”sub vegetable select”>
+					<option value=”none”>--</option>
+					<option value=”sub1”>サブ1</option>
+					<option value=”sub2”>サブ2</option>
+					<option value=”sub3”>サブ3</option>
+					<option value=”sub4”>サブ4</option>
+					<option value=”sub vegetable other”>その他(暫定)</option>
+				</select>
+				
+				<!-- 畝情報入力 -->
+				<p>畝情報</p>
+		    	<p><form action="" method="post"></form></p>
+				<!-- 長さ -->
+				<p><br>長さ<input type="number" name="length" placeholder="">cm</p>
+				<!-- 幅 -->
+				<p><br>幅　<input type="number" name="width" placeholder="">cm</p>
+				<!-- 高さ -->
+				<p><br>高さ<input type="number" name="height" placeholder="">cm</p>
+				
+			<!-- 畒情報 -->
+            <!-- location.href="ここに出力画面パスを設定" -->
+            <p><input type="button" onclick="location.href='multi_sniper_out.html'" value="穴あけ設計図出力"></p>          
+					
+		    </center></p>
+  		</body>
+</html>
