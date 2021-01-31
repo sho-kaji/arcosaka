@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="jp">
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <!--<link rel="stylesheet" type="text/css" href="debug.css"> -->
+    <title>Multi Sniper Debug</title>
+   </head>
+   		<body>
+		    <p><center><font size="5">Debug Mode</font>
+            <div style="text-align: left;float:left;">
+            <img src="img/back.jpg">
+            </div>
+            <div style="text-align: right;float:right;">
+            <img src="img/動作停止.png">
+            </div>
+            
+            <!-- 遷移ボタン干渉防止のために空白行挿入 -->
+            <p style="margin-bottom:2em;"></p>
+            
+            <p>
+            <div style="text-align: left;float:left;">電圧</div>
+            <div style="text-align: right;float:right;margin-right:135px;">電流</div><br></p>
+            <p>
+            <div style="text-align: left;float:left;">
+            <!-- disabled valueに出力する.msgのIFを指定する -->
+            <INPUT type="number" name="ReadOnlyField" disabled value="1234">mV</div>
+            <div style="text-align: right;float:right;">
+            <!-- disabled valueに出力する.msgのIFを指定する -->
+            <INPUT type="number" name="ReadOnlyField" disabled value="1234">mA
+            </div><br></p>          
+            
+            <p>
+            <div style="text-align: left;float:left;">走行距離</div></p><br>
+            <p>
+            <div style="text-align: left;float:left;">
+            <!-- disabled valueに出力する.msgのIFを指定する -->
+            <INPUT type="number" name="ReadOnlyField" disabled value="1234">cm
+            </div><br></p>   
+            
+            <p>
+            <div style="text-align: left;float:left;">左測距</div>
+            <div style="text-align: right;float:right;margin-right:120px;">右測距</div></p><br>
+            <p>
+            <div style="text-align: left;float:left;">
+            <!-- disabled valueに出力する.msgのIFを指定する -->
+            <INPUT type="number" name="ReadOnlyField" disabled value="1234">cm</div>
+            <div style="text-align: right;float:right;">
+            <!-- disabled valueに出力する.msgのIFを指定する -->
+            <INPUT type="number" name="ReadOnlyField" disabled value="1234">cm</div></p> 
+                 
+            <!-- 空白行挿入 -->
+            <p style="margin-bottom:4em;"></p>
+            <div style="text-align: left;">9軸センサ</div>
+
+            <div style="text-align: left;float:left;">加速度3軸</div>
+            <div style="text-align: right;margin-right:25px;">
+            <!-- disabled valueに出力する.msgのIFを指定する -->
+            	<INPUT type="number" name="ReadOnlyField" disabled value="1234">
+            </div>
+            <p style="margin-bottom:0.5em;"></p>
+            <div style="text-align: left;float:left;">ジャイロ3軸</div>
+            <div style="text-align: right;margin-right:25px;">
+            <!-- disabled valueに出力する.msgのIFを指定する -->
+            	<INPUT type="number" name="ReadOnlyField" disabled value="1234">
+            </div>
+            <p style="margin-bottom:0.5em;"></p>
+            <div style="text-align: left;float:left;">磁気コンパス3軸</div>
+            <div style="text-align: right;margin-right:25px;">
+            <!-- disabled valueに出力する.msgのIFを指定する -->
+            	<INPUT type="number" name="ReadOnlyField" disabled value="1234">
+            </div>
+
+            <!-- ライントレースセンサの表示方法は検討する・・・ とりあえずは画像貼る-->
+            <p style="margin-bottom:0.5em;">
+            <div style="text-align: left;">ライントレースセンサ</div>
+            <div style="text-align: center;">
+            <img src="img/ライントレースセンサ.png">
+            </div>
+            <style="margin-bottom:4em;"></p>
+
+            <!-- アーム-->
+            <p>左足</p>
+            <body>
+            <input type="range" value="5" min="1" max="10" step="1"
+          	 oninput="document.getElementById('left_arm').value=this.value">
+            <output id="left_arm">5</output></body>
+            
+            <p>縦軸アーム</p>
+            <body>
+            <input type="range" value="5" min="1" max="10" step="1"
+          	 oninput="document.getElementById('hight_arm').value=this.value">
+            <output id="hight_arm">5</output></body>
+            
+            <p>横軸アーム</p>
+            <body>
+            <input type="range" value="5" min="1" max="10" step="1"
+          	 oninput="document.getElementById('width_arm').value=this.value">
+            <output id="width_arm">5</output></body>
+            
+             <p>左足アーム</p>
+            <body>
+            <input type="range" value="5" min="1" max="10" step="1"
+          	 oninput="document.getElementById('right_arm').value=this.value">
+            <output id="right_arm">5</output></body>
+            
+
+		    </center></p>
+  		</body>
+</html>
