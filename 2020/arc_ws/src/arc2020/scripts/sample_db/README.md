@@ -58,30 +58,30 @@ $ docker run --name arc_ros_sqlite --net host --privileged -u root -v /sys:/sys 
 # catkin_make install
 # source devel/setup.sh
 ```
-#追加したコード
-tigをinstallして tigで確認してください
-scriptの下にsample_dbを追加しています。
+#追加したコード  
+git log で確認してください。  
+scriptの下にsample_dbを追加しています。  
 
 # サンプルの実行
-1.サンプルを実行します。末尾に"&"がついているのは次のコマンドを続行して実行するためです。
+1.サンプルを実行します。末尾に"&"がついているのは次のコマンドを続行して実行するためです。  
 適当なところでEnterを入力するとコマンド受付状態になります。
 ```bash
 # roslaunch arc2020 db_test.launch & 
 ```
 
-2. messageをrostopicコマンドでpublishします。
-   コマンドの詳細は rostopic pub でぐぐってください。
-   簡単に説明すると、
-   pub             :publish、 
-   -1              :1回だけ、
-   /arc2020_db/sql :というtopicに
-   arc2020/sql     :というmessageを
-   'seed' 'bean'   :messageの中身
+2. messageをrostopicコマンドでpublishします。  
+   コマンドの詳細は rostopic pub でぐぐってください。  
+   簡単に説明すると、  
+   pub             :publish、   
+   -1              :1回だけ、  
+   /arc2020_db/sql :というtopicに  
+   arc2020/sql     :というmessageを  
+   'seed' 'bean'   :messageの中身  
 ```bash
 # rostopic pub -1 /arc2020_db/sql arc2020/sql   -- 'seed' 'bean' 
 ```
 
-3. 送信が完了したらDBに登録されたか確認します。
+3. 送信が完了したらDBに登録されたか確認します。  
    今回TEST.dbを/root/catkin_ws/src/arc2020/に作成するようにしているので
    移動します。
 ```bash
@@ -100,9 +100,9 @@ sqlite> SELECT * from seed;   # SELECTコマンドで seed tableの要素一覧�
 sqlite> .exit                 # .exitiで終了 
 ```
 
-5. rosnode list で 立ち上がっているnodeを確認して
-   rosnode kill で 終了する
-   # rosoutは終了しなくてよいです。
+5. rosnode list で 立ち上がっているnodeを確認して  
+   rosnode kill で 終了する  
+   * rosoutは終了しなくてよいです。
  
 ```bash
 # rosnode list         
