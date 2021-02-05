@@ -22,6 +22,7 @@ if os.name == 'posix':
     # Import the PCA9685 module.
     import Adafruit_PCA9685
 
+RET_ORGSW = 15
 
 class ServoMortorClass(object):
     """
@@ -132,7 +133,7 @@ class StepMortorClass(object):
                 self.pic.set_mode(self.port_a, pigpio.OUTPUT)
                 self.pic.set_mode(self.port_b, pigpio.OUTPUT)
                 self.pic.set_mode(self.port_en, pigpio.OUTPUT)
-                #self.pic.set_mode(GPIO.RET_ORGSW, pigpio.INPUT)
+                self.pic.set_mode(RET_ORGSW, pigpio.INPUT)
 
                 if limit[0] < limit[1]:
                     self.limit_min = limit[0]
@@ -181,12 +182,11 @@ class StepMortorClass(object):
         self.stepcnt = 0
     # end posinit
 
-    def move_posinit_step(self, step, freq=-1):
+    def move_posinit_step(self, freq=-1):
 
         if freq < 0:
             freq = STEP_FREQ
 
-        stepping = self.stepcnt + step
 
         wait_hl = (1.0 / freq * (STEP_DUTY / 100.0))
         wait_lh = (1.0 / freq * (1 - (STEP_DUTY / 100.0)))
@@ -195,42 +195,20 @@ class StepMortorClass(object):
             self.pic.set_mode(self.port_en, pigpio.OUTPUT)
             self.pic.set_mode(self.port_a, pigpio.OUTPUT)
             self.pic.set_mode(self.port_b, pigpio.OUTPUT)
-            self.pic.set_mode(GPIO.RET_ORGSW, pigpio.INPUT)
+            self.pic.set_mode(RET_ORGSW, pigpio.INPUT)
             # ENABLE端子
             self.pic.write(self.port_en, pigpio.HIGH)
 
-        for i in range(abs(step)):
-            self.retorgsw = self.pic.read(GPIO.RET_ORGSW) is pigpio.HIGH
-            if self.retorgsw:
-                break
-
-            if self.issetpos or (self.is_notdebug and (self.limit_min <= self.stepcnt) and (self.stepcnt <= self.limit_max)):
-                if stepping > self.stepcnt:
-                    self.pic.write(self.port_a, pigpio.HIGH)
-                    time.sleep(wait_hl/2)
-                    self.pic.write(self.port_b, pigpio.HIGH)
-                    time.sleep(wait_hl/2)
-                    self.pic.write(self.port_a, pigpio.LOW)
-                    time.sleep(wait_lh/2)
-                    self.pic.write(self.port_b, pigpio.LOW)
-                    time.sleep(wait_lh/2)
-                    self.stepcnt += 1
-
-                elif stepping < self.stepcnt:
-                    self.pic.write(self.port_b, pigpio.HIGH)
-                    time.sleep(wait_hl/2)
-                    self.pic.write(self.port_a, pigpio.HIGH)
-                    time.sleep(wait_hl/2)
-                    self.pic.write(self.port_b, pigpio.LOW)
-                    time.sleep(wait_lh/2)
-                    self.pic.write(self.port_a, pigpio.LOW)
-                    time.sleep(wait_lh/2)
-                    self.stepcnt -= 1
-            else:
-                break
-
-            if ((self.stepcnt <= self.limit_min) or (self.limit_max <= self.stepcnt))and not(self.issetpos):
-                break
+            self.retorgsw = self.pic.read(RET_ORGSW)
+            while self.retorgsw == 1:
+                self.pic.write(self.port_a, pigpio.HIGH)
+                time.sleep(wait_hl/2)
+                self.pic.write(self.port_b, pigpio.HIGH)
+                time.sleep(wait_hl/2)
+                self.pic.write(self.port_a, pigpio.LOW)
+                time.sleep(wait_lh/2)
+                self.pic.write(self.port_b, pigpio.LOW)
+                time.sleep(wait_lh/2)
 
         self.endfnc()
 
