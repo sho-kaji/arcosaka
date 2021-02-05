@@ -66,6 +66,7 @@ find_package(catkin REQUIRED COMPONENTS
     client.msg
     emg.msg
     volcurmeas.msg
+    sql.msg
  )
 
 ## Generate services in the 'srv' folder
