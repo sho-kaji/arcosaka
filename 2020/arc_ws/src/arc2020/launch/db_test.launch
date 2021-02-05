@@ -1,0 +1,5 @@
+<launch>
+  <group ns="arc2020_db">
+    <node pkg="arc2020" name="db" type="sampleDB.py" output="screen"/>
+  </group>
+</launch>
