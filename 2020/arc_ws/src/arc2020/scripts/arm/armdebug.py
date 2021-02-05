@@ -19,6 +19,8 @@ from arc2020.msg import armdebug
 # 定数などの定義ファイルimport
 from arm_consts import *
 
+RET_ORGSW = 15
+
 CYCLES = 60 
 
 class ArmDebug(object):
@@ -47,6 +49,10 @@ class ArmDebug(object):
         # MortorClass
         self.stmc = mortor.StepMortorClass(DEBUG_ARM, (PORT_HANDV_A, PORT_HANDV_B), (LIM_HANDV_MIN, LIM_HANDV_MAX))
         self.svmc = mortor.ServoMortorClass(DEBUG_ARM)
+        
+        self.pi = pigpio.pi()
+        self.pi.set_mode(RET_ORGSW, pigpio.INPUT)
+        
 #--------------------
 
 
@@ -57,6 +63,8 @@ class ArmDebug(object):
         """
         #for all
         self.msg_armdebug.armdrillstatus = 0
+        self.msg_armdebug.armretorgstatus = 0
+        self.msg_armdebug.armretorgsw = 0
 #--------------------
 
 
@@ -65,34 +73,44 @@ class ArmDebug(object):
         """
         クライアントの受信コールバック
         """
+        print("retorgstatus = %d" % (self.msg_armdebug.armretorgstatus))
         print("drill_req = %d" % (armdebugclient_msg.drill_req))
-        
         # メッセージ受信
         
         if armdebugclient_msg.drill_req :
+            if self.msg_armdebug.armretorgstatus == 0 : # 原点復帰未実施
+                self.msg_armdebug.armdrillstatus = 1 # アーム動作中
+                self.svmc.move_servo(CHANNEL_HAND, RELEASE_HAND)
+                self.stmc.move_posinit_step()
+                self.msg_armdebug.armdrillstatus = 0 # アーム停止中
+                self.msg_armdebug.armretorgstatus = 1 # 原点復帰実施済み
             
-            # 処理 y軸移動⇒z軸降下⇒z軸上昇
-            self.msg_armdebug.armdrillstatus = 1
-            
-            print("width_value = %d" % (armdebugclient_msg.drill_width_value))
-            print("height_value = %d" % (armdebugclient_msg.drill_height_value))
-            
-            
-            handy = armdebugclient_msg.drill_width_value
-            self.stmc.move_step(handy)  # y軸移動
-            time.sleep(1)
-            
-            
-            handz = armdebugclient_msg.drill_height_value
-            self.svmc.move_servo(CHANNEL_HAND, handz)  # z軸移動
-            time.sleep(1)
-            
-            
-            # 送信用メッセージ更新
-            self.msg_armdebug.armdrillstatus = 0
+            if self.msg_armdebug.armretorgstatus == 1 : # 原点復帰実施済み
+                # 処理 y軸移動⇒z軸降下⇒z軸上昇
+                self.msg_armdebug.armdrillstatus = 1
+                
+                print("width_value = %d" % (armdebugclient_msg.drill_width_value))
+                print("height_value = %d" % (armdebugclient_msg.drill_height_value))
+                
+                
+                handy = armdebugclient_msg.drill_width_value
+                self.stmc.move_step(handy)  # y軸移動
+                time.sleep(1)
+                
+                
+                handz = armdebugclient_msg.drill_height_value
+                self.svmc.move_servo(CHANNEL_HAND, handz)  # z軸移動
+                time.sleep(1)
+                
+                
+                # 送信用メッセージ更新
+                self.msg_armdebug.armdrillstatus = 0
+        
+        self.pi.set_mode(RET_ORGSW, pigpio.INPUT)
+        if self.pi.read(RET_ORGSW) :
+            self.msg_armdebug.armretorgsw = 0
         else :
-            self.svmc.move_servo(CHANNEL_HAND, RELEASE_HAND)
-            time.sleep(1)
+            self.msg_armdebug.armretorgsw = 1
 #--------------------
 
 

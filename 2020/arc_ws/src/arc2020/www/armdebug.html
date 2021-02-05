@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <!--<link rel="stylesheet" type="text/css" href="debug.css"> -->
-    <title>LedLit</title>
+    <title>ArmDebug</title>
     <script src="eventemitter2.min.js"></script>
     <script src="roslib.min.js"></script>
   </head>
@@ -31,6 +31,13 @@
             </div>
 	</div>
     </div>
+    原点復帰SW状態： <label id="switch">---</label>
+    <div>
+    原点復帰状態： <label id="retorgstatus">---</label>
+    <div>
+    アーム動作状態： <label id="drillstatus">---</label>
+    <div>
+    
     <script type="text/javascript">
 	if(!Talker){
 	    var Talker = {
@@ -120,6 +127,62 @@
 	            drill_req_value = 0;
 		}
 	};
+	
+	
+	if(!Listener){
+    	var Listener = {
+        	ros : null,
+        	name : "",
+        	init : function(){
+            	this.ros = new ROSLIB.Ros();
+            	this.ros.on('error', function(error) {
+                	// document.getElementById('state').innerHTML = "Error";
+            	});
+            	this.ros.on('connection', function(error) {
+                	// document.getElementById('state').innerHTML = "Connect";
+            	});
+            	this.ros.on('close', function(error) {
+                	// document.getElementById('state').innerHTML = "Close";
+            	});
+            	this.ros.connect('ws://' + location.hostname + ':9090');
+
+            	var sub_to_client = new ROSLIB.Topic({
+                	ros : this.ros,
+                	name : '/arc2020_2/armdebug',
+                	messageType : 'arc2020/armdebug'
+            	});
+            	sub_to_client.subscribe(function(message) {
+            		if(message.armretorgsw == 0){
+            			document.getElementById('switch').innerHTML = "OFF";
+            		}
+            		else{
+            			document.getElementById('switch').innerHTML = "ON";
+            		}
+            		
+            		if(message.armdrillstatus == 0){
+            			document.getElementById('drillstatus').innerHTML = "停止中";
+            		}
+            		else{
+            			document.getElementById('drillstatus').innerHTML = "動作中";
+            		}
+            		
+            		if(message.armretorgstatus == 0){
+            			document.getElementById('retorgstatus').innerHTML = "未実施";
+            		}
+            		else{
+            			document.getElementById('retorgstatus').innerHTML = "実施済";
+            		}
+            	});
+        	}
+    	}
+    	Listener.init();
+
+    	window.onload = function(){
+    	};
+    	window.onunload = function(){
+        	Listener.ros.close();
+    	};
+	}
     </script>
 
   </body>
