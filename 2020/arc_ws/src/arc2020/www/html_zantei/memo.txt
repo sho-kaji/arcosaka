@@ -3,3 +3,11 @@
 Lチカの制御を参考に見て書き出しに関しては作成する。
 
 CSSはインラインで設定する。
+
+遷移順(Backなし)
+multi_sniper_login.html
+multi_sniper_setting.html
+multi_sniper_out.html
+multi_sniper_start.html
+multi_sniper_complete.html
+multi_sniper_result.html
