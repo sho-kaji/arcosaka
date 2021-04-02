@@ -1,3 +1,2 @@
 int32 armdrillstatus
-int32 armretorgstatus
 int32 armretorgsw

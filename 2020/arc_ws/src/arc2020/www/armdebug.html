@@ -33,8 +33,6 @@
     </div>
     原点復帰SW状態： <label id="switch">---</label>
     <div>
-    原点復帰状態： <label id="retorgstatus">---</label>
-    <div>
     アーム動作状態： <label id="drillstatus">---</label>
     <div>
     
@@ -166,12 +164,6 @@
             			document.getElementById('drillstatus').innerHTML = "動作中";
             		}
             		
-            		if(message.armretorgstatus == 0){
-            			document.getElementById('retorgstatus').innerHTML = "未実施";
-            		}
-            		else{
-            			document.getElementById('retorgstatus').innerHTML = "実施済";
-            		}
             	});
         	}
     	}
