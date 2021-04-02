@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <!--<link rel="stylesheet" type="text/css" href="debug.css"> -->
+    <title>Mileagedebug</title>
+    <script src="eventemitter2.min.js"></script>
+    <script src="roslib.min.js"></script>
+  </head>
+
+  <body>
+    走行距離： <label id="mileage">---</label>[cm]
+    <div>
+    
+    <script type="text/javascript">
+
+	if(!Listener){
+    	var Listener = {
+        	ros : null,
+        	name : "",
+        	init : function(){
+            	this.ros = new ROSLIB.Ros();
+            	this.ros.on('error', function(error) {
+                	// document.getElementById('state').innerHTML = "Error";
+            	});
+            	this.ros.on('connection', function(error) {
+                	// document.getElementById('state').innerHTML = "Connect";
+            	});
+            	this.ros.on('close', function(error) {
+                	// document.getElementById('state').innerHTML = "Close";
+            	});
+            	this.ros.connect('ws://' + location.hostname + ':9090');
+
+            	var sub_to_client = new ROSLIB.Topic({
+                	ros : this.ros,
+                	name : '/arc2020_2/mileage',
+                	messageType : 'arc2020/mileage'
+            	});
+            	sub_to_client.subscribe(function(message) {
+            		document.getElementById('mileage').innerHTML = message.mileage;
+            	});
+        	}
+    	}
+    	Listener.init();
+
+    	window.onload = function(){
+    	};
+    	window.onunload = function(){
+        	Listener.ros.close();
+    	};
+	}
+    </script>
+
+  </body>
+</html>
