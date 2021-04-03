@@ -14,7 +14,8 @@ from mortor_consts import \
     STEPROTATE, STEP_1PULSE, STEP_FREQ, STEP_DUTY, \
     STEP_MIN, STEP_MAX, \
     SERVO_MIN_K, SERVO_MAX_K, \
-    SERVO_FREQ, SERVO_MIN, SERVO_MAX
+    SERVO_FREQ, SERVO_MIN, SERVO_MAX, \
+    SRV0MAX_K, SRV0MIN_K
 
 if os.name == 'posix':
     import pigpio
@@ -69,8 +70,8 @@ class ServoMortorClass(object):
         サーボモーター
         """
 
-        lim_max = SERVO_MAX_K[channel]
-        lim_min = SERVO_MIN_K[channel]
+        lim_max = SRV0MAX_K
+        lim_min = SRV0MIN_K
 
         # 上下限ガード
         if power < 0:
