@@ -9,7 +9,9 @@ RUN set -x &&\
         sqlite3 libsqlite3-dev -y &&\
     apt-get install \
         ros-"$ROS_DISTRO"-roswww libffi-dev python-pip \
-        libjpeg-dev zlib1g-dev -y
+        libjpeg-dev zlib1g-dev -y &&\
+    apt-get install \
+        python-smbus -y
 RUN set -x &&\
     pip install twisted tornado pigpio pyopenssl autobahn image \ 
         bson pymongo service_identity
