@@ -15,4 +15,4 @@
 
 sudo docker start debugcont
 
-sudo docker exec -it ledlit /bin/bash -c "source devel/setup.sh && roslaunch arc2020 main.launch"
+sudo docker exec -it debugcont /bin/bash -c "source devel/setup.sh && roslaunch arc2020 main.launch"
