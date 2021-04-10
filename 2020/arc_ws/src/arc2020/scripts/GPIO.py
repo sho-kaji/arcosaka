@@ -6,7 +6,7 @@ GPIO.py GPIO定数ファイル
 
 from enum import IntEnum
 
-class GPIO(IntEnum):
+class GPIOPIN(IntEnum):
     PWM_VPOWER1     = 2
     PWM_VPOWER2     = 3
     ROT_ENCODE1     = 4
