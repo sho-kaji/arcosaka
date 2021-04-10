@@ -16,3 +16,4 @@ RUN set -x &&\
     pip install twisted tornado pigpio pyopenssl autobahn image \ 
         bson pymongo service_identity
 RUN ["/bin/bash","-c","source /ros_entrypoint.sh"]
+RUN ["/bin/bash","-c","export PYTHONPATH=$PYTHONPATH:/root/catkin_ws/src/arc2020/scripts"]

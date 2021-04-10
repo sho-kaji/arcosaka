@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <!--<link rel="stylesheet" type="text/css" href="debug.css"> -->
+    <title>FootDebug</title>
+    <script src="eventemitter2.min.js"></script>
+    <script src="roslib.min.js"></script>
+  </head>
+
+  <body>
+    <div class="drill_req">
+          drill_req： <label id="drill_req">---</label>
+    </div>
+    <div class="drill_req">
+	<form action="javascript:onoff();" id="ui">
+	    <input id="btn_drill_req" type="submit" value="ON"  />
+	<!-- <form action="javascript:Talker.send();" id="ui">-->
+	</form>
+    </div>
+    <div class="box1">
+	<div class="slider">
+	    <div><span class="slider_title">右モータ</span>
+		<input id="slider_r" type="range" min="-100" max="100" step="1" />
+		<span id="value_r">0</span>
+		</div>
+	    </div>
+	    <div><span class="slider_title">左モータ</span>
+		<input id="slider_l" type="range" min="-100" max="100" step="1" />
+		<span id="value_l">0</span>
+            </div>
+	</div>
+    </div>
+    原点復帰SW状態： <label id="switch">---</label>
+    <div>
+    アーム動作状態： <label id="drillstatus">---</label>
+    <div>
+    
+    <script type="text/javascript">
+	if(!Talker){
+	    var Talker = {
+		ros : null,
+		name : "",
+		init : function(){
+		    this.ros = new ROSLIB.Ros();
+                    this.ros.on('error', function(error) {
+                       // document.getElementById('state').innerHTML = "Error";
+                    });
+                    this.ros.on('connection', function(error) {
+                       // document.getElementById('state').innerHTML = "Connect";
+                    });
+                    this.ros.on('close', function(error) {
+                       // document.getElementById('state').innerHTML = "Close";
+                    });
+                    this.ros.connect('ws://' + location.hostname + ':9091');
+		},
+		send : function(){
+			//送信トピック作成
+			var pub_to_foot = new ROSLIB.Topic({
+				ros : this.ros,
+				name :'/arc2020_3/foot_debug',
+				messageType : 'arc2020/foot'
+			});
+
+			//送信メッセージを作成
+			var to_foot = new ROSLIB.Message({
+			 // drill_req               :Number (drill_req_value),
+				motor_r       :Number (slider_elem[0].value),
+				motor_l       :Number (slider_elem[1].value)
+			});
+
+		        document.getElementById('drill_req').innerHTML = Number(drill_req_value);
+
+			pub_to_foot.publish(to_foot);
+		}
+	    }
+
+	    Talker.init();
+
+	    window.onload = function(){
+	    };
+	    window.onunload = function(){
+		Talker.ros.close();
+	    };
+        };
+
+        // 周期送信タイマー
+	var setTimerEvent = setInterval(myTimer,500);
+        function myTimer(){
+            Talker.send();
+	};
+
+        //スライダーバーの設定
+          //初期値：適宜編集してください。ファイルから読み込む方法は検索中
+	var init_value = [0,0];
+  var slider = ["slider_r","slider_l"];
+	var value = ["value_r","value_l"];
+	var slider_elem = [1,2];
+	var value_elem  = [1,2];
+        var drill_req = document.getElementById("btn_drill_req");
+        var drill_req_value = 0;
+	var rangeValue = function (slider,value) {
+	      return function(evt){
+	        value.innerHTML = slider.value;
+	      }
+	    };
+
+        for(var i = 0;i < slider.length; i++){
+	    slider_elem[i] = document.getElementById(slider[i]);
+	    value_elem[i]  = document.getElementById(value[i]);
+            slider_elem[i].value = init_value[i];
+            value_elem[i].innerHTML = init_value[i];
+	    slider_elem[i].addEventListener('input', 
+	                                    rangeValue(slider_elem[i], value_elem[i])
+	    );
+	};
+
+	function onoff(){
+		if(drill_req.value == "ON"){
+	            drill_req.value = "OFF";
+	            drill_req_value = 1;
+		}
+		else{
+	            drill_req.value = "ON";
+	            drill_req_value = 0;
+		}
+	};
+	
+	
+	if(!Listener){
+    	var Listener = {
+        	ros : null,
+        	name : "",
+        	init : function(){
+            	this.ros = new ROSLIB.Ros();
+            	this.ros.on('error', function(error) {
+                	// document.getElementById('state').innerHTML = "Error";
+            	});
+            	this.ros.on('connection', function(error) {
+                	// document.getElementById('state').innerHTML = "Connect";
+            	});
+            	this.ros.on('close', function(error) {
+                	// document.getElementById('state').innerHTML = "Close";
+            	});
+            	this.ros.connect('ws://' + location.hostname + ':9091');
+
+            	var sub_to_client = new ROSLIB.Topic({
+                	ros : this.ros,
+                	name : '/arc2020_3/foot_debug',
+                	messageType : 'arc2020/foot'
+            	});
+            	sub_to_client.subscribe(function(message) {
+            		if(message.armretorgsw == 0){
+            			document.getElementById('switch').innerHTML = "OFF";
+            		}
+            		else{
+            			document.getElementById('switch').innerHTML = "ON";
+            		}
+            		
+            		if(message.armdrillstatus == 0){
+            			document.getElementById('drillstatus').innerHTML = "停止中";
+            		}
+            		else{
+            			document.getElementById('drillstatus').innerHTML = "動作中";
+            		}
+            		
+            	});
+        	}
+    	}
+    	Listener.init();
+
+    	window.onload = function(){
+    	};
+    	window.onunload = function(){
+        	Listener.ros.close();
+    	};
+	}
+    </script>
+
+  </body>
+</html>
