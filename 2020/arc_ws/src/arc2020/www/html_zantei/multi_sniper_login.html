@@ -6,22 +6,31 @@
     <title>Multi Sniper Login</title>
    </head>
    		<body>
-   		<!-- タイトル -->
+   		　 <!-- タイトル -->
 		    <p><center><font size="5">Multi Sniper</font></p>
 		    <!-- 入力画面指定 -->
 		    <p><form action="" method="post"></form></p>
 			<!-- ユーザー名入力 -->
-			<p><br><input type="text" name="username" placeholder="Username"></p>
+			<p><br><input type="text" id="username" placeholder="Username"></p>			
             <!-- パスワード入力 -->
-            <p><br><input type="text" name="password" placeholder="Password"></p>
+            <p><br><input type="text" id="password" placeholder="Password"></p>
             <!-- ログインボタン設定 -->
             <!-- location.href="ここにメイン選択のパスを設定" -->
-            <p><input type="button" onclick="location.href='multi_sniper_setting.html'"  value="Login"></p>          
+            <p><input type="button" 
+                    onclick="loginmsglatch(); location.href='multi_sniper_setting.html'" value="Login"></p>
+                <script>
+                function loginmsglatch(){
+                //テキストボックスの値を取得
+                    var value_username = document.getElementById("username").value;
+                    var value_password = document.getElementById("password").value;
+                //値を設定する
+                    document.querySelector('.area_username').innerHTML = value_username;
+                    document.querySelector('.area_password').innerHTML = value_password;
+                }
+                </script>            
+                <p class="area_username"><!-- 入力されたユーザー名を確認 --></p>
+                <p class="area_password"><!-- 入力されたパスワードを確認 --></p>                
+                
 		    </center></p>
-		    <div style="text-align: right;">
-		    <a href="multi_sniper_debug.html">
-		    <img src="img/debug_botton.jpg" alt="穴あけイメージ" height="50" width="100" /><br>
-		    </a>
-		    </div>
   		</body>
 </html>
