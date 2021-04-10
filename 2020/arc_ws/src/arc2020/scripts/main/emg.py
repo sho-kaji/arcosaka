@@ -7,11 +7,12 @@ import rospy
 
 # gpio制御用
 import pigpio
+#from GPIO import GPIO 
 
 # 自分で定義したmessageファイルから生成されたモジュール
 from arc2020.msg import emg
 
-PIN_EMG = 23
+PIN_EMG = 13
 CYCLES = 60 #処理周波数
 # 定数などの定義ファイルimport
 

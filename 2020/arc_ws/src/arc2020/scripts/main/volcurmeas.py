@@ -25,6 +25,8 @@ from arc2020.msg import volcurmeas
 CYCLES = 60 #処理周波数
 # 定数などの定義ファイルimport
 
+v_aves = []
+i_aves = []
 
 # class  定義
 class VOLCURMEAS_DEV(object):
@@ -67,8 +69,8 @@ class VOLCURMEAS_DEV(object):
             # キャリブレーションレジスタの設定
             # 0.00512/((0.0015[mΩ])*0.001)
             #setdata = int(0.00512/((BATT_R)*0.001))
-            #setdata = ((setdata << 8) & 0xFF00) + (setdata >> 8)
             setdata = 0x0800
+            setdata = ((setdata << 8) & 0xFF00) + (setdata >> 8)
             self.i2c.write_word_data(I2C_INA226, ADDR_R, setdata)
             print('init')
             self.is_enable = True
@@ -114,7 +116,7 @@ class VOLCURMEAS_DEV(object):
             word = self.i2c.read_word_data(I2C_INA226, ADDR_I) & 0xFFFF
 #10.10.8 wata            curr = ((word << 8) & 0xFF00) + (word >> 8)
             result = ((word << 8) & 0xFF00) + (word >> 8)
-            curr = result * 2.5 / 1000
+            curr = result / 1000.0000
         return curr
     # end read_i
 
@@ -133,42 +135,42 @@ class VOLCURMEAS_DEV(object):
         """
         電流電圧読み取りループ
         """
-        v_aves = []
-        i_aves = []
-        while self.is_enable:
-            v_now = self.read_v()
-            v_aves.append(v_now)
-            if len(v_aves) > 100:
-                del v_aves[0]
-            self.v_ave = sum(v_aves) / len(v_aves)
+#        v_aves = []
+#        i_aves = []
+#        while self.is_enable:
+        self.v_now = self.read_v()
+#        v_aves.append(v_now)
+#        if len(v_aves) > 100:
+#            del v_aves[0]
+#        self.v_ave = sum(v_aves) / len(v_aves)
 
-            i_now = self.read_i() / 1000.0
-            self.i_sgm += i_now
-            i_aves.append(i_now)
-            if len(i_aves) > 100:
-                del i_aves[0]
-            self.i_ave = sum(i_aves) / len(i_aves)
+        self.i_now = self.read_i()
+#        self.i_sgm += i_now
+#        i_aves.append(i_now)
+#        if len(i_aves) > 100:
+#            del i_aves[0]
+#        self.i_ave = sum(i_aves) / len(i_aves)
 
-            print "NOW={:.2f}[V]\t".format(v_now) + "AVE={:.2f}[V]\t".format(self.v_ave) + \
-                "NOW={:.4f}[A]\t".format(i_now) + "AVE={:.4f}[A]\t".format(self.i_ave) + \
-                "SGM={:.4f}[Asec]\t".format(self.i_sgm)
+#        print "NOW={:.2f}[V]\t".format(v_now) + "AVE={:.2f}[V]\t".format(self.v_ave) + \
+#            "NOW={:.4f}[A]\t".format(i_now) + "AVE={:.4f}[A]\t".format(self.i_ave) + \
+#            "SGM={:.4f}[Asec]\t".format(self.i_sgm)
+#
+#        if self.v_ave < BATT_VLOW:
+#            self.cnt_battlow += 1
+#            print "電圧低下(" + str(self.cnt_battlow) + ")"
+#        elif self.i_ave > BATT_IHI:
+#            # self.cnt_battlow += 1
+#            print "電流異常(" + str(self.cnt_battlow) + ")"
+#        else:
+#            self.cnt_battlow = 0
+#
+#        if self.cnt_battlow > BATT_ERR:
+#            self.endfnc()
+#
+#        else:
+#            pass
 
-            if self.v_ave < BATT_VLOW:
-                self.cnt_battlow += 1
-                print "電圧低下(" + str(self.cnt_battlow) + ")"
-            elif self.i_ave > BATT_IHI:
-                # self.cnt_battlow += 1
-                print "電流異常(" + str(self.cnt_battlow) + ")"
-            else:
-                self.cnt_battlow = 0
-
-            if self.cnt_battlow > BATT_ERR:
-                self.endfnc()
-
-            else:
-                pass
-
-            time.sleep(1)
+        time.sleep(1)
     # end read_vi_loop
 
     def endfnc(self):
@@ -196,10 +198,12 @@ class VOLCURMEAS_DEV(object):
         self.read_vi_loop()
 
         # メッセージを発行する
-        self.msg_volcurmeas.volt = self.v_ave
-        self.msg_volcurmeas.cur = self.i_ave
+        self.msg_volcurmeas.volt = self.v_now
+        self.msg_volcurmeas.cur = self.i_now
         self.pub_volcurmeas.publish(self.msg_volcurmeas)
 
+        print(self.v_now)
+        print(self.i_now)
 def volcurmeas_py():
     # 初期化宣言 : このソフトウェアは"led_py_node"という名前
     rospy.init_node('volcurmeas_py_node', anonymous=True)
