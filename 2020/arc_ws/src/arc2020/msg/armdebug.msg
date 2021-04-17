@@ -1,2 +1,5 @@
+int32 drill_req
 int32 armdrillstatus
+int32 drill_height_value
+int32 drill_width_value
 int32 armretorgsw

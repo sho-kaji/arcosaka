@@ -149,7 +149,6 @@ class StepMortorClass(object):
                 self.step_o = 0
                 self.step_n = 0
                 self.issetpos = False
-                #self.retorgsw = False
 
             except TypeError as ex:
                 print(ex)
@@ -262,7 +261,8 @@ class StepMortorClass(object):
             self.pic.set_mode(self.port_a, pigpio.OUTPUT)
             self.pic.set_mode(self.port_b, pigpio.OUTPUT)
             # ENABLE端子
-            self.pic.write(self.port_en, pigpio.HIGH)
+            if self.step_n != 0 :
+                self.pic.write(self.port_en, pigpio.HIGH)
 
         for i in range(abs(self.step_n)):
             if self.issetpos or (\

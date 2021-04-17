@@ -68,6 +68,8 @@ find_package(catkin REQUIRED COMPONENTS
     volcurmeas.msg
     sql.msg
     mileage.msg
+    servo.msg
+    step.msg
  )
 
 ## Generate services in the 'srv' folder

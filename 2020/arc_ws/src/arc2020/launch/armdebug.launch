@@ -2,6 +2,8 @@
   <group ns="arc2020_2">
     <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
     <node pkg="arc2020" name="armdebug" type="armdebug.py" output="screen"/>
+    <node pkg="arc2020" name="servodebug" type="servodebug.py" output="screen"/>
+    <node pkg="arc2020" name="stepdebug" type="stepdebug.py" output="screen"/>
     <include file="$(find roswww)/launch/roswww.launch" />
   </group>
 </launch>

@@ -15,7 +15,7 @@ DEBUG_BODY = False  # ボディデバッグモードフラグ
 
 CHANNEL_HAND = 0  # ハンドモーターポート番号
 
-LIM_HANDV_MAX = 3500  # ハンド垂直モーター最大値
+LIM_HANDV_MAX = 4938  # ハンド垂直モーター最大値
 LIM_HANDV_MIN = 0  # ハンド垂直モーター最小値
 
 PORT_HANDV_A = 11  # ハンド垂直モーターAポート番号
