@@ -4,9 +4,11 @@
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <!--<link rel="stylesheet" type="text/css" href="debug.css"> -->
     <title>Multi Sniper Login</title>
+    <script src="eventemitter2.min.js"></script>
+    <script src="roslib.min.js"></script>
    </head>
    		<body>
-   		　 <!-- タイトル -->
+   		    <!-- タイトル -->
 		    <p><center><font size="5">Multi Sniper</font></p>
 		    <!-- 入力画面指定 -->
 		    <p><form action="" method="post"></form></p>
@@ -27,6 +29,46 @@
                     document.querySelector('.area_username').innerHTML = value_username;
                     document.querySelector('.area_password').innerHTML = value_password;
                 }
+                
+                	if(!Talker){
+	                    var Talker = {
+	                	ros : null,
+	                	name : "",
+	                	init : function(){
+	                	    this.ros = new ROSLIB.Ros();
+                                    this.ros.on('error', function(error) {
+                                       // document.getElementById('state').innerHTML = "Error";
+                                    });
+                                    this.ros.on('connection', function(error) {
+                                       // document.getElementById('state').innerHTML = "Connect";
+                                    });
+                                    this.ros.on('close', function(error) {
+                                       // document.getElementById('state').innerHTML = "Close";
+                                    });
+                                   //送信トピック作成(ホストネームやポート番号は不明なため暫定で記載)
+                                    this.ros.connect('ws://' + location.hostname + ':9090');
+	                	},
+
+                		send : function(){
+                			//送信トピック作成
+                			var tp_multi_sniper_login = new ROSLIB.Topic({
+	                			ros : this.ros,
+	                		//暫定で設定
+	                			name :'/sample2/htmllogin',
+	                			messageType : 'multi_sniper_login/client'
+	                		});
+                
+	                		//送信メッセージを作成
+	                		var multi_sniper_login = new ROSLIB.Message({
+		                		username_login     :String(value_username),
+		                		password_login     :String(value_password)
+		                	});
+
+                			tp_multi_sniper_login.publish(multi_sniper_login);
+                		}
+                	    }
+                  	 }
+
                 </script>            
                 <p class="area_username"><!-- 入力されたユーザー名を確認 --></p>
                 <p class="area_password"><!-- 入力されたパスワードを確認 --></p>                
