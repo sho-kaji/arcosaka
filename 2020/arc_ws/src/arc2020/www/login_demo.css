@@ -1,0 +1,42 @@
+body {
+    background-color: white;
+    color: #333;
+    font-size: 3ex;
+}
+@media (prefers-color-scheme: dark) {
+    /* ダークテーマ用 */
+    body {
+        background-color: #333;
+        color: white;
+    }
+    input{
+        background-color: #535353;
+        color: white;
+        border-style: solid;
+        border-width: 1px;
+        border-color: #999;
+    }
+}
+
+input{
+    -webkit-appearance: none;/* iOS系でボタンとかの角が丸くなるのを防ぐ */
+    font-size: 2ex;
+    margin: 4px;
+}
+
+input[type=submit] {
+    grid-column-start: 1;
+    grid-column-end: -1;
+    font-size: 3ex;
+}
+
+form {
+    display: grid;
+    grid-template-columns: auto 1fr;
+}
+
+label {
+    display: flex;
+    align-items:center;         /* 上下方向中央寄せ */
+    justify-content:flex-end;   /* 右寄せ */
+}
