@@ -39,8 +39,8 @@ class STEPROTATE(IntEnum):
     STOP = 0
     PLUS = 1
 
-STEP_1PULSE = 81 / 1000.0  # 1パルス距離[mm]
-STEP_FREQ = 160  # ステッピングモーター周波数[Hz]
+STEP_1PULSE = 75 / 1000.0  # 1パルス距離[mm]
+STEP_FREQ = 240  # ステッピングモーター周波数[Hz]
 STEP_DUTY = 50  # ステッピングモーターDuty[%]
 STEP_MAX = 3500
 STEP_MIN = 0

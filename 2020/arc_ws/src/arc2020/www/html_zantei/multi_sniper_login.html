@@ -4,24 +4,75 @@
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <!--<link rel="stylesheet" type="text/css" href="debug.css"> -->
     <title>Multi Sniper Login</title>
+    <script src="eventemitter2.min.js"></script>
+    <script src="roslib.min.js"></script>
    </head>
    		<body>
-   		<!-- タイトル -->
+   		    <!-- タイトル -->
 		    <p><center><font size="5">Multi Sniper</font></p>
 		    <!-- 入力画面指定 -->
 		    <p><form action="" method="post"></form></p>
 			<!-- ユーザー名入力 -->
-			<p><br><input type="text" name="username" placeholder="Username"></p>
+			<p><br><input type="text" id="username" placeholder="Username"></p>			
             <!-- パスワード入力 -->
-            <p><br><input type="text" name="password" placeholder="Password"></p>
+            <p><br><input type="text" id="password" placeholder="Password"></p>
             <!-- ログインボタン設定 -->
             <!-- location.href="ここにメイン選択のパスを設定" -->
-            <p><input type="button" onclick="location.href='multi_sniper_setting.html'"  value="Login"></p>          
+            <p><input type="button" 
+                    onclick="loginmsglatch(); location.href='multi_sniper_setting.html'" value="Login"></p>
+                <script>
+                function loginmsglatch(){
+                //テキストボックスの値を取得
+                    var value_username = document.getElementById("username").value;
+                    var value_password = document.getElementById("password").value;
+                //値を設定する
+                    document.querySelector('.area_username').innerHTML = value_username;
+                    document.querySelector('.area_password').innerHTML = value_password;
+                }
+                
+                	if(!Talker){
+	                    var Talker = {
+	                	ros : null,
+	                	name : "",
+	                	init : function(){
+	                	    this.ros = new ROSLIB.Ros();
+                                    this.ros.on('error', function(error) {
+                                       // document.getElementById('state').innerHTML = "Error";
+                                    });
+                                    this.ros.on('connection', function(error) {
+                                       // document.getElementById('state').innerHTML = "Connect";
+                                    });
+                                    this.ros.on('close', function(error) {
+                                       // document.getElementById('state').innerHTML = "Close";
+                                    });
+                                   //送信トピック作成(ホストネームやポート番号は不明なため暫定で記載)
+                                    this.ros.connect('ws://' + location.hostname + ':9090');
+	                	},
+
+                		send : function(){
+                			//送信トピック作成
+                			var tp_multi_sniper_login = new ROSLIB.Topic({
+	                			ros : this.ros,
+	                		//暫定で設定
+	                			name :'/sample2/htmllogin',
+	                			messageType : 'multi_sniper_login/client'
+	                		});
+                
+	                		//送信メッセージを作成
+	                		var multi_sniper_login = new ROSLIB.Message({
+		                		username_login     :String(value_username),
+		                		password_login     :String(value_password)
+		                	});
+
+                			tp_multi_sniper_login.publish(multi_sniper_login);
+                		}
+                	    }
+                  	 }
+
+                </script>            
+                <p class="area_username"><!-- 入力されたユーザー名を確認 --></p>
+                <p class="area_password"><!-- 入力されたパスワードを確認 --></p>                
+                
 		    </center></p>
-		    <div style="text-align: right;">
-		    <a href="multi_sniper_debug.html">
-		    <img src="img/debug_botton.jpg" alt="穴あけイメージ" height="50" width="100" /><br>
-		    </a>
-		    </div>
   		</body>
 </html>
