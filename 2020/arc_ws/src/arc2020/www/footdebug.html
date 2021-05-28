@@ -20,21 +20,37 @@
     </div>
     <div class="box1">
 	<div class="slider">
-	    <div><span class="slider_title">右モータ</span>
+	    <div><span class="slider_title">モータ 右</span>
 		<input id="slider_r" type="range" min="-100" max="100" step="1" />
 		<span id="value_r">0</span>
 		</div>
 	    </div>
-	    <div><span class="slider_title">左モータ</span>
+	    <div><span class="slider_title">モータ 左</span>
 		<input id="slider_l" type="range" min="-100" max="100" step="1" />
 		<span id="value_l">0</span>
             </div>
 	</div>
     </div>
-    原点復帰SW状態： <label id="switch">---</label>
-    <div>
-    アーム動作状態： <label id="drillstatus">---</label>
-    <div>
+    <div>ロータリーエンコーダ値： <label id="rot_encode">---</label></div>
+    <div>距離センサー値 右： <label id="sonar_r">---</label></div>
+    <div>距離センサー値 左： <label id="sonar_l">---</label></div>
+    <div>ライントレーサ値 0： <label id="line_0">---</label></div>
+    <div>ライントレーサ値 1： <label id="line_1">---</label></div>
+    <div>ライントレーサ値 2： <label id="line_2">---</label></div>
+    <div>ライントレーサ値 3： <label id="line_3">---</label></div>
+    <div>ライントレーサ値 4： <label id="line_4">---</label></div>
+    <div>ライントレーサ値 5： <label id="line_5">---</label></div>
+    <div>ライントレーサ値 6： <label id="line_6">---</label></div>
+    <div>ライントレーサ値 7： <label id="line_7">---</label></div>
+    <div>加速度           x： <label id="accel_x">---</label></div>
+    <div>加速度           y： <label id="accel_y">---</label></div>
+    <div>加速度           z： <label id="accel_z">---</label></div>
+    <div>角速度           x： <label id="gyro_x">---</label></div>
+    <div>角速度           y： <label id="gyro_y">---</label></div>
+    <div>角速度           z： <label id="gyro_z">---</label></div>
+    <div>方位             x： <label id="complement_x">---</label></div>
+    <div>方位             y： <label id="complement_y">---</label></div>
+    <div>方位             z： <label id="complement_z">---</label></div>
     
     <script type="text/javascript">
 	if(!Talker){
@@ -93,7 +109,7 @@
         //スライダーバーの設定
           //初期値：適宜編集してください。ファイルから読み込む方法は検索中
 	var init_value = [0,0];
-  var slider = ["slider_r","slider_l"];
+        var slider = ["slider_r","slider_l"];
 	var value = ["value_r","value_l"];
 	var slider_elem = [1,2];
 	var value_elem  = [1,2];
@@ -146,24 +162,13 @@
 
             	var sub_to_client = new ROSLIB.Topic({
                 	ros : this.ros,
-                	name : '/arc2020_3/foot_debug',
+                	name : '/arc2020_3/foot_debug_read',
                 	messageType : 'arc2020/foot'
             	});
             	sub_to_client.subscribe(function(message) {
-            		if(message.armretorgsw == 0){
-            			document.getElementById('switch').innerHTML = "OFF";
-            		}
-            		else{
-            			document.getElementById('switch').innerHTML = "ON";
-            		}
-            		
-            		if(message.armdrillstatus == 0){
-            			document.getElementById('drillstatus').innerHTML = "停止中";
-            		}
-            		else{
-            			document.getElementById('drillstatus').innerHTML = "動作中";
-            		}
-            		
+            		document.getElementById('rot_encode').innerHTML = message.rot_encode;
+            		document.getElementById('sonar_l').innerHTML = message.sonar_l;
+            		document.getElementById('sonar_r').innerHTML = message.sonar_r;
             	});
         	}
     	}
