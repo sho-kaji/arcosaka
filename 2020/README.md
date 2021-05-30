@@ -10,6 +10,7 @@ Linux raspberrypi 4.19.115-v7l+ #1305 SMP Fri Apr 17 11:59:28 BST 2020 armv7l GN
 をインストールしました。  
 
 # Dockerのinstall
+- for raspberry-pi  
 まずは下記にしたがってDockerをラズパイ環境にinstallしてください
 ```
 コマンドライン
@@ -23,6 +24,10 @@ $ sudo usermod -aG docker $(whoami)
 
 ```
 ユーザがグループdockerに入ったのを反映するため、一旦ログアウトして、再度ログインします。（再起動でもよい）
+
+- docker desktop for mac(windows)  
+下記からDLしてInstallしてください  
+https://www.docker.com/products/docker-desktop
 
 # gitのinstallと該当レポジトリのclone
 
@@ -39,25 +44,76 @@ $ cd arcosaka/2020/docker_ws/
 $ docker build -t arc2020ros .
 
 ```
-arc2020rosは任意の名前に変更可能。
+arc2020ros: このあと作成するコンテナの元になるイメージの名前です。
+            任意の名前に変更可能です。
 
 # コンテナの起動
 dockerコンテナを起動します。
 
 ```
-$ docker run --name arc2020cont --net host --privileged -u root -v /sys:/sys -v /dev/mem:/dev/mem -v /home/pi/.ros/:/root/.ros/ -v /home/pi/arcosaka/2020/arc_ws/:/root/catkin_ws/ -it arc2020ros:latest
+$ docker run --name arc2020cont -p 8085:8085 --privileged -u root -v /sys:/sys -v /dev/mem:/dev/mem -v /home/pi/.ros/:/root/.ros/ -v /home/pi/arcosaka/2020/arc_ws/:/root/catkin_ws/ -it arc2020ros:latest
 ```
-/home/pi/arcosaka/2020/arc_ws/はgitリポジトリをcloneしたディレクトリとあわせてください
+- 引数の簡単な意味
+  - arc2020cont   
+              コンテナの名前です。
+              任意の名前に変更可能です。
+  - -p 8085:8085  
+               port8085をhost os と dockerコンテナで共有します。
+               roswwwで8085を使用するためこのように設定します。
+  - --privileged 
+  - -u root
+  - -v /sys:/sys  
+                  host os とのディレクトリ共有です。  
+                  /host_osディレクトリ:/dockerコンテナディレクトリ
+  - -v /dev/mem:/dev/mem  
+                  host os とのディレクトリ共有です。
+  - -v /home/pi/.ros/:/root/.ros/  
+                  host os とのディレクトリ共有です。
+  - -v /home/pi/arcosaka/2020/arc_ws/:/root/catkin_ws/  
+                  host os とのディレクトリ共有です。  
+                  /home/pi/arcosaka/2020/arc_ws/はgitリポジトリをcloneしたディレクトリとあわせてください
+  - -it  
+                  bash起動の指定です。
+  - arc2020ros:latest  
+                  arc2020rosイメージの最新版を使用してコンテナを作成するという意味になります。
 
+##### dockerのコマンドあれこれ
+- コンテナから抜けるとき
+  - Ctrl-p,Ctrl-qで抜けます。
+- 再度コンテナに入る時
+```
+$ docker attach arc2020cont
+```
+- コンテナを停止する時
+```
+$ docker stop arc2020cont
+```
+- 停止したコンテナを起動してコンテナ内に入る時
+```
+$ docker start -i arc2020cont
+```
+- 現在存在するコンテナを確認する時
+```
+$ docker ps -a
+```
+- コンテナを削除する時
+```
+$ docker rm (コンテナ名)
+```
 
-# コンテナ内での作業開始 rosのbuild
-コンテナの中のbashに入ったのでmake、make installを実施します。
+# コンテナ内での作業開始
+コンテナの中のbashに入ったのでrosのpath設定を実施します。
 
 ```bash
-$ catkin_make
-$ catkin_make install
-$ source /ros_entrypoint.sh
-$ source devel/setup.sh
+# source devel/setup.sh
+```
+
+## rosのbuild
+docker build時にros buildも同時に実行されますが、
+もし、msgなどを追加した場合は下記コマンドでbuildしなおしてください。
+```bash
+# catkin_make
+# catkin_make install
 ```
 
 # サンプルの実行
@@ -84,4 +140,3 @@ $ sudo ufw status
 * 作成者
 * 所属
 * E-mail
-
