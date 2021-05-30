@@ -18,6 +18,3 @@ RUN set -x &&\
 RUN set -x catkin_make
 RUN set -x catkin_make install
 ENV PYTHONPATH=${PYTHONPATH}:/root/catkin_ws/src/arc2020/scripts
-COPY startup.sh /startup.sh
-RUN chmod 777 /startup.sh
-#ENTRYPOINT ["/bin/bash","-c","source /startup.sh"]
