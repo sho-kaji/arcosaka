@@ -51,15 +51,16 @@ arc2020ros: このあと作成するコンテナの元になるイメージの�
 dockerコンテナを起動します。
 
 ```
-$ docker run --name arc2020cont -p 8085:8085 --privileged -u root -v /sys:/sys -v /dev/mem:/dev/mem -v /home/pi/.ros/:/root/.ros/ -v /home/pi/arcosaka/2020/arc_ws/:/root/catkin_ws/ -it arc2020ros:latest
+$ docker run --name arc2020cont -p 8085:8085 -p 9090:9090 --privileged -u root -v /sys:/sys -v /dev/mem:/dev/mem -v /home/pi/.ros/:/root/.ros/ -v /home/pi/arcosaka/2020/arc_ws/:/root/catkin_ws/ -it arc2020ros:latest
 ```
 - 引数の簡単な意味
   - arc2020cont   
               コンテナの名前です。
               任意の名前に変更可能です。
   - -p 8085:8085  
-               port8085をhost os と dockerコンテナで共有します。
-               roswwwで8085を使用するためこのように設定します。
+  - -p 9090:9090
+               port8085,9090をhost os と dockerコンテナで共有します。
+               roswwwで8085,9090を使用するためこのように設定します。
   - --privileged 
   - -u root
   - -v /sys:/sys  
