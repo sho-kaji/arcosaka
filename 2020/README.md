@@ -102,19 +102,22 @@ $ docker rm (コンテナ名)
 ```
 
 # コンテナ内での作業開始
-コンテナの中のbashに入ったのでrosのpath設定を実施します。
-
-```bash
-# source devel/setup.sh
-```
-
 ## rosのbuild
-docker build時にros buildも同時に実行されますが、
-もし、msgなどを追加した場合は下記コマンドでbuildしなおしてください。
+初回起動時及び  
+msgなどを追加した場合は下記コマンドでbuildしなおしてください。
 ```bash
 # catkin_make
 # catkin_make install
 ```
+
+## PATHの設定 
+コンテナの中のbashに入ったのでrosのpath設定を実施します。
+おそらくdocker startするたびに必要なはず
+```bash
+# source devel/setup.sh
+```
+
+
 
 # サンプルの実行
 2019のWebGUIをサンプル実行します
