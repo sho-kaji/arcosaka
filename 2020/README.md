@@ -58,7 +58,7 @@ $ docker run --name arc2020cont -p 8085:8085 -p 9090:9090 --privileged -u root -
               コンテナの名前です。
               任意の名前に変更可能です。
   - -p 8085:8085  
-  - -p 9090:9090
+  - -p 9090:9090  
                port8085,9090をhost os と dockerコンテナで共有します。
                roswwwで8085,9090を使用するためこのように設定します。
   - --privileged 
