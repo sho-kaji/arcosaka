@@ -2,7 +2,7 @@
 import pigpio
 import time
 
-__pigpio__ = 1
+from PIGPIO_SWITCH import __pigpio__
 
 PWM_PIN = [25,24] #PWM IN1,IN2
 FREQ = 100
@@ -39,7 +39,7 @@ class DCMotor(object):
                 # 停止はどうかくのか考え中
                 self.pi.set_PWM_dutycycle(self.PINS[0], 0)
                 self.pi.set_PWM_dutycycle(self.PINS[1], 0) #デューティー比変更
-        print("duty "+str(inDuty)+" "+str(self.duty))
+        # print("duty "+str(inDuty)+" "+str(self.duty))
         time.sleep(0.5)
 
 

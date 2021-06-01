@@ -13,6 +13,8 @@ from arc2020.msg import foot
 
 
 from dc_motor import DCMotor
+from hcsr04 import HCSR04Class
+
 #import GPIOPIN
 from GPIO import GPIOPIN
 # class Led 定義
@@ -30,11 +32,22 @@ class FootDebug(object):
         コンストラクタ
         """
         # 送信作成
-        #self.pub_mileage = rospy.Publisher('mileage', mileage, queue_size=100)
+        self.pub = rospy.Publisher('foot_sensor', foot, queue_size=100)
         # messageのインスタンスを作る
         self.msg_foot = foot()
+
+        # DC Motor用のインスタンス作成
         self.motor_r =  DCMotor(GPIOPIN.DC_MOTOR_A1.value,GPIOPIN.DC_MOTOR_A2.value)
         self.motor_l =  DCMotor(GPIOPIN.DC_MOTOR_B1.value,GPIOPIN.DC_MOTOR_B2.value)
+
+        # Sonor用のインスタンス作成
+        port = (GPIOPIN.SONAR_TRIG1.value,GPIOPIN.SONAR_PULS.value)
+        self.sonor_1 = HCSR04Class(False,port)
+
+        port = (GPIOPIN.SONAR_TRIG2.value,GPIOPIN.SONAR_PULS.value)
+        self.sonor_2 = HCSR04Class(False,port)
+
+        # Subscriber登録
         rospy.Subscriber('foot_debug', foot, self.callback, queue_size=1)
         
         # 送信メッセージ初期化
@@ -44,10 +57,12 @@ class FootDebug(object):
         self.motor_l.changeDuty(msg.motor_l)
 #--------------------
     def main(self):
-        i = 1
+        self.msg_foot.sonor_1 = self.sonor_1.read()
+        self.msg_foot.sonor_2 = self.sonor_2.read()
         # メッセージを発行する
-        #print(self.msg_mileage.mileage)
-        #self.pub_mileage.publish(self.msg_mileage)
+        # print("sonor1 = " + str(self.msg_foot.sonor_1))
+        # print("sonor2 = " + str(self.msg_foot.sonor_2))
+        self.pub.publish(self.msg_foot)
 
 
 def foot_debug_py():

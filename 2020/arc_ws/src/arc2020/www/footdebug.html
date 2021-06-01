@@ -1,186 +1,354 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-  <head>
-    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-    <!--<link rel="stylesheet" type="text/css" href="debug.css"> -->
-    <title>FootDebug</title>
-    <script src="eventemitter2.min.js"></script>
-    <script src="roslib.min.js"></script>
-  </head>
 
-  <body>
-    <div class="drill_req">
-          drill_req： <label id="drill_req">---</label>
-    </div>
-    <div class="drill_req">
-	<form action="javascript:onoff();" id="ui">
-	    <input id="btn_drill_req" type="submit" value="ON"  />
-	<!-- <form action="javascript:Talker.send();" id="ui">-->
-	</form>
-    </div>
-    <div class="box1">
-	<div class="slider">
-	    <div><span class="slider_title">モータ 右</span>
-		<input id="slider_r" type="range" min="-100" max="100" step="1" />
-		<span id="value_r">0</span>
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<!--<link rel="stylesheet" type="text/css" href="debug.css"> -->
+	<title>FootDebug</title>
+	<script src="eventemitter2.min.js"></script>
+	<script src="roslib.min.js"></script>
+</head>
+
+<body>
+	<style type="text/css">
+		[type="range"] {
+			margin-top: 5%;
+			width: 200px;
+			-webkit-transform: rotate(270deg);
+			-moz-transform: rotate(270deg);
+			-o-transform: rotate(270deg);
+			transform: rotate(270deg);
+		}
+
+		::-webkit-slider-runnable-track {
+			background: #ddd;
+		}
+
+		/*
+ * 1. Set to 0 width and remove border for a slider without a thumb
+ */
+		::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			width: 20px;
+			/* 1 */
+			height: 40px;
+			background: #fff;
+			/*box-shadow: -100vw 0 0 100vw dodgerblue;*/
+			border: 2px solid #999;
+			/* 1 */
+		}
+
+		::-moz-range-track {
+			height: 40px;
+			background: #ddd;
+		}
+
+		::-moz-range-thumb {
+			background: #fff;
+			height: 40px;
+			width: 20px;
+			border: 3px solid #999;
+			border-radius: 0 !important;
+			/*box-shadow: -100vw 0 0 100vw dodgerblue;*/
+			box-sizing: border-box;
+		}
+
+		::-ms-thumb {
+			background: #fff;
+			border: 2px solid #999;
+			height: 40px;
+			width: 20px;
+			box-sizing: border-box;
+		}
+
+		::-ms-ticks-after {
+			display: none;
+		}
+
+		::-ms-ticks-before {
+			display: none;
+		}
+
+		::-ms-track {
+			background: #ddd;
+			color: transparent;
+			height: 40px;
+			border: none;
+		}
+
+		::-ms-tooltip {
+			display: none;
+		}
+
+
+		#motor_table,#sensor_table{
+			margin-left: 50px;
+		}
+
+		#motor_silder {
+			height: 200px;
+			text-align: center;
+		}
+
+		[id="sensor"] {
+			margin-top: 0%;
+		}
+
+		#sensor_table,
+		th {
+			border: 1px solid black;
+
+		}
+
+		#sensor_table,
+		td {
+			min-width: 30px;
+			text-align: center;
+		}
+	</style>
+	<div class="content-box">
+		<div class="slider">
+			<span class="slider_title">モータ</span>
+			<table id="motor_table">
+				<tr>
+					<th>左</th>
+					<td></td>
+					<th>右</th>
+				</tr>
+				<tr id="motor_silder">
+					<td>
+						<input id="slider_l" type="range" min="-100" max="100" step="1" />
+					</td>
+					<td>
+						<div class="toggle-container">
+							<input id="lock" type="checkbox" />
+							<div class="slider round">lock</div>
+						</div>
+						<div><span id="value_lock">0</span></div>
+						<button id="reset">reset</button>
+					</td>
+					<td>
+						<input id="slider_r" type="range" min="-100" max="100" step="1" />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<span id="value_l">0</span>
+					</td>
+					<td></td>
+					<td>
+						<span id="value_r">0</span>
+					</td>
+				</tr>
+			</table>
 		</div>
-	    </div>
-	    <div><span class="slider_title">モータ 左</span>
-		<input id="slider_l" type="range" min="-100" max="100" step="1" />
-		<span id="value_l">0</span>
-            </div>
+
+
+		<div id="sensor">
+			<table id="sensor_table">
+				<tr>
+					<th>ロータリーエンコーダ</th>
+					<td><label id="rot_encode">---</label></td>
+				</tr>
+				<tr>
+					<th>距離センサー</th>
+					<th>左</th>
+					<th>右</th>
+				</tr>
+				<tr>
+					<td></td>
+					<td><label id="sonar_l">---</label></td>
+					<td><label id="sonar_r">---</label></td>
+				</tr>
+				<!--
+			</table>
+			<table id="line">
+			-->
+				<tr>
+					<th>ライントレーサ</th>
+					<th>0</th>
+					<th>1</th>
+					<th>2</th>
+					<th>3</th>
+					<th>4</th>
+					<th>5</th>
+					<th>6</th>
+					<th>7</th>
+				</tr>
+				<tr>
+					<td></td>
+					<td><label id="line_0">---</label></td>
+					<td><label id="line_1">---</label></td>
+					<td><label id="line_2">---</label></td>
+					<td><label id="line_3">---</label></td>
+					<td><label id="line_4">---</label></td>
+					<td><label id="line_5">---</label></td>
+					<td><label id="line_6">---</label></td>
+					<td><label id="line_7">---</label></td>
+				</tr>
+				<!--
+			</table>
+			<table id="line">
+			-->
+				<tr>
+					<th>ジャイロ</th>
+					<th>x</th>
+					<th>y</th>
+					<th>z</th>
+				</tr>
+				<tr>
+					<td>加速度</td>
+					<td><label id="accel_x">---</label></td>
+					<td><label id="accel_y">---</label></td>
+					<td><label id="accel_z">---</label></td>
+				</tr>
+				<tr>
+					<td>角速度</td>
+					<td><label id="gyro_x">---</label></td>
+					<td><label id="gyro_y">---</label></td>
+					<td><label id="gyro_z">---</label></td>
+				</tr>
+				<tr>
+					<td>方位</td>
+					<td><label id="complement_x">---</label></td>
+					<td><label id="complement_y">---</label></td>
+					<td><label id="complement_z">---</label></td>
+				</tr>
+			</table>
+		</div>
 	</div>
-    </div>
-    <div>ロータリーエンコーダ値： <label id="rot_encode">---</label></div>
-    <div>距離センサー値 右： <label id="sonar_r">---</label></div>
-    <div>距離センサー値 左： <label id="sonar_l">---</label></div>
-    <div>ライントレーサ値 0： <label id="line_0">---</label></div>
-    <div>ライントレーサ値 1： <label id="line_1">---</label></div>
-    <div>ライントレーサ値 2： <label id="line_2">---</label></div>
-    <div>ライントレーサ値 3： <label id="line_3">---</label></div>
-    <div>ライントレーサ値 4： <label id="line_4">---</label></div>
-    <div>ライントレーサ値 5： <label id="line_5">---</label></div>
-    <div>ライントレーサ値 6： <label id="line_6">---</label></div>
-    <div>ライントレーサ値 7： <label id="line_7">---</label></div>
-    <div>加速度           x： <label id="accel_x">---</label></div>
-    <div>加速度           y： <label id="accel_y">---</label></div>
-    <div>加速度           z： <label id="accel_z">---</label></div>
-    <div>角速度           x： <label id="gyro_x">---</label></div>
-    <div>角速度           y： <label id="gyro_y">---</label></div>
-    <div>角速度           z： <label id="gyro_z">---</label></div>
-    <div>方位             x： <label id="complement_x">---</label></div>
-    <div>方位             y： <label id="complement_y">---</label></div>
-    <div>方位             z： <label id="complement_z">---</label></div>
-    
-    <script type="text/javascript">
-	if(!Talker){
-	    var Talker = {
-		ros : null,
-		name : "",
-		init : function(){
-		    this.ros = new ROSLIB.Ros();
-                    this.ros.on('error', function(error) {
-                       // document.getElementById('state').innerHTML = "Error";
-                    });
-                    this.ros.on('connection', function(error) {
-                       // document.getElementById('state').innerHTML = "Connect";
-                    });
-                    this.ros.on('close', function(error) {
-                       // document.getElementById('state').innerHTML = "Close";
-                    });
-                    this.ros.connect('ws://' + location.hostname + ':9091');
-		},
-		send : function(){
-			//送信トピック作成
-			var pub_to_foot = new ROSLIB.Topic({
-				ros : this.ros,
-				name :'/arc2020_3/foot_debug',
-				messageType : 'arc2020/foot'
-			});
+	<script type="text/javascript">
+		if (!Talker) {
+			var Talker = {
+				ros: null,
+				name: "",
+				pub_to_foot: "",
+				init: function () {
+					this.ros = new ROSLIB.Ros();
+					this.ros.on('error', function (error) {
+						// document.getElementById('state').innerHTML = "Error";
+					});
+					this.ros.on('connection', function (error) {
+						// document.getElementById('state').innerHTML = "Connect";
+					});
+					this.ros.on('close', function (error) {
+						// document.getElementById('state').innerHTML = "Close";
+					});
 
-			//送信メッセージを作成
-			var to_foot = new ROSLIB.Message({
-			 // drill_req               :Number (drill_req_value),
-				motor_r       :Number (slider_elem[0].value),
-				motor_l       :Number (slider_elem[1].value)
-			});
+					this.ros.connect('ws://' + location.hostname + ':9090');
+					//送信トピック作成
+					this.pub_to_foot = new ROSLIB.Topic({
+						ros: this.ros,
+						name: '/arc2020_3/foot_debug',
+						messageType: 'arc2020/foot'
+					});
+				},
 
-		        document.getElementById('drill_req').innerHTML = Number(drill_req_value);
+				send: function () {
+					//送信メッセージを作成
+					var to_foot = new ROSLIB.Message({
+						// drill_req               :Number (drill_req_value),
+						motor_r: Number(slider_elem[0].value),
+						motor_l: Number(slider_elem[1].value)
+					});
+					this.pub_to_foot.publish(to_foot);
+				}
+			}
 
-			pub_to_foot.publish(to_foot);
+			Talker.init();
+
+			window.onload = function () {
+				setTimerEvent();
+			};
+			window.onunload = function () {
+				Talker.ros.close();
+			};
+		};
+
+		// 周期送信タイマー
+		var setTimerEvent = setInterval(myTimer, 500);
+		function myTimer() {
+			Talker.send();
+			//Listener.receive();
+		};
+
+		//スライダーバーの設定
+		//初期値：適宜編集してください。ファイルから読み込む方法は検索中
+		var init_value = [0, 0];
+		var slider = ["slider_r", "slider_l"];
+		var value = ["value_r", "value_l"];
+		var slider_elem = [1, 2];
+		var value_elem = [1, 2];
+		var drill_req = document.getElementById("btn_drill_req");
+		var drill_req_value = 0;
+		var value_lock = document.getElementById("value_lock");
+		var lock = document.getElementById("lock");
+		var reset = document.getElementById("reset");
+
+		for (var i = 0; i < slider.length; i++) {
+			slider_elem[i] = document.getElementById(slider[i]);
+			value_elem[i] = document.getElementById(value[i]);
+			slider_elem[i].value = init_value[i];
+			value_elem[i].innerHTML = init_value[i];
+		};
+
+		slider_elem[0].addEventListener('input', function () {
+			if (lock.checked) {
+				slider_elem[1].value = slider_elem[0].value;
+				value_lock.innerHTML = slider_elem[0].value;
+				value_elem[1].innerHTML = slider_elem[1].value;
+			}
+			value_elem[0].innerHTML = slider_elem[0].value;
+		});
+
+		slider_elem[1].addEventListener('input', function () {
+			if (lock.checked) {
+				slider_elem[0].value = slider_elem[1].value;
+				value_lock.innerHTML = slider_elem[1].value;
+				value_elem[0].innerHTML = slider_elem[1].value;
+			}
+			value_elem[1].innerHTML = slider_elem[1].value;
+		});
+
+		reset.addEventListener('click', function () {
+			for (var i = 0; i < slider.length; i++) {
+				slider_elem[i].value = init_value[i];
+				value_elem[i].innerHTML = init_value[i];
+			}
+			value_lock.innerHTML = 0;
+		});
+
+		if (!Listener) {
+			var Listener = {
+				ros: null,
+				name: "",
+				init: function () {
+					this.ros = Talker.ros;
+				},
+				receive: function () {
+					var sub_to_client = new ROSLIB.Topic({
+						ros: this.ros,
+						name: '/arc2020_3/foot_sensor',
+						messageType: 'arc2020/foot'
+					});
+					document.getElementById('sonar_l').innerHTML = 100;
+					sub_to_client.subscribe(function (message) {
+						document.getElementById('sonar_l').innerHTML = message.sonor_1;
+						document.getElementById('sonar_r').innerHTML = message.sonor_2;
+					});
+				}
+			}
+			Listener.init();
+
+			window.onload = function () {
+				Listener.receive();
+			};
+			window.onunload = function () {
+				Listener.ros.close();
+			};
 		}
-	    }
+	</script>
 
-	    Talker.init();
+</body>
 
-	    window.onload = function(){
-	    };
-	    window.onunload = function(){
-		Talker.ros.close();
-	    };
-        };
-
-        // 周期送信タイマー
-	var setTimerEvent = setInterval(myTimer,500);
-        function myTimer(){
-            Talker.send();
-	};
-
-        //スライダーバーの設定
-          //初期値：適宜編集してください。ファイルから読み込む方法は検索中
-	var init_value = [0,0];
-        var slider = ["slider_r","slider_l"];
-	var value = ["value_r","value_l"];
-	var slider_elem = [1,2];
-	var value_elem  = [1,2];
-        var drill_req = document.getElementById("btn_drill_req");
-        var drill_req_value = 0;
-	var rangeValue = function (slider,value) {
-	      return function(evt){
-	        value.innerHTML = slider.value;
-	      }
-	    };
-
-        for(var i = 0;i < slider.length; i++){
-	    slider_elem[i] = document.getElementById(slider[i]);
-	    value_elem[i]  = document.getElementById(value[i]);
-            slider_elem[i].value = init_value[i];
-            value_elem[i].innerHTML = init_value[i];
-	    slider_elem[i].addEventListener('input', 
-	                                    rangeValue(slider_elem[i], value_elem[i])
-	    );
-	};
-
-	function onoff(){
-		if(drill_req.value == "ON"){
-	            drill_req.value = "OFF";
-	            drill_req_value = 1;
-		}
-		else{
-	            drill_req.value = "ON";
-	            drill_req_value = 0;
-		}
-	};
-	
-	
-	if(!Listener){
-    	var Listener = {
-        	ros : null,
-        	name : "",
-        	init : function(){
-            	this.ros = new ROSLIB.Ros();
-            	this.ros.on('error', function(error) {
-                	// document.getElementById('state').innerHTML = "Error";
-            	});
-            	this.ros.on('connection', function(error) {
-                	// document.getElementById('state').innerHTML = "Connect";
-            	});
-            	this.ros.on('close', function(error) {
-                	// document.getElementById('state').innerHTML = "Close";
-            	});
-            	this.ros.connect('ws://' + location.hostname + ':9091');
-
-            	var sub_to_client = new ROSLIB.Topic({
-                	ros : this.ros,
-                	name : '/arc2020_3/foot_debug_read',
-                	messageType : 'arc2020/foot'
-            	});
-            	sub_to_client.subscribe(function(message) {
-            		document.getElementById('rot_encode').innerHTML = message.rot_encode;
-            		document.getElementById('sonar_l').innerHTML = message.sonar_l;
-            		document.getElementById('sonar_r').innerHTML = message.sonar_r;
-            	});
-        	}
-    	}
-    	Listener.init();
-
-    	window.onload = function(){
-    	};
-    	window.onunload = function(){
-        	Listener.ros.close();
-    	};
-	}
-    </script>
-
-  </body>
 </html>
