@@ -33,7 +33,7 @@ class I2CBMX055(object):
     def __init__(self, is_debug=False):
 
         # if self.is_notdebug:
-        if __pigio__:
+        if __pigpio__:
             # initialize gpio
             self.pic = pigpio.pi()
 
@@ -44,7 +44,7 @@ class I2CBMX055(object):
         value = []
         for i in range(len(XYZ)*2):
             value.append(0)
-        if __pigio__:
+        if __pigpio__:
             self.i2c_handle = self.pic.i2c_open(I2CBUSS0, OPEN_ADDR)
             value = self.pic.i2c_read_i2c_block_data(self.i2c_handle, READ_ADDR,len(XYZ)*2)
             self.i2c_handle = self.pic.i2c_close(I2CBUSS0, OPEN_ADDR)

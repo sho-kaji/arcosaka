@@ -27,7 +27,7 @@ class HCSR04Class(object):
         print "      echo={:2d}\t".format(self.port_echo)
         
         #if self.is_notdebug:
-        if __pigio__:
+        if __pigpio__:
             # initialize gpio
             self.pic = pigpio.pi()
             self.pic.set_mode(self.port_trig, pigpio.OUTPUT)
@@ -40,7 +40,7 @@ class HCSR04Class(object):
         """
         sigoff = 10
         sigon  = 21
-        if __pigio__:
+        if __pigpio__:
             self.pic.write(self.port_trig, pigpio.LOW)
             time.sleep(0.3)
 

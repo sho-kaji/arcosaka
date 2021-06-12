@@ -24,7 +24,7 @@ class I2CPCF8574(object):
     def __init__(self, is_debug=False):
         
         #if self.is_notdebug:
-        if __pigio__:
+        if __pigpio__:
             # initialize gpio
             self.pic = pigpio.pi()
             
@@ -34,7 +34,7 @@ class I2CPCF8574(object):
         result = []
         for i in range(len(READ_ADDR)):
             result.append(1)
-        if __pigio__:
+        if __pigpio__:
             self.i2c_handle = self.pic.i2c_open(I2CBUSS0,PCF8574_ADDR)
             for i in range(len(READ_ADDR)):
                 word = self.pic.i2c_read_byte_data(self.i2c_handle, READ_ADDR[i])
