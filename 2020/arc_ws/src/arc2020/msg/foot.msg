@@ -1,4 +1,7 @@
 int32 motor_r
 int32 motor_l
-int32 sonor_1
-int32 sonor_2
+float32[] sonor
+float32[] line
+float32[] accel
+float32[] gyro
+float32[] mag
