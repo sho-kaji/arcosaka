@@ -26,7 +26,7 @@
 		</div>
 	    </div>
 	    <div><span class="slider_title">ステッピングモータ要求値</span>
-		<input id="slider_b" type="range" min="0" max="283" step="1" />
+		<input id="slider_b" type="range" min="0" max="450" step="1" />
 		<span id="value_b">0</span>
             </div>
 	</div>
@@ -151,10 +151,10 @@
             	});
             	sub_to_client.subscribe(function(message) {
             		if(message.armretorgsw == 0){
-            			document.getElementById('switch').innerHTML = "OFF";
+            			document.getElementById('switch').innerHTML = "ON";
             		}
             		else{
-            			document.getElementById('switch').innerHTML = "ON";
+            			document.getElementById('switch').innerHTML = "OFF";
             		}
             		
             		if(message.armdrillstatus == 0){

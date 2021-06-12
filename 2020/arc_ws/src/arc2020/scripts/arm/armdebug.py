@@ -70,16 +70,12 @@ class ArmDebug(object):
         """
         クライアントの受信コールバック
         """
-        print("drill_req = %d" % (armdebugclient_msg.drill_req))
+        #print("drill_req = %d" % (armdebugclient_msg.drill_req))
         # メッセージ受信
         
-        if armdebugclient_msg.drill_req :
-            print("width_value = %d" % (armdebugclient_msg.drill_width_value))
-            print("height_value = %d" % (armdebugclient_msg.drill_height_value))
-            
-            self.msg_armdebug.drill_req = armdebugclient_msg.drill_req
-            self.msg_armdebug.drill_width_value = armdebugclient_msg.drill_width_value
-            self.msg_armdebug.drill_height_value = armdebugclient_msg.drill_height_value
+        self.msg_armdebug.drill_req = armdebugclient_msg.drill_req
+        self.msg_armdebug.drill_width_value = armdebugclient_msg.drill_width_value
+        self.msg_armdebug.drill_height_value = armdebugclient_msg.drill_height_value
         
 #--------------------
 # 受信コールバック
@@ -97,6 +93,7 @@ class ArmDebug(object):
         """
         self.msg_armdebug.armretorgsw = step_msg.retorgsw
         self.stepstatus = step_msg.stepstatus
+        
 
 #--------------------
 # メイン関数

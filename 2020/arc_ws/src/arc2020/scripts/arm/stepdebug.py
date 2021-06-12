@@ -51,6 +51,8 @@ class Step(object):
         self.pi = pigpio.pi()
         self.pi.set_mode(RET_ORGSW, pigpio.INPUT)
         
+        self.retorgcnt = 0
+        
 #--------------------
 # 送信メッセージの初期化
     def clearMsg(self):
@@ -69,10 +71,16 @@ class Step(object):
         # メッセージ受信
         
         if armdebug_msg.drill_req :
-            # 処理 y軸移動⇒z軸降下⇒z軸上昇
             
+            if self.retorgcnt == 0 :
+                self.retorgcnt += 1
+            elif self.retorgcnt == 1 :
+                self.stmc.move_posinit_step()
+            else :
+                pass
+            
+            # 処理 y軸移動⇒z軸降下⇒z軸上昇    
             handy = armdebug_msg.drill_width_value
-            
             self.msg_step.stepstatus = 1
             self.stmc.move_step(handy)  # y軸移動
             time.sleep(1)

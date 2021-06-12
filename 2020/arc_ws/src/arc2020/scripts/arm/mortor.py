@@ -198,9 +198,9 @@ class StepMortorClass(object):
             self.pic.set_mode(RET_ORGSW, pigpio.INPUT)
             # ENABLE端子
             self.pic.write(self.port_en, pigpio.HIGH)
-
             self.retorgsw = self.pic.read(RET_ORGSW)
-            while self.retorgsw == 1:
+            
+            while self.retorgsw == 0:
                 self.pic.write(self.port_a, pigpio.HIGH)
                 time.sleep(wait_hl/2)
                 self.pic.write(self.port_b, pigpio.HIGH)
@@ -209,6 +209,8 @@ class StepMortorClass(object):
                 time.sleep(wait_lh/2)
                 self.pic.write(self.port_b, pigpio.LOW)
                 time.sleep(wait_lh/2)
+                
+                self.retorgsw = self.pic.read(RET_ORGSW)
 
         self.endfnc()
 
