@@ -9,7 +9,7 @@ import os
 import time
 #if os.name == 'posix':
 import pigpio
-__pigio__ = 0
+from PIGPIO_SWITCH import __pigpio__
 
 I2CBUSS0 = 0 # use i2c bus 0 ( GPIO 0 and 1)
 PCF8574_ADDR = 0x40 #nead confirming by i2cdetect : i2cdetect -y 0
@@ -45,7 +45,7 @@ class I2CPCF8574(object):
     #end __init__
 
 if __name__ == '__main__':
-    pcf8574 = I2CPCF8574(False,(13,5))
+    pcf8574 = I2CPCF8574()
 
     while 1:
         for i in range(len(READ_ADDR)):

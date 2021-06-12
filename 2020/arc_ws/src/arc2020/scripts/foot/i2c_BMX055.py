@@ -12,7 +12,7 @@ import os
 import time
 # if os.name == 'posix':
 import pigpio
-__pigio__ = 0
+from PIGPIO_SWITCH import __pigpio__
 
 I2CBUSS0 = 0  # use i2c bus 0 ( use GPIO 0 and 1)
 # Table 64 I2C address
