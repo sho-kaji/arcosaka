@@ -76,15 +76,14 @@ class Step(object):
                 self.retorgcnt += 1
             elif self.retorgcnt == 1 :
                 self.stmc.move_posinit_step()
+                time.sleep(1)
             else :
-                pass
-            
-            # 処理 y軸移動⇒z軸降下⇒z軸上昇    
-            handy = armdebug_msg.drill_width_value
-            self.msg_step.stepstatus = 1
-            self.stmc.move_step(handy)  # y軸移動
-            time.sleep(1)
-            self.msg_step.stepstatus = 0
+                # 処理 y軸移動⇒z軸降下⇒z軸上昇    
+                handy = armdebug_msg.drill_width_value
+                self.msg_step.stepstatus = 1
+                self.stmc.move_step(handy)  # y軸移動
+                time.sleep(1)
+                self.msg_step.stepstatus = 0
             
 #--------------------
 # メイン関数
