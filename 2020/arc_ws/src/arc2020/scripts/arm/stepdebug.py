@@ -77,6 +77,7 @@ class Step(object):
             elif self.retorgcnt == 1 :
                 self.stmc.move_posinit_step()
                 time.sleep(1)
+                self.retorgcnt += 1
             else :
                 # 処理 y軸移動⇒z軸降下⇒z軸上昇    
                 handy = armdebug_msg.drill_width_value
