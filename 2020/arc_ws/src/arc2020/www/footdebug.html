@@ -210,9 +210,9 @@
 				</tr>
 				<tr>
 					<td>方位</td>
-					<td><label id="complement_x">---</label></td>
-					<td><label id="complement_y">---</label></td>
-					<td><label id="complement_z">---</label></td>
+					<td><label id="mag_x">---</label></td>
+					<td><label id="mag_y">---</label></td>
+					<td><label id="mag_z">---</label></td>
 				</tr>
 			</table>
 		</div>
@@ -284,6 +284,10 @@
 		var value_lock = document.getElementById("value_lock");
 		var lock = document.getElementById("lock");
 		var reset = document.getElementById("reset");
+		var line_id = ["line_0","line_1","line_2","line_3","line_4","line_5","line_6","line_7"];
+		var accel_id = ["accel_x","accel_y","accel_z"];
+		var gyro_id = ["gyro_x","gyro_y","gyro_z"];
+		var mag_id = ["mag_x","mag_y","mag_z"];
 
 		for (var i = 0; i < slider.length; i++) {
 			slider_elem[i] = document.getElementById(slider[i]);
@@ -333,8 +337,17 @@
 					});
 					document.getElementById('sonar_l').innerHTML = 100;
 					sub_to_client.subscribe(function (message) {
-						document.getElementById('sonar_l').innerHTML = message.sonor_1;
-						document.getElementById('sonar_r').innerHTML = message.sonor_2;
+						document.getElementById('sonar_l').innerHTML = message.sonor[0];
+						document.getElementById('sonar_r').innerHTML = message.sonor[1];
+						for (var i = 0; i < line_id.length; i++) {
+							document.getElementById(line_id[i]).innerHTML = message.line[i];
+						}
+						for (var i = 0; i < accel_id.length; i++) {
+							document.getElementById(accel_id[i]).innerHTML = message.accel[i];
+							document.getElementById(gyro_id[i]).innerHTML = message.gyro[i];
+							document.getElementById(mag_id[i]).innerHTML = message.mag[i];
+						}
+						
 					});
 				}
 			}

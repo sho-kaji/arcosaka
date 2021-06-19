@@ -10,7 +10,7 @@ import time
 #if os.name == 'posix':
 import pigpio
 
-__pigio__ = 0
+from PIGPIO_SWITCH import __pigpio__
 
 class HCSR04Class(object):
     """
@@ -18,7 +18,7 @@ class HCSR04Class(object):
     """
     def __init__(self, is_debug=False, ports=(16, 20)):
         #self.is_notdebug = not((os.name != 'posix') or is_debug)
-        print(os.name)
+        #print(os.name)
         #print(self.is_notdebug)
 
         self.port_trig = ports[0]
@@ -27,7 +27,7 @@ class HCSR04Class(object):
         print "      echo={:2d}\t".format(self.port_echo)
         
         #if self.is_notdebug:
-        if __pigio__:
+        if __pigpio__:
             # initialize gpio
             self.pic = pigpio.pi()
             self.pic.set_mode(self.port_trig, pigpio.OUTPUT)
@@ -40,7 +40,7 @@ class HCSR04Class(object):
         """
         sigoff = 10
         sigon  = 21
-        if __pigio__:
+        if __pigpio__:
             self.pic.write(self.port_trig, pigpio.LOW)
             time.sleep(0.3)
 
