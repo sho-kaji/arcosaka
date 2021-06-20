@@ -12,9 +12,9 @@ import pigpio
 from PIGPIO_SWITCH import __pigpio__
 
 I2CBUSS0 = 0 # use i2c bus 0 ( GPIO 0 and 1)
-PCF8574_ADDR = 0x40 #nead confirming by i2cdetect : i2cdetect -y 0
-READ_ADDR = [0x41,0x43,0x45,0x47,0x49,0x4B,0x4D,0x4F]
-
+PCF8574_ADDR = 0x20 #nead confirming by i2cdetect : i2cdetect -y 0
+READ_ADDR = 0xFF
+SENSOR_NUM = 8
 
 
 class I2CPCF8574(object):
@@ -32,14 +32,14 @@ class I2CPCF8574(object):
 
     def read(self):
         result = []
-        for i in range(len(READ_ADDR)):
+        for i in range(SENSOR_NUM):
             result.append(1)
         if __pigpio__:
             self.i2c_handle = self.pic.i2c_open(I2CBUSS0,PCF8574_ADDR)
-            for i in range(len(READ_ADDR)):
-                word = self.pic.i2c_read_byte_data(self.i2c_handle, READ_ADDR[i])
-                result[i] = word
-            self.i2c_handle = self.pic.i2c_close(I2CBUSS0,PCF8574_ADDR)
+            word = self.pic.i2c_read_byte_data(self.i2c_handle, READ_ADDR)
+            for i in range(SENSOR_NUM):
+                result[i] = (word >> i)& 1
+            self.pic.i2c_close(self.i2c_handle)
         return result
 
     #end __init__
