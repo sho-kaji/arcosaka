@@ -11,8 +11,8 @@ import pigpio
 # 自分で定義したmessageファイルから生成されたモジュール
 from arc2020.msg import mileage
 
-ROT_ENCODE1 = 20
-ROT_ENCODE2 = 26
+ROT_ENCODE1 = 4
+ROT_ENCODE2 = 14
 
 CYCLES = 60 #処理周波数
 
