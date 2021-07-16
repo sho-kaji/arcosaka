@@ -1,0 +1,12 @@
+int32 armdrillstatus
+int32 armretorgsw
+int32 emg
+float64 volt
+float64 cur
+int32 motor_r
+int32 motor_l
+float32[] sonor
+float32[] line
+float32[] accel
+float32[] gyro
+float32[] mag

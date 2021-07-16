@@ -51,25 +51,20 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
  add_message_files(
    FILES
-    foot.msg
     arm.msg
-    body.msg
-    hand.msg
-    brain.msg
-    eye.msg
-    client.msg
-    client_abh_debug.msg
-    client_f_debug.msg
     armdebug.msg
     armdebugclient.msg
-    main.msg
     client.msg
     emg.msg
-    volcurmeas.msg
-    sql.msg
+    foot.msg
+    main.msg
+    maindebug.msg
     mileage.msg
     servo.msg
+    sql.msg
     step.msg
+    volcurmeas.msg
+    webdebug.msg
  )
 
 ## Generate services in the 'srv' folder

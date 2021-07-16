@@ -4,106 +4,348 @@
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <!--<link rel="stylesheet" type="text/css" href="debug.css"> -->
     <title>Multi Sniper Debug</title>
-   </head>
-   		<body>
-		    <p><center><font size="5">Debug Mode</font>
-            <div style="text-align: left;float:left;">
-            <img src="img/back.jpg">
-            </div>
-            <div style="text-align: right;float:right;">
-            <img src="img/stop_working_header.png">
-            </div>
-            
-            <!-- 遷移ボタン干渉防止のために空白行挿入 -->
-            <p style="margin-bottom:2em;"></p>
-            
-            <p>
-            <div style="text-align: left;float:left;">電圧</div>
-            <div style="text-align: right;float:right;margin-right:135px;">電流</div><br></p>
-            <p>
-            <div style="text-align: left;float:left;">
-            <!-- disabled valueに出力する.msgのIFを指定する -->
-            <INPUT type="number" name="ReadOnlyField" disabled value="1234">mV</div>
-            <div style="text-align: right;float:right;">
-            <!-- disabled valueに出力する.msgのIFを指定する -->
-            <INPUT type="number" name="ReadOnlyField" disabled value="1234">mA
-            </div><br></p>          
-            
-            <p>
-            <div style="text-align: left;float:left;">走行距離</div></p><br>
-            <p>
-            <div style="text-align: left;float:left;">
-            <!-- disabled valueに出力する.msgのIFを指定する -->
-            <INPUT type="number" name="ReadOnlyField" disabled value="1234">cm
-            </div><br></p>   
-            
-            <p>
-            <div style="text-align: left;float:left;">左測距</div>
-            <div style="text-align: right;float:right;margin-right:120px;">右測距</div></p><br>
-            <p>
-            <div style="text-align: left;float:left;">
-            <!-- disabled valueに出力する.msgのIFを指定する -->
-            <INPUT type="number" name="ReadOnlyField" disabled value="1234">cm</div>
-            <div style="text-align: right;float:right;">
-            <!-- disabled valueに出力する.msgのIFを指定する -->
-            <INPUT type="number" name="ReadOnlyField" disabled value="1234">cm</div></p> 
-                 
-            <!-- 空白行挿入 -->
-            <p style="margin-bottom:4em;"></p>
-            <div style="text-align: left;">9軸センサ</div>
+    <script src="eventemitter2.min.js"></script>
+    <script src="roslib.min.js"></script>
+  </head>
+  
+  <body>
+    <p><center><font size="5">Debug Mode</font>
+      <div style="text-align: left;float:left;">
+        <form action="javascript:onoff();" id="ui">
+          <input id="btn_back" type="submit" value="戻る"  />
+          <!-- <form action="javascript:Talker.send();" id="ui">-->
+        </form>
+      </div>
+      <div style="text-align: right;float:right;">
+        <div class="move_stop">
+          <form action="javascript:onoff();" id="ui">
+            <input id="btn_move_stop" type="submit" value="動作"  />
+            <!-- <form action="javascript:Talker.send();" id="ui">-->
+          </form>
+        </div>
+      </div>
+    </p>
+      
+    <!-- 遷移ボタン干渉防止のために空白行挿入 -->
+    <p style="margin-bottom:2em;"></p>
+      
+    <p>
+      <div style="text-align: left;float:left;">電圧</div>
+      <div style="text-align: right;float:right;margin-right:135px;">電流</div><br>
+    </p>
+    <p style="margin-bottom:0.01em;"></p>
+    <p>
+      <div style="text-align: left;float:left;">
+      <!-- disabled valueに出力する.msgのIFを指定する -->
+      <label id="volt">
+        <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+      </label>V</div>
 
-            <div style="text-align: left;float:left;">加速度3軸</div>
-            <div style="text-align: right;margin-right:25px;">
-            <!-- disabled valueに出力する.msgのIFを指定する -->
-            	<INPUT type="number" name="ReadOnlyField" disabled value="1234">
-            </div>
-            <p style="margin-bottom:0.5em;"></p>
-            <div style="text-align: left;float:left;">ジャイロ3軸</div>
-            <div style="text-align: right;margin-right:25px;">
-            <!-- disabled valueに出力する.msgのIFを指定する -->
-            	<INPUT type="number" name="ReadOnlyField" disabled value="1234">
-            </div>
-            <p style="margin-bottom:0.5em;"></p>
-            <div style="text-align: left;float:left;">磁気コンパス3軸</div>
-            <div style="text-align: right;margin-right:25px;">
-            <!-- disabled valueに出力する.msgのIFを指定する -->
-            	<INPUT type="number" name="ReadOnlyField" disabled value="1234">
-            </div>
+      <div style="text-align: right;float:right;margin-right:120px;">
+      <!-- disabled valueに出力する.msgのIFを指定する -->
+      <label id="cur">
+        <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+      </label>A</div>
+      
+    <br></p>
+    
+    <p style="margin-bottom:1.5em;"></p>
+    <p>
+      <div style="text-align: left;float:left;">走行距離</div>
+    </p><br>
+    <p>
+      <div style="text-align: left;float:left;">
+        <!-- disabled valueに出力する.msgのIFを指定する -->
+        <label id="mileage">
+          <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+        </label>cm</div>
+    <br></p>
+    
+    <p style="margin-bottom:1.5em;"></p>
+    <p>
+      <div style="text-align: left;float:left;">左測距</div>
+      <div style="text-align: right;float:right;margin-right:120px;">右測距</div>
+    </p><br>
+    <p>
+      <div style="text-align: left;float:left;">
+        <!-- disabled valueに出力する.msgのIFを指定する -->
+        <label id="sonor_l">
+          <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+        </label>cm</div>
+      <div style="text-align: right;float:right;margin-right:110px;">
+        <!-- disabled valueに出力する.msgのIFを指定する -->
+        <label id="sonor_r">
+          <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+        </label>cm</div>
+    </p>
+           
+    <!-- 空白行挿入 -->
+    <p style="margin-bottom:4em;"></p>
+    <p>
+      <div style="text-align: left;">9軸センサ
+      <div style="text-align: right;margin-right:140px;">X　　Y　　Z</div>
 
-            <!-- ライントレースセンサの表示方法は検討する・・・ とりあえずは画像貼る-->
-            <p style="margin-bottom:0.5em;">
-            <div style="text-align: left;">ライントレースセンサ</div>
-            <div style="text-align: center;">
-            <img src="img/linetrace_sensor.png">
-            </div>
-            <style="margin-bottom:4em;"></p>
+      <div style="text-align: left;float:left;">加速度3軸</div>
+      <div style="text-align: right;float:right;margin-right:140px;">
+        <!-- disabled valueに出力する.msgのIFを指定する -->
+        <label id="acceleration_x">
+          <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+        </label>
+        <span style="padding:">　</span>
+        <label id="acceleration_y">
+          <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+        </label>
+        <span style="padding:">　</span>
+        <label id="acceleration_z">
+          <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+        </label>   </div>
 
-            <!-- アーム-->
-            <p>左足</p>
-            <body>
-            <input type="range" value="5" min="1" max="10" step="1"
-          	 oninput="document.getElementById('left_arm').value=this.value">
-            <output id="left_arm">5</output></body>
-            
-            <p>縦軸アーム</p>
-            <body>
-            <input type="range" value="5" min="1" max="10" step="1"
-          	 oninput="document.getElementById('hight_arm').value=this.value">
-            <output id="hight_arm">5</output></body>
-            
-            <p>横軸アーム</p>
-            <body>
-            <input type="range" value="5" min="1" max="10" step="1"
-          	 oninput="document.getElementById('width_arm').value=this.value">
-            <output id="width_arm">5</output></body>
-            
-             <p>左足アーム</p>
-            <body>
-            <input type="range" value="5" min="1" max="10" step="1"
-          	 oninput="document.getElementById('right_arm').value=this.value">
-            <output id="right_arm">5</output></body>
-            
+      <p style="margin-bottom:2em;"></p>
+      <div style="text-align: left;float:left;">ジャイロ3軸</div>
+      <div style="text-align: right;float:right;margin-right:140px;">
+        <!-- disabled valueに出力する.msgのIFを指定する -->
+        <label id="gyro_x">
+          <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+        </label>
+        <span style="padding:">　</span>
+        <label id="gyro_y">
+          <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+        </label>
+        <span style="padding:">　</span>
+        <label id="gyro_z">
+          <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+        </label>   </div>
 
-		    </center></p>
-  		</body>
+      <p style="margin-bottom:4em;"></p>
+      <div style="text-align: left;float:left;">磁気コンパス3軸</div>
+      <div style="text-align: right;float:right;margin-right:140px;">
+        <!-- disabled valueに出力する.msgのIFを指定する -->
+        <label id="magnetic_x">
+          <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+        </label>
+        <span style="padding:">　</span>
+        <label id="magnetic_y">
+          <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+        </label>
+        <span style="padding:">　</span>
+        <label id="magnetic_z">
+          <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+        </label>   </div>
+
+      <p style="margin-bottom:6em;"></p>
+    </p>
+
+    <!-- ライントレースセンサの表示方法は検討する・・・ とりあえずは画像貼る-->
+    <p style="margin-bottom:0.5em;">
+    <div style="text-align: left;">ライントレースセンサ</div>
+    <div style="text-align: center;">
+      <!--<img src="img/linetrace_sensor.png">-->
+      <label id="line_0">
+        <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+      </label>
+      <span style="padding:">　</span>
+      <label id="line_1">
+        <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+      </label>
+      <span style="padding:">　</span>
+      <label id="line_2">
+        <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+      </label>
+      <span style="padding:">　</span>
+      <label id="line_3">
+        <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+      </label>
+      <span style="padding:">　</span>
+      <label id="line_4">
+        <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+      </label>
+      <span style="padding:">　</span>
+      <label id="line_5">
+        <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+      </label>
+      <span style="padding:">　</span>
+      <label id="line_6">
+        <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+      </label>
+      <span style="padding:">　</span>
+      <label id="line_7">
+        <span style="padding: 2px; margin-bottom: 10px; border: 1px solid #333333;">---</span>
+      </label>
+    </div>
+
+
+    <style="margin-bottom:4em;">
+    <div style="text-align: center;"></p>
+
+    <!-- アーム-->
+    <p>左足</p>
+      <input id="slider_c" type="range" min="-100" max="100" step="1" />
+      <span id="value_c">---</span>
+
+    <p>縦軸アーム</p>
+      <input id="slider_a" type="range" min="0" max="100" step="1" />
+      <span id="value_a">---</span>
+
+    <p>横軸アーム</p>
+      <input id="slider_b" type="range" min="0" max="400" step="1" />
+      <span id="value_b">---</span>
+
+    <p>右足</p>
+      <input id="slider_d" type="range" min="-100" max="100" step="1" />
+      <span id="value_d">---</span>
+
+    </div>
+
+    </center>
+		    
+  <script type="text/javascript">
+    if(!Talker){
+      var Talker = {
+      ros : null,
+      name : "",
+      init : function(){
+        this.ros = new ROSLIB.Ros();
+        this.ros.on('error', function(error) {
+        // document.getElementById('state').innerHTML = "Error";
+        });
+        this.ros.on('connection', function(error) {
+        // document.getElementById('state').innerHTML = "Connect";
+        });
+        this.ros.on('close', function(error) {
+        // document.getElementById('state').innerHTML = "Close";
+        });
+        this.ros.connect('ws://' + location.hostname + ':9090');
+      },
+      send : function(){
+        //送信トピック作成
+        var pub_to_brain = new ROSLIB.Topic({
+          ros : this.ros,
+          name :'/arc2020_2/webdebug',
+          messageType : 'arc2020/webdebug'
+        });
+           
+        //送信メッセージを作成
+        var to_brain = new ROSLIB.Message({
+          move_stop               :Number (move_stop_value),
+          arm_height_value        :Number (slider_elem[0].value),
+          arm_width_value         :Number (slider_elem[1].value),
+          motor_l                 :Number (slider_elem[2].value),
+          motor_r                 :Number (slider_elem[3].value)
+        });
+           
+        document.getElementById('btn_move_stop').innerHTML = Number(move_stop_value);
+        
+        pub_to_brain.publish(to_brain);
+      }
+      }
+      
+      Talker.init();
+      
+      window.onload = function(){
+      };
+      window.onunload = function(){
+        Talker.ros.close();
+      };
+    };
+    
+    // 周期送信タイマー
+    var setTimerEvent = setInterval(myTimer,500);
+    function myTimer(){
+      Talker.send();
+    };
+    
+    //スライダーバーの設定
+    //初期値：適宜編集してください。ファイルから読み込む方法は検索中
+    var init_value = [0,0,0,0];
+    var slider = ["slider_a","slider_b","slider_c","slider_d"];
+    var value = ["value_a","value_b","value_c","value_d"];
+    var slider_elem = [1,2,3,4];
+    var value_elem  = [1,2,3,4];
+    var move_stop = document.getElementById("btn_move_stop");
+    var move_stop_value = 0;
+    var rangeValue = function (slider,value) {
+      return function(evt){
+        value.innerHTML = slider.value;
+      }
+    };
+    
+    for(var i = 0;i < slider.length; i++){
+      slider_elem[i] = document.getElementById(slider[i]);
+      value_elem[i]  = document.getElementById(value[i]);
+      slider_elem[i].value = init_value[i];
+      value_elem[i].innerHTML = init_value[i];
+      slider_elem[i].addEventListener('input',rangeValue(slider_elem[i], value_elem[i]));
+    };
+    
+    function onoff(){
+      if(move_stop.value == "動作"){
+        move_stop.value = "停止";
+        move_stop_value = 1;
+      }
+      else{
+        move_stop.value = "動作";
+        move_stop_value = 0;
+      }
+    };
+    
+    
+    if(!Listener){
+      var Listener = {
+      ros : null,
+      name : "",
+      init : function(){
+        this.ros = new ROSLIB.Ros();
+        this.ros.on('error', function(error) {
+        // document.getElementById('state').innerHTML = "Error";
+        });
+        this.ros.on('connection', function(error) {
+        // document.getElementById('state').innerHTML = "Connect";
+        });
+        this.ros.on('close', function(error) {
+        // document.getElementById('state').innerHTML = "Close";
+        });
+        this.ros.connect('ws://' + location.hostname + ':9090');
+        
+        var sub_to_client = new ROSLIB.Topic({
+          ros : this.ros,
+          name : '/arc2020_2/maindebug',
+          messageType : 'arc2020/maindebug'
+        });
+        sub_to_client.subscribe(function(message) {
+          document.getElementById('volt').innerHTML = message.volt;
+          document.getElementById('cur').innerHTML = message.cur;
+          document.getElementById('mileage').innerHTML = message.mileage;
+          document.getElementById('sonor_l').innerHTML = message.sonor[0];
+          document.getElementById('sonor_r').innerHTML = message.sonor[1];
+          document.getElementById('acceleration_x').innerHTML = message.accel[0];
+          document.getElementById('acceleration_y').innerHTML = message.accel[1];
+          document.getElementById('acceleration_z').innerHTML = message.accel[2];
+          document.getElementById('gyro_x').innerHTML = message.gyro[0];
+          document.getElementById('gyro_y').innerHTML = message.gyro[1];
+          document.getElementById('gyro_z').innerHTML = message.gyro[2];
+          document.getElementById('magnetic_x').innerHTML = message.mag[0];
+          document.getElementById('magnetic_y').innerHTML = message.mag[1];
+          document.getElementById('magnetic_z').innerHTML = message.mag[2];
+          document.getElementById('line_0').innerHTML = message.line[0];
+          document.getElementById('line_1').innerHTML = message.line[1];
+          document.getElementById('line_2').innerHTML = message.line[2];
+          document.getElementById('line_3').innerHTML = message.line[3];
+          document.getElementById('line_4').innerHTML = message.line[4];
+          document.getElementById('line_5').innerHTML = message.line[5];
+          document.getElementById('line_6').innerHTML = message.line[6];
+          document.getElementById('line_7').innerHTML = message.line[7];
+
+        });
+      }
+      }
+      Listener.init();
+      
+      window.onload = function(){
+      };
+      window.onunload = function(){
+        Listener.ros.close();
+      };
+    }
+  </script>
+  </body>
 </html>
