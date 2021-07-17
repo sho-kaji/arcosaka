@@ -51,6 +51,8 @@ arc2020ros: このあと作成するコンテナの元になるイメージの�
 dockerコンテナを起動します。
 
 ```
+$ docker run --name arc2020cont --net host --privileged -u root -v /sys:/sys -v /dev/mem:/dev/mem -v /home/pi/.ros/:/root/.ros/ -v /home/pi/arcosaka/2020/arc_ws/:/root/catkin_ws/ -it arc2020ros:latest
+
 $ docker run --name arc2020cont -p 8085:8085 -p 9090:9090 --privileged -u root -v /sys:/sys -v /dev/mem:/dev/mem -v /home/pi/.ros/:/root/.ros/ -v /home/pi/arcosaka/2020/arc_ws/:/root/catkin_ws/ -it arc2020ros:latest
 ```
 - 引数の簡単な意味
