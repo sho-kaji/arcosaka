@@ -1,2 +1,2 @@
-int32 armdrillstatus
-int32 armretorgstatus
+bool drillstatus
+bool retorgstatus

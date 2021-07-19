@@ -55,7 +55,9 @@ find_package(catkin REQUIRED COMPONENTS
     armdebug.msg
     armdebugclient.msg
     client.msg
+    database.msg
     emg.msg
+    emgstp.msg
     foot.msg
     main.msg
     maindebug.msg
@@ -64,6 +66,7 @@ find_package(catkin REQUIRED COMPONENTS
     sql.msg
     step.msg
     volcurmeas.msg
+    webapp.msg
     webdebug.msg
  )
 
