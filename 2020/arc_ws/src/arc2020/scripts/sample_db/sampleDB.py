@@ -30,9 +30,12 @@ class sampleDB(object):
         # messageのインスタンスを作る
         self.msg_sql = sql()
         # dbを作成する
-        db_name = 'TEST'
+        db_name = 'yasai'
         self.db = sqlite.sqlite(db_name) 
         print("db create by sampleDB")
+
+        ##self.db.selectTable("yasai")
+        self.db.selectyasai1()
         # tableを作成する
         # self.table_seed = 'seed'
         # self.sqlite.createTable(self.table_seed)
@@ -60,6 +63,8 @@ def sampleDB_py():
     r = rospy.Rate(CYCLES)
 
     print("[sampleDB] start")
+
+
     # ctl +　Cで終了しない限りwhileループで処理し続ける
     while not rospy.is_shutdown():
         # メイン処理

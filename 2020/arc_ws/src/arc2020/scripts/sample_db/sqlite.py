@@ -59,10 +59,27 @@ class sqlite(object):
 
         # terminalで実行したSQL文と同じようにexecute()に書く
         command = 'SELECT * FROM ' + name_table 
-        cursor.execute( command )
+        self.cursor.execute( command )
 
         # 中身を全て取得するfetchall()を使って、printする。
-        print(cursor.fetchall())
+        print(self.cursor.fetchall())
+
+        # db close
+        self.close()
+
+    def selectyasai1(self):
+        # db open
+        self.open()
+
+        # terminalで実行したSQL文と同じようにexecute()に書く
+        command = 'SELECT 野菜1 FROM yasai group by 野菜1 having count(野菜1)>1' 
+        self.cursor.execute( command )
+
+        # 中身を全て取得するfetchall()を使って、printする。
+        moji = self.cursor.fetchall()
+        moji.decode('ascii')
+        #print(self.cursor.fetchall())
+        print(moji)
 
         # db close
         self.close()
