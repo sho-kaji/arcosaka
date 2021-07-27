@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name em920)(type Legacy)(uri ${KIPRJMOD}/../em920.lib)(options "")(descr ""))
+  (lib (name em920_remote-rescue)(type Legacy)(uri ${KIPRJMOD}/em920_remote-rescue.lib)(options "")(descr "")(disabled))
+)
