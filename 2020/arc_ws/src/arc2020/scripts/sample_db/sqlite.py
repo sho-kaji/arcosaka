@@ -71,15 +71,16 @@ class sqlite(object):
         # db open
         self.open()
 
+        print 'printしますよ！！'
         # terminalで実行したSQL文と同じようにexecute()に書く
         command = 'SELECT 野菜1 FROM yasai group by 野菜1 having count(野菜1)>1' 
         self.cursor.execute( command )
 
         # 中身を全て取得するfetchall()を使って、printする。
         moji = self.cursor.fetchall()
-        moji.decode('ascii')
-        #print(self.cursor.fetchall())
-        print(moji)
+
+        for rows in moji: 
+          print rows[0]
 
         # db close
         self.close()
