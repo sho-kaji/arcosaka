@@ -60,6 +60,7 @@ find_package(catkin REQUIRED COMPONENTS
     emgstp.msg
     foot.msg
     main.msg
+    maind.msg
     maindebug.msg
     mileage.msg
     servo.msg
