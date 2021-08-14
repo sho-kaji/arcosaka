@@ -58,7 +58,8 @@ class FootDebug(object):
 
         port = (GPIOPIN.SONAR_TRIG2.value,GPIOPIN.SONAR_PULS.value)
         self.sonor.append(HCSR04Class(False,port))
-
+        self.sonor[0].start()
+        self.sonor[1].start()
         # line tracer用のインスタンス作成
         self.line = I2CPCF8574()
 
@@ -85,7 +86,7 @@ class FootDebug(object):
         self.msg_foot.mag = self._9dsensor.read_mag()
 
         # メッセージを発行する
-        # print("sonor1 = " + str(self.msg_foot.sonor_1))
+        #print("sonor1 = " + str(self.msg_foot.sonor[0]))
         # print("sonor2 = " + str(self.msg_foot.sonor_2))
         self.pub.publish(self.msg_foot)
 
