@@ -1,0 +1,5 @@
+bool database_inforeq
+int8 database_vegetable_num1
+int8 database_vegetable_num2
+int32 database_ridge_width
+int32 database_ridge_length
