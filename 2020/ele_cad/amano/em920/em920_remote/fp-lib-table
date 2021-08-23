@@ -1,3 +1,3 @@
 (fp_lib_table
-  (lib (name em920)(type KiCad)(uri d:/akinao/git/arcosaka/2020/ele_cad/amano/em920/em920_lib.pretty)(options "")(descr ""))
+  (lib (name em920)(type KiCad)(uri ${KIPRJMOD}/lib/em920_lib.pretty)(options "")(descr ""))
 )

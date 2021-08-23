@@ -101,16 +101,16 @@ Wire Wire Line
 $Comp
 L power:GND #PWR04
 U 1 1 60FD4012
-P 3500 4250
-F 0 "#PWR04" H 3500 4000 50  0001 C CNN
-F 1 "GND" H 3550 4050 50  0000 C CNN
-F 2 "" H 3500 4250 50  0001 C CNN
-F 3 "" H 3500 4250 50  0001 C CNN
-	1    3500 4250
+P 3500 3500
+F 0 "#PWR04" H 3500 3250 50  0001 C CNN
+F 1 "GND" H 3550 3300 50  0000 C CNN
+F 2 "" H 3500 3500 50  0001 C CNN
+F 3 "" H 3500 3500 50  0001 C CNN
+	1    3500 3500
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3500 4050 3500 4250
+	3500 3300 3500 3500
 Wire Wire Line
 	2400 1600 3200 1600
 Wire Wire Line
@@ -143,10 +143,6 @@ Connection ~ 3500 1900
 Wire Wire Line
 	3500 1050 3750 1050
 Connection ~ 3500 1050
-NoConn ~ 4300 3300
-NoConn ~ 4300 3750
-NoConn ~ 4300 3900
-NoConn ~ 3500 3900
 NoConn ~ 850  500 
 Wire Wire Line
 	3550 1200 4450 1200
@@ -183,19 +179,6 @@ F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/atmel-2586-avr-8-bit-microc
 	1    0    0    -1  
 $EndComp
 $Comp
-L em920-rescue:TY92SS-em920 U2
-U 1 1 60FCC105
-P 3500 2700
-F 0 "U2" H 3900 3000 50  0000 C CNN
-F 1 "TY92SS" H 3900 2900 50  0000 C CNN
-F 2 "em920_lib:TY92SS" H 3500 2700 50  0001 C CNN
-F 3 "" H 3500 2700 50  0001 C CNN
-F 4 "em920:TY92SS" H 3500 2700 50  0001 C CNN "Footprint"
-F 5 "TY92SS" H 3500 2700 50  0001 C CNN "Value"
-	1    3500 2700
-	1    0    0    -1  
-$EndComp
-$Comp
 L Connector_Generic:Conn_01x06 J1
 U 1 1 60FC3A2C
 P 3750 1400
@@ -207,7 +190,7 @@ F 3 "~" H 3750 1400 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3100 3300 3500 3300
+	3100 3150 3500 3150
 Text Label 2500 1200 0    50   ~ 0
 RESET
 Wire Wire Line
@@ -221,6 +204,21 @@ Wire Wire Line
 Wire Wire Line
 	2400 1200 3100 1200
 Wire Wire Line
-	3100 1200 3100 3300
+	3100 1200 3100 3150
 NoConn ~ 2400 1700
+$Comp
+L em920_lib:TY92SS U?
+U 1 1 6123A86E
+P 3500 2700
+F 0 "U?" H 3950 2965 50  0000 C CNN
+F 1 "TY92SS" H 3950 2874 50  0000 C CNN
+F 2 "" H 3500 2700 50  0001 C CNN
+F 3 "" H 3500 2700 50  0001 C CNN
+	1    3500 2700
+	1    0    0    -1  
+$EndComp
+NoConn ~ 4400 2700
+NoConn ~ 4400 2850
+NoConn ~ 4400 3000
+NoConn ~ 4400 3150
 $EndSCHEMATC
