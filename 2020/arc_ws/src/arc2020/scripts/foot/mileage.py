@@ -85,6 +85,9 @@ class Mileage(object):
             bacount = -1
         
         self.msg_mileage.mileage += (bacount * PLS)
+#--------------------
+    def read_mileage(self):
+        return self.msg_mileage.mileage
 
 def mileage_py():
     # 初期化宣言 : このソフトウェアは"mileage_py_node"という名前

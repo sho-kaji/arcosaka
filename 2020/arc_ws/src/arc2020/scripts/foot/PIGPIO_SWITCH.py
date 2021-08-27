@@ -1,1 +1,1 @@
-__pigpio__ = 1
+__pigpio__ = 0
