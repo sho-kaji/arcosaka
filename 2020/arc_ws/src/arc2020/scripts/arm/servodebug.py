@@ -65,6 +65,10 @@ class Servo(object):
             # 処理 y軸移動⇒z軸降下⇒z軸上昇
             
             handz = armdebug_msg.drill_height_value
+            if handz < 30 :
+                handz = 30
+            elif handz > 75 :
+                handz = 75
             
             self.msg_servo.servostatus = 1
             self.svmc.move_servo(CHANNEL_HAND, handz)  # z軸移動
