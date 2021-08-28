@@ -1,8 +1,8 @@
 <launch>
   <group ns="arc2020_3">
     <!-- <arg name="port" default="9091" /> -->
-    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+    <!-- <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" /> -->
     <node pkg="arc2020" name="footdebug" type="foot_debug.py" output="screen"/>
-    <include file="$(find roswww)/launch/roswww.launch" />
+    <!-- <include file="$(find roswww)/launch/roswww.launch" /> -->
   </group>
 </launch>

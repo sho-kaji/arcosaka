@@ -26,9 +26,11 @@ class GPIOPIN(IntEnum):
     SHUT_DOWN_DONE  = 7
     GYRO_LINE1      = 0
     GYRO_LINE2      = 1
-    SONAR_PULS      = 5
+    #SONAR_PULS      = 5
+    SONAR_PULS      = 12
     SONAR_TRIG1     = 6
-    SONAR_TRIG2     = 12
+    #SONAR_TRIG2     = 12
+    SONAR_TRIG2     = 5
     EMERGE_STOP     = 13
     DC_MOTOR_B1     = 19
     DC_MOTOR_A1     = 16
