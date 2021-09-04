@@ -39,7 +39,7 @@ MOVE_INPROGRESS_PAUSE = 3
 
 # MOTOR_VALUE
 MOTOR_AHEAD = 10
-MOTOR_STOP = 20
+MOTOR_STOP = 0
 
 class FootMain(object):
     """
