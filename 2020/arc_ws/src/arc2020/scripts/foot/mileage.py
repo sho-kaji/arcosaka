@@ -16,7 +16,7 @@ ROT_ENCODE2 = 14
 
 CYCLES = 60 #処理周波数
 
-PLS = 10 #ロータリエンコーダ1パルスの移動距離
+PLS = 0.9 #ロータリエンコーダ1パルスの移動距離[cm]
 
 # 定数などの定義ファイルimport
 
@@ -70,7 +70,7 @@ class Mileage(object):
         bstate = self.pi.read(ROT_ENCODE2)
         
         if astate == 0 and bstate == 1 :
-            abcount = 1
+            abcount = -1
         
         self.msg_mileage.mileage += (abcount * PLS)
 
@@ -82,9 +82,12 @@ class Mileage(object):
         bstate = self.pi.read(ROT_ENCODE2)
         
         if astate == 1 and bstate == 0 :
-            bacount = -1
+            bacount = 1
         
         self.msg_mileage.mileage += (bacount * PLS)
+#--------------------
+    def read_mileage(self):
+        return self.msg_mileage.mileage
 
 def mileage_py():
     # 初期化宣言 : このソフトウェアは"mileage_py_node"という名前

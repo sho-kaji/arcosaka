@@ -9,7 +9,7 @@ import rospy
 import pigpio
 
 # 自分で定義したmessageファイルから生成されたモジュール
-from arc2020.msg import foot
+from arc2020.msg import footdebug
 
 
 from dc_motor import DCMotor
@@ -34,9 +34,9 @@ class FootDebug(object):
         コンストラクタ
         """
         # 送信作成
-        self.pub = rospy.Publisher('foot_sensor', foot, queue_size=100)
+        self.pub = rospy.Publisher('foot_sensor', footdebug, queue_size=100)
         # messageのインスタンスを作る
-        self.msg_foot = foot()
+        self.msg_foot = footdebug()
         
         for i in range(2):
             self.msg_foot.sonor.append(0)
@@ -46,45 +46,47 @@ class FootDebug(object):
             self.msg_foot.accel.append(0)
             self.msg_foot.gyro.append(0)
             self.msg_foot.mag.append(0)
-        
         # DC Motor用のインスタンス作成
-        self.motor_r =  DCMotor(GPIOPIN.DC_MOTOR_A1.value,GPIOPIN.DC_MOTOR_A2.value)
-        self.motor_l =  DCMotor(GPIOPIN.DC_MOTOR_B1.value,GPIOPIN.DC_MOTOR_B2.value)
-
+        self.motor_l =  DCMotor(GPIOPIN.DC_MOTOR_A1.value,GPIOPIN.DC_MOTOR_A2.value)
+        self.motor_r =  DCMotor(GPIOPIN.DC_MOTOR_B1.value,GPIOPIN.DC_MOTOR_B2.value)
         # Sonor用のインスタンス作成
         self.sonor = []
         port = (GPIOPIN.SONAR_TRIG1.value,GPIOPIN.SONAR_PULS.value)
         self.sonor.append(HCSR04Class(False,port))
-
+        '''
         port = (GPIOPIN.SONAR_TRIG2.value,GPIOPIN.SONAR_PULS.value)
         self.sonor.append(HCSR04Class(False,port))
-        self.sonor[0].start()
-        self.sonor[1].start()
+        '''
+        #self.sonor[0].start()
+        #self.sonor[1].start()
+        '''
         # line tracer用のインスタンス作成
         self.line = I2CPCF8574()
 
         # 9D sensor 用のインスタンス作成
         self._9dsensor = I2CBMX055()
-
+        '''
         # Subscriber登録
-        rospy.Subscriber('foot_debug', foot, self.callback, queue_size=1)
+        rospy.Subscriber('footdebug', footdebug, self.callback, queue_size=1)
         
         # 送信メッセージ初期化
         #self.clearMsg()
     def callback(self,msg):
+        print("callback")
         self.motor_r.changeDuty(msg.motor_r)
         self.motor_l.changeDuty(msg.motor_l)
 
 #--------------------
     def main(self):
-        for i in range(2):
+        for i in range(1):
             self.msg_foot.sonor[i] = self.sonor[i].read()
         #for i in range(8):
+        '''
         self.msg_foot.line = self.line.read()
         self.msg_foot.accel = self._9dsensor.read_accel()
         self.msg_foot.gyro = self._9dsensor.read_gyro()
         self.msg_foot.mag = self._9dsensor.read_mag()
-
+        '''
         # メッセージを発行する
         #print("sonor1 = " + str(self.msg_foot.sonor[0]))
         # print("sonor2 = " + str(self.msg_foot.sonor_2))
