@@ -11,12 +11,12 @@
 		    <p>走行距離</p>
     		<div style="text-align: center;float:center;">
             <!-- disabled valueに出力する.msgのIFを指定する -->
-            <INPUT type="number" name="ReadOnlyField" disabled value=" "></div>
+            <p><text id="mileage">--</text>m<br>
 			
 			<p>進捗状況</p>
 		    <p><font color="red">●</font>main:<text id="main">--</text><br><font color="green">●</font>sub:<text id="sub">--</text></p>
 			<div>
-			<canvas id="canvas"></canvas>
+			<canvas id="canvas" width="400" height="200"></canvas>
 			<style>
 				canvas {
 					border: 1px solid silver;
@@ -25,16 +25,18 @@
 			</div>
 			<p>動作状態</p>
 			<img src="img/operating_conditions_normal_hoge.jpg" alt="動作状態" height="43" width="246" /><br>
-			
-			<a href="multi_sniper_pause.html">
-			<img src="img/pause.jpg" alt="pause" height="43" width="120"></a>
-			<a href="multi_sniper_result.html">
-			<img src="img/Interruption.jpg" alt="Interruption" height="43" width="120"></a><br>
+			<div id="control">
+				<a href="multi_sniper_pause.html">
+				<img src="img/pause.jpg" alt="pause" height="43" width="120"></a>
+				<a href="multi_sniper_result.html">
+				<img src="img/Interruption.jpg" alt="Interruption" height="43" width="120"></a><br>
+			</div>
 			<script src="eventemitter2.min.js"></script>
 			<script src="roslib.min.js"></script>
 			<script src="ros_communication.js"></script>
 			<script>
 				window.onload = loadFinished;
+				var isDrawComplete = false;
 				function loadFinished(){
 					var querys = getUrlQueries();
 					document.getElementById("main").innerHTML = querys["main"];
@@ -44,7 +46,9 @@
 				function callback(message){
 					document.getElementById("power").value = message.webapp_batterycharge/100;
 					document.getElementById("power_text").innerHTML = message.webapp_batterycharge;
+					document.getElementById("mileage").innerHTML = message.webapp_mileage;
 					drawBluePrint(message.webapp_seed_type,message.webapp_coordinates_x,message.webapp_coordinates_y,message.webapp_completion);
+					isComplete(message.webapp_seed_type.length,message.webapp_completion);
 				}
 
 				function getUrlQueries() {
@@ -67,12 +71,15 @@
 					var canvas = document.getElementById('canvas');
 					var c = canvas.getContext('2d');
 					var color = ['red','green'];
+					var rlength = 5;
+					var bairitu = 20;
+					c.clearRect(0,0,400,200);
 					for(var i = 0; i < type.length; i++){
 						// パスの開始
 						c.fillStyle = color[type[i]];  // 塗りつぶしの色
 						c.strokeStyle = color[type[i]];  // 塗りつぶしの色
 						c.beginPath();
-						c.arc(y[i]*10, x[i]*10, 5, 0, 2 * Math.PI, false);
+						c.arc(y[i]*bairitu, x[i]*bairitu, rlength, 0, 2 * Math.PI, false);
 						// 描画
 						if(i<comp){
 							c.stroke();
@@ -81,6 +88,19 @@
 							c.fill();
 						}
 					}
+				}
+
+				function isComplete(num,comp){
+					if((num<=comp) && (isDrawComplete == false)){
+						var querys = getUrlQueries();
+						document.getElementById("control").innerHTML ='<img src="img/complete.jpg" alt="comp" height="43" width="246" onclick="toComplete()"/>';
+						isDrawComplete = true;
+					}
+				}
+
+				function toComplete(){
+					var querys = getUrlQueries();
+					window.location.href ='multi_sniper_complete.html?main=' + querys["main"] + "&sub=" + querys["sub"] + "&l=" + querys["l"]+ "&w=" + querys["w"] + "&h=" + querys["h"];
 				}
 			</script>			
 		    </center></p>
