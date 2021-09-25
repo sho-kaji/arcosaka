@@ -5,16 +5,80 @@
     <!--<link rel="stylesheet" type="text/css" href="debug.css"> -->
     <title>Multi Sniper Out</title>
    </head>
+  
    		<body>
 		    <p><center><font size="5">Multi Sniper</font>
-		    <p>hoge%<meter value="0.3">%</meter></p>
+		    <p><text id="power_text">0.3</text>%<meter value="0.3" id="power">%</meter></p>
 		    <p>穴あけ設計図</p>
-		    <p>●野菜hoge<br> 	●サブhoge</p>
-			<img src="img/Drilling_hoge.jpg" alt="穴あけイメージ" height="150" width="185" /><br><br>
+		    <p><font color="red">●</font>main:<text id="main">--</text><br><font color="green">●</font>sub:<text id="sub">--</text></p>
+			<div>
+			<canvas id="canvas"></canvas>
+			<style>
+				canvas {
+					border: 1px solid silver;
+				}
+			</style>
+			</div>
 			<a href="multi_sniper_setting.html">
 			<img src="img/back.jpg" alt="back"></a>
-			<a href="multi_sniper_start.html">
-			<img src="img/start.jpg" alt="start"></a>
+			<img src="img/start.jpg" onclick="start()"></a>
 		    </center></p>
+			<script src="eventemitter2.min.js"></script>
+			<script src="roslib.min.js"></script>
+			<script src="ros_communication.js"></script>
+			<script>
+				var isDrawn = false;
+				window.onload = loadFinished;
+				function loadFinished(){
+					var querys = getUrlQueries();
+					document.getElementById("main").innerHTML = querys["main"];
+					document.getElementById("sub").innerHTML = querys["sub"];
+					Talker.send("","",0,querys["main"],querys["sub"],querys["l"],querys["w"],querys["h"],true);
+				}
+				function callback(message){
+					document.getElementById("power").value = message.webapp_batterycharge/100;
+					document.getElementById("power_text").innerHTML = message.webapp_batterycharge;
+					if(isDrawn == false){
+						drawBluePrint(message.webapp_seed_type,message.webapp_coordinates_x,message.webapp_coordinates_y);
+						isDrawn = true;
+					}
+				}
+
+				function getUrlQueries() {
+					var queryStr = window.location.search.slice(1);  // 文頭?を除外
+						queries = {};
+					// クエリがない場合は空のオブジェクトを返す
+					if (!queryStr) {
+						return queries;
+					}
+					// クエリ文字列を & で分割して処理
+					queryStr.split('&').forEach(function(queryStr) {
+						// = で分割してkey,valueをオブジェクトに格納
+						var queryArr = queryStr.split('=');
+						queries[queryArr[0]] = queryArr[1];
+					});
+					return queries;
+				}
+
+				function drawBluePrint(type,x,y) {
+					var canvas = document.getElementById('canvas');
+					var c = canvas.getContext('2d');
+					var color = ['red','green'];
+					c.strokeStyle = 'red';  // 線の色
+					for(var i = 0; i < type.length; i++){
+						// パスの開始
+						c.fillStyle = color[type[i]];  // 塗りつぶしの色
+						c.beginPath();
+						c.arc(y[i]*10, x[i]*10, 5, 0, 2 * Math.PI, false);
+						// 描画
+						c.fill();
+						//c.stroke();
+					}
+				}
+				function start(){
+					var querys = getUrlQueries();
+					window.location.href ='multi_sniper_start.html?main=' + querys["main"] + "&sub=" + querys["sub"] + "&l=" + querys["l"]+ "&w=" + querys["w"] + "&h=" + querys["h"];
+				}
+			</script>
   		</body>
 </html>

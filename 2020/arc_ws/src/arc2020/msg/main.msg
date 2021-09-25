@@ -20,7 +20,9 @@ bool webapp_loginpermit
 string[] webapp_mainseedlist
 string[] webapp_subseedlist
 int32 webapp_batterycharge
-string webapp_blueprint
+int32[] webapp_seed_type
+int32[] webapp_coordinates_x
+int32[] webapp_coordinates_y
 int32 webapp_mileage
-int32 webapp_completionrate
+int32 webapp_completion
 bool webapp_operatingstate

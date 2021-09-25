@@ -13,7 +13,12 @@ import time
 import mortor
 
 # 自分で定義したmessageファイルから生成されたモジュール
-from arc2020.msg import brain
+#受信
+from arc2020.msg import main
+from arc2020.msg import servo
+from arc2020.msg import step
+
+#送信
 from arc2020.msg import arm
 
 # 定数などの定義ファイルimport
@@ -31,92 +36,78 @@ class Arm(object):
         """
         コンストラクタ
         """
-        self.cyclecount = 0
         # 受信作成
-        self.sub_brain  = rospy.Subscriber('client2', brain, self.clientCallback, queue_size=1)
+        self.sub_main  = rospy.Subscriber('main', main, self.mainCallback, queue_size=1)
+        self.sub_servo  = rospy.Subscriber('servo', servo, self.servoCallback, queue_size=1)
+        self.sub_step  = rospy.Subscriber('step', step, self.stepCallback, queue_size=1)
+        
         # 送信作成
         self.pub_arm = rospy.Publisher('arm', arm, queue_size=100)
+        
         # messageのインスタンスを作る
         self.msg_arm = arm()
+        
         # 送信メッセージ初期化
         self.clearMsg()
         
-        # メッセージ受信用変数
-        #self.drill_req = 0  # 受信値B
+        self.servostatus = 0
+        self.stepstatus = 0
         
-        # MortorClass
-        self.stmc = mortor.StepMortorClass(DEBUG_ARM, (PORT_HANDV_A, PORT_HANDV_B), (LIM_HANDV_MIN, LIM_HANDV_MAX))
-        self.svmc = mortor.ServoMortorClass(DEBUG_ARM)
 #--------------------
-
-
 # 送信メッセージの初期化
     def clearMsg(self):
         """
         publishするメッセージのクリア
         """
         #for all
+        self.msg_arm.drill_req = 0
         self.msg_arm.armdrillstatus = 0
-        self.msg_arm.armretorgstatus = 0
-#--------------------
-
-
-# アーム原点復帰
-    def posinit(self):
-        """
-        位置初期化
-        """
-        self.svmc.move_servo(CHANNEL_HAND, RELEASE_HAND)
-        self.stmc.move_posinit_step()
-#--------------------
-
-
-# アーム動作
-    def move_arm(self):
-        """
-        y軸移動⇒z軸下降⇒z軸上昇
-        """
+        self.msg_arm.drill_height_value = 0
+        self.msg_arm.drill_width_value = 0
+        self.msg_arm.armretorgsw = 0
         
-        # y軸移動
-        handy = brain_msg.drill_width_value
-        self.stmc.move_step(handy)  # y軸移動
-        
-        # z軸移動
-        self.svmc.move_servo(CHANNEL_HAND, RELEASE_HAND) # z軸上昇
-        time.sleep(2)
-        self.svmc.move_servo(CHANNEL_HAND, CATCH_HAND) # z軸降下
-        time.sleep(2)
-        self.svmc.move_servo(CHANNEL_HAND, RELEASE_HAND) # z軸上昇
-        time.sleep(2)
 #--------------------
-
-
 # 受信コールバック
-    def clientCallback(self, brain_msg):
+    def mainCallback(self, main_msg):
         """
         クライアントの受信コールバック
         """
-        if brain_msg.retorg_req == 1 : # アーム原点復帰要求有無
-            if self.msg_arm.armretorgstatus == 0 : # 原点復帰実施状態判定
-                self.msg_arm.armdrillstatus = 1 # アーム動作中
-                self.posinit()
-                self.msg_arm.armdrillstatus = 0 # アーム停止中
-                self.msg_arm.armretorgstatus = 1 # 原点復帰実施済み
+        # メッセージ受信
         
-        if brain_msg.drill_req == 1 and self.msg_arm.armretorgstatus == 1 : # アーム動作指示要求有無
-            self.msg_arm.armdrillstatus = 1 # アーム動作中
-            self.move_arm() # アーム動作
-            self.msg_arm.armdrillstatus = 0 # アーム停止中
+        self.msg_arm.drill_req = main_msg.drill_req
+        self.msg_arm.drill_width_value = main_msg.drill_width_value
+        self.msg_arm.drill_height_value = main_msg.drill_height_value
+        
 #--------------------
+# 受信コールバック
+    def servoCallback(self, servo_msg):
+        """
+        クライアントの受信コールバック
+        """
+        self.servostatus = servo_msg.servostatus
+        
+#--------------------
+# 受信コールバック
+    def stepCallback(self, step_msg):
+        """
+        クライアントの受信コールバック
+        """
+        self.msg_arm.armretorgsw = step_msg.retorgsw
+        self.stepstatus = step_msg.stepstatus
+        
 
-
+#--------------------
 # メイン関数
     def main(self):
+        if self.servostatus == 1 or self.stepstatus == 1 :
+            self.msg_arm.armdrillstatus = 1
+        else :
+            self.msg_arm.armdrillstatus = 0
+        
         # メッセージを発行する
         self.pub_arm.publish(self.msg_arm)
+        
 #--------------------
-
-
 def arm_py():
     # 初期化宣言 : このソフトウェアは"arm_py_node"という名前
     rospy.init_node('arm_py_node', anonymous=True)
