@@ -91,7 +91,7 @@ class sqlite(object):
 
         #print 'printしますよ！！'
         # terminalで実行したSQL文と同じようにexecute()に書く
-        command = 'SELECT 野菜1 FROM yasai group by 野菜1 having count(野菜1)>1' 
+        command = 'SELECT 野菜2 FROM yasai group by 野菜2 having count(野菜2)>1' 
         self.cursor.execute( command )
 
         # 中身を全て取得するfetchall()を使って、printする。
